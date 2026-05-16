@@ -225,7 +225,12 @@ function ShadowTheaterTitle() {
   const [musicOn, setMusicOn] = useState(false);
   const [shootingKey, setShootingKey] = useState(0);
   const [pressed, setPressed] = useState<number | null>(null);
-  const { startBgm, stopBgm, sfx } = useAudio();
+  const [volume, setVolume] = useState(0.55);
+  const [muted, setMuted] = useState(false);
+  const { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted } = useAudio();
+
+  useEffect(() => { setBgmVolume(volume); }, [volume, setBgmVolume]);
+  useEffect(() => { setBgmMuted(muted); }, [muted, setBgmMuted]);
 
   useEffect(() => {
     if (stage === "opening") {
