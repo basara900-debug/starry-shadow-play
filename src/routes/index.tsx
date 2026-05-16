@@ -291,23 +291,11 @@ function ShadowTheaterTitle() {
           draggable={false}
         />
 
-        {/* ===== LEFT REEL OVERLAY (stars + spinning hub) ===== */}
-        <CircleOverlay c={L}>
-          <Twinkles count={22} />
-          <SpinningHub spinning={stage !== "idle"} />
-        </CircleOverlay>
-
-        {/* ===== RIGHT STAGE OVERLAY ===== */}
+        {/* ===== RIGHT STAGE OVERLAY (no star twinkles, no reel grid) ===== */}
         <CircleOverlay c={R}>
-          {/* faint twinkles inside forest */}
-          <Twinkles count={10} dim />
-          {/* swaying tree-tops hint */}
           <SwayHint />
-          {/* hopping animals (left rabbit & right squirrel) */}
           <HoppingAnimals active={stage === "playing"} />
-          {/* curtain overlay that slides */}
           <CurtainOverlay open={curtainOpen} />
-          {/* shooting star on close */}
           {shootingKey > 0 && <ShootingStar key={shootingKey} />}
         </CircleOverlay>
 
