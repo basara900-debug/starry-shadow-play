@@ -205,7 +205,13 @@ function useAudio() {
     [ensure]
   );
 
-  return { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted };
+  const setMasterVolume = useCallback((v: number) => {
+    const m = masterRef.current;
+    if (!m) return;
+    m.gain.value = Math.max(0, Math.min(1, v));
+  }, []);
+
+  return { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted, setMasterVolume, ensure };
 }
 
 /* ---------- Geometry of the cassette image (percent of image box) ---------- */
@@ -225,12 +231,18 @@ function ShadowTheaterTitle() {
   const [musicOn, setMusicOn] = useState(false);
   const [shootingKey, setShootingKey] = useState(0);
   const [pressed, setPressed] = useState<number | null>(null);
-  const [volume, setVolume] = useState(0.55);
-  const [muted, setMuted] = useState(false);
-  const { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted } = useAudio();
+  const [bgmVol, setBgmVol] = useState(0.55);
+  const [bgmMuted, setBgmMutedState] = useState(false);
+  const [sfxVol, setSfxVol] = useState(0.6);
+  const [sfxMuted, setSfxMuted] = useState(false);
+  const [voiceVol, setVoiceVol] = useState(0.8);
+  const [voiceMuted, setVoiceMuted] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted, setMasterVolume, ensure } = useAudio();
 
-  useEffect(() => { setBgmVolume(volume); }, [volume, setBgmVolume]);
-  useEffect(() => { setBgmMuted(muted); }, [muted, setBgmMuted]);
+  useEffect(() => { setBgmVolume(bgmVol); }, [bgmVol, setBgmVolume]);
+  useEffect(() => { setBgmMuted(bgmMuted); }, [bgmMuted, setBgmMuted]);
+  useEffect(() => { setMasterVolume(sfxMuted ? 0 : sfxVol); }, [sfxVol, sfxMuted, setMasterVolume]);
 
   useEffect(() => {
     if (stage === "opening") {
@@ -283,14 +295,9 @@ function ShadowTheaterTitle() {
         setStage("closing");
       }
     } else if (i === 3) {
-      // SETTING toggles music
-      if (musicOn) {
-        stopBgm();
-        setMusicOn(false);
-      } else {
-        setMusicOn(true);
-        startBgm();
-      }
+      // SETTING opens settings panel
+      await ensure();
+      setSettingsOpen(true);
     }
     // LIST / INPUT-EJECT / STORE: reserved for future cassette swap
   };
@@ -371,64 +378,118 @@ function ShadowTheaterTitle() {
           }}
         />
 
-        {/* BGM volume + mute control */}
-        <div
-          className="absolute flex items-center gap-2 rounded-full px-3 py-1.5 backdrop-blur-md"
-          style={{
-            right: "2%",
-            top: "2.5%",
-            background: "oklch(0.18 0.02 50 / 0.55)",
-            border: "1px solid oklch(0.85 0.08 75 / 0.25)",
-            boxShadow: "0 4px 14px oklch(0 0 0 / 0.35)",
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => setMuted((m) => !m)}
-            aria-label={muted ? "Unmute BGM" : "Mute BGM"}
-            className="grid place-items-center rounded-full transition-transform active:scale-95"
-            style={{
-              width: 28,
-              height: 28,
-              color: muted ? "oklch(0.65 0.02 60)" : "oklch(0.92 0.08 80)",
-            }}
-          >
-            {muted ? (
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M11 5 6 9H2v6h4l5 4z" />
-                <line x1="22" y1="9" x2="16" y2="15" />
-                <line x1="16" y1="9" x2="22" y2="15" />
-              </svg>
-            ) : (
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M11 5 6 9H2v6h4l5 4z" />
-                <path d="M15.5 8.5a5 5 0 0 1 0 7" />
-                <path d="M18.5 5.5a9 9 0 0 1 0 13" />
-              </svg>
-            )}
-          </button>
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.01}
-            value={muted ? 0 : volume}
-            onChange={(e) => {
-              const v = parseFloat(e.target.value);
-              setVolume(v);
-              if (muted && v > 0) setMuted(false);
-            }}
-            aria-label="BGM volume"
-            className="bgm-slider"
-            style={{ width: 90, ["--p" as string]: `${(muted ? 0 : volume) * 100}%` }}
+        {/* Settings panel (opens from SETTING button) */}
+        {settingsOpen && (
+          <SettingsPanel
+            onClose={() => setSettingsOpen(false)}
+            rows={[
+              { label: "BGM", volume: bgmVol, muted: bgmMuted, setVolume: setBgmVol, setMuted: setBgmMutedState },
+              { label: "SFX", volume: sfxVol, muted: sfxMuted, setVolume: setSfxVol, setMuted: setSfxMuted },
+              { label: "대사 / 나레이션", volume: voiceVol, muted: voiceMuted, setVolume: setVoiceVol, setMuted: setVoiceMuted },
+            ]}
           />
-        </div>
+        )}
       </div>
     </main>
   );
 }
 
 /* ---------- Helpers ---------- */
+
+type SettingsRow = {
+  label: string;
+  volume: number;
+  muted: boolean;
+  setVolume: (v: number) => void;
+  setMuted: (m: boolean | ((prev: boolean) => boolean)) => void;
+};
+
+function SettingsPanel({ onClose, rows }: { onClose: () => void; rows: SettingsRow[] }) {
+  return (
+    <div
+      className="absolute inset-0 z-20 flex items-center justify-center"
+      style={{ background: "oklch(0 0 0 / 0.55)", backdropFilter: "blur(4px)", animation: "fade-in 0.2s ease-out" }}
+      onClick={onClose}
+    >
+      <div
+        className="rounded-2xl p-5"
+        style={{
+          width: "min(82%, 380px)",
+          background: "linear-gradient(180deg, oklch(0.22 0.04 55), oklch(0.14 0.03 45))",
+          border: "1px solid oklch(0.85 0.08 75 / 0.3)",
+          boxShadow: "0 20px 60px oklch(0 0 0 / 0.55)",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-base font-semibold" style={{ color: "oklch(0.95 0.06 80)" }}>설정 · 볼륨</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="닫기"
+            className="grid h-7 w-7 place-items-center rounded-full transition-colors"
+            style={{ background: "oklch(0.3 0.02 50 / 0.6)", color: "oklch(0.9 0.04 80)" }}
+          >
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+              <line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div className="flex flex-col gap-3">
+          {rows.map((row) => (
+            <VolumeRow key={row.label} {...row} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function VolumeRow({ label, volume, muted, setVolume, setMuted }: SettingsRow) {
+  const displayed = muted ? 0 : volume;
+  return (
+    <div className="flex items-center gap-3 rounded-xl px-3 py-2" style={{ background: "oklch(0.18 0.02 50 / 0.7)" }}>
+      <button
+        type="button"
+        onClick={() => setMuted((m) => !m)}
+        aria-label={muted ? `${label} 음소거 해제` : `${label} 음소거`}
+        className="grid place-items-center rounded-full transition-transform active:scale-95"
+        style={{ width: 30, height: 30, color: muted ? "oklch(0.6 0.02 60)" : "oklch(0.92 0.08 80)" }}
+      >
+        {muted ? (
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M11 5 6 9H2v6h4l5 4z" /><line x1="22" y1="9" x2="16" y2="15" /><line x1="16" y1="9" x2="22" y2="15" />
+          </svg>
+        ) : (
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M11 5 6 9H2v6h4l5 4z" /><path d="M15.5 8.5a5 5 0 0 1 0 7" /><path d="M18.5 5.5a9 9 0 0 1 0 13" />
+          </svg>
+        )}
+      </button>
+      <div className="flex-1">
+        <div className="mb-1 flex items-center justify-between text-xs" style={{ color: "oklch(0.85 0.04 80)" }}>
+          <span>{label}</span>
+          <span style={{ color: "oklch(0.7 0.03 70)" }}>{Math.round(displayed * 100)}</span>
+        </div>
+        <input
+          type="range"
+          min={0}
+          max={1}
+          step={0.01}
+          value={displayed}
+          onChange={(e) => {
+            const v = parseFloat(e.target.value);
+            setVolume(v);
+            if (muted && v > 0) setMuted(false);
+          }}
+          aria-label={`${label} 볼륨`}
+          className="bgm-slider w-full"
+          style={{ ["--p" as string]: `${displayed * 100}%` }}
+        />
+      </div>
+    </div>
+  );
+}
 
 function CircleOverlay({
   c,
