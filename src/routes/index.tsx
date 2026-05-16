@@ -205,7 +205,13 @@ function useAudio() {
     [ensure]
   );
 
-  return { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted };
+  const setMasterVolume = useCallback((v: number) => {
+    const m = masterRef.current;
+    if (!m) return;
+    m.gain.value = Math.max(0, Math.min(1, v));
+  }, []);
+
+  return { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted, setMasterVolume, ensure };
 }
 
 /* ---------- Geometry of the cassette image (percent of image box) ---------- */
@@ -225,12 +231,18 @@ function ShadowTheaterTitle() {
   const [musicOn, setMusicOn] = useState(false);
   const [shootingKey, setShootingKey] = useState(0);
   const [pressed, setPressed] = useState<number | null>(null);
-  const [volume, setVolume] = useState(0.55);
-  const [muted, setMuted] = useState(false);
-  const { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted } = useAudio();
+  const [bgmVol, setBgmVol] = useState(0.55);
+  const [bgmMuted, setBgmMutedState] = useState(false);
+  const [sfxVol, setSfxVol] = useState(0.6);
+  const [sfxMuted, setSfxMuted] = useState(false);
+  const [voiceVol, setVoiceVol] = useState(0.8);
+  const [voiceMuted, setVoiceMuted] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted, setMasterVolume, ensure } = useAudio();
 
-  useEffect(() => { setBgmVolume(volume); }, [volume, setBgmVolume]);
-  useEffect(() => { setBgmMuted(muted); }, [muted, setBgmMuted]);
+  useEffect(() => { setBgmVolume(bgmVol); }, [bgmVol, setBgmVolume]);
+  useEffect(() => { setBgmMuted(bgmMuted); }, [bgmMuted, setBgmMuted]);
+  useEffect(() => { setMasterVolume(sfxMuted ? 0 : sfxVol); }, [sfxVol, sfxMuted, setMasterVolume]);
 
   useEffect(() => {
     if (stage === "opening") {
@@ -283,14 +295,9 @@ function ShadowTheaterTitle() {
         setStage("closing");
       }
     } else if (i === 3) {
-      // SETTING toggles music
-      if (musicOn) {
-        stopBgm();
-        setMusicOn(false);
-      } else {
-        setMusicOn(true);
-        startBgm();
-      }
+      // SETTING opens settings panel
+      await ensure();
+      setSettingsOpen(true);
     }
     // LIST / INPUT-EJECT / STORE: reserved for future cassette swap
   };
