@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import cassetteImg from "@/assets/cassette-base.jpg";
+import mainThemeUrl from "@/assets/main-theme.mp3";
 
 export const Route = createFileRoute("/")({
   component: ShadowTheaterTitle,
@@ -12,8 +13,7 @@ type Stage = "idle" | "opening" | "playing" | "closing";
 function useAudio() {
   const ctxRef = useRef<AudioContext | null>(null);
   const masterRef = useRef<GainNode | null>(null);
-  const bgmGainRef = useRef<GainNode | null>(null);
-  const bgmTimerRef = useRef<number | null>(null);
+  const bgmAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const ensure = useCallback(async () => {
     if (!ctxRef.current) {
@@ -30,60 +30,54 @@ function useAudio() {
       bgm.connect(master);
       ctxRef.current = ctx;
       masterRef.current = master;
-      bgmGainRef.current = bgm;
     }
     if (ctxRef.current.state === "suspended") await ctxRef.current.resume();
     return ctxRef.current;
   }, []);
 
   const startBgm = useCallback(async () => {
-    const ctx = await ensure();
-    if (!bgmGainRef.current) return;
-    bgmGainRef.current.gain.cancelScheduledValues(ctx.currentTime);
-    bgmGainRef.current.gain.linearRampToValueAtTime(0.16, ctx.currentTime + 1.2);
-    if (bgmTimerRef.current) return;
-    const notes = [523.25, 587.33, 659.25, 783.99, 880.0, 783.99, 659.25, 587.33];
+    await ensure();
+    if (!bgmAudioRef.current) {
+      const a = new Audio(mainThemeUrl);
+      a.loop = true;
+      a.preload = "auto";
+      a.volume = 0;
+      bgmAudioRef.current = a;
+    }
+    const a = bgmAudioRef.current;
+    try {
+      await a.play();
+    } catch {
+      // autoplay blocked until user gesture; ignore
+    }
+    // fade in
+    const target = 0.55;
+    const steps = 24;
+    const dur = 1200;
     let i = 0;
-    const beat = 0.7;
-    const playNote = () => {
-      const c = ctxRef.current;
-      const g = bgmGainRef.current;
-      if (!c || !g) return;
-      const t = c.currentTime;
-      const o1 = c.createOscillator();
-      o1.type = "triangle";
-      o1.frequency.value = notes[i % notes.length];
-      const o2 = c.createOscillator();
-      o2.type = "sine";
-      o2.frequency.value = notes[i % notes.length] / 2;
-      const v = c.createGain();
-      v.gain.setValueAtTime(0, t);
-      v.gain.linearRampToValueAtTime(0.5, t + 0.05);
-      v.gain.exponentialRampToValueAtTime(0.001, t + beat * 0.95);
-      o1.connect(v);
-      o2.connect(v);
-      v.connect(g);
-      o1.start(t);
-      o2.start(t);
-      o1.stop(t + beat);
-      o2.stop(t + beat);
+    const start = a.volume;
+    const id = window.setInterval(() => {
       i++;
-    };
-    playNote();
-    bgmTimerRef.current = window.setInterval(playNote, beat * 1000);
+      a.volume = Math.min(1, start + (target - start) * (i / steps));
+      if (i >= steps) clearInterval(id);
+    }, dur / steps);
   }, [ensure]);
 
   const stopBgm = useCallback(() => {
-    if (bgmTimerRef.current) {
-      clearInterval(bgmTimerRef.current);
-      bgmTimerRef.current = null;
-    }
-    const ctx = ctxRef.current;
-    const g = bgmGainRef.current;
-    if (ctx && g) {
-      g.gain.cancelScheduledValues(ctx.currentTime);
-      g.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.6);
-    }
+    const a = bgmAudioRef.current;
+    if (!a) return;
+    const steps = 16;
+    const dur = 600;
+    const start = a.volume;
+    let i = 0;
+    const id = window.setInterval(() => {
+      i++;
+      a.volume = Math.max(0, start * (1 - i / steps));
+      if (i >= steps) {
+        clearInterval(id);
+        a.pause();
+      }
+    }, dur / steps);
   }, []);
 
   const sfx = useMemo(
