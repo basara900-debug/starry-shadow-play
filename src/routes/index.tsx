@@ -14,6 +14,33 @@ function useAudio() {
   const ctxRef = useRef<AudioContext | null>(null);
   const masterRef = useRef<GainNode | null>(null);
   const bgmAudioRef = useRef<HTMLAudioElement | null>(null);
+  const bgmTargetRef = useRef<number>(0.55);
+  const bgmMutedRef = useRef<boolean>(false);
+  const fadeTimerRef = useRef<number | null>(null);
+
+  const applyBgmVolume = useCallback(() => {
+    const a = bgmAudioRef.current;
+    if (!a) return;
+    a.volume = bgmMutedRef.current ? 0 : bgmTargetRef.current;
+  }, []);
+
+  const setBgmVolume = useCallback((v: number) => {
+    bgmTargetRef.current = Math.max(0, Math.min(1, v));
+    if (fadeTimerRef.current) {
+      clearInterval(fadeTimerRef.current);
+      fadeTimerRef.current = null;
+    }
+    applyBgmVolume();
+  }, [applyBgmVolume]);
+
+  const setBgmMuted = useCallback((m: boolean) => {
+    bgmMutedRef.current = m;
+    if (fadeTimerRef.current) {
+      clearInterval(fadeTimerRef.current);
+      fadeTimerRef.current = null;
+    }
+    applyBgmVolume();
+  }, [applyBgmVolume]);
 
   const ensure = useCallback(async () => {
     if (!ctxRef.current) {
@@ -50,31 +77,37 @@ function useAudio() {
     } catch {
       // autoplay blocked until user gesture; ignore
     }
-    // fade in
-    const target = 0.55;
+    // fade in to current target (respecting mute)
+    if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
+    const target = bgmMutedRef.current ? 0 : bgmTargetRef.current;
     const steps = 24;
     const dur = 1200;
     let i = 0;
     const start = a.volume;
-    const id = window.setInterval(() => {
+    fadeTimerRef.current = window.setInterval(() => {
       i++;
       a.volume = Math.min(1, start + (target - start) * (i / steps));
-      if (i >= steps) clearInterval(id);
+      if (i >= steps) {
+        if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
+        fadeTimerRef.current = null;
+      }
     }, dur / steps);
   }, [ensure]);
 
   const stopBgm = useCallback(() => {
     const a = bgmAudioRef.current;
     if (!a) return;
+    if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
     const steps = 16;
     const dur = 600;
     const start = a.volume;
     let i = 0;
-    const id = window.setInterval(() => {
+    fadeTimerRef.current = window.setInterval(() => {
       i++;
       a.volume = Math.max(0, start * (1 - i / steps));
       if (i >= steps) {
-        clearInterval(id);
+        if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
+        fadeTimerRef.current = null;
         a.pause();
       }
     }, dur / steps);
@@ -172,7 +205,7 @@ function useAudio() {
     [ensure]
   );
 
-  return { startBgm, stopBgm, sfx };
+  return { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted };
 }
 
 /* ---------- Geometry of the cassette image (percent of image box) ---------- */
@@ -192,7 +225,12 @@ function ShadowTheaterTitle() {
   const [musicOn, setMusicOn] = useState(false);
   const [shootingKey, setShootingKey] = useState(0);
   const [pressed, setPressed] = useState<number | null>(null);
-  const { startBgm, stopBgm, sfx } = useAudio();
+  const [volume, setVolume] = useState(0.55);
+  const [muted, setMuted] = useState(false);
+  const { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted } = useAudio();
+
+  useEffect(() => { setBgmVolume(volume); }, [volume, setBgmVolume]);
+  useEffect(() => { setBgmMuted(muted); }, [muted, setBgmMuted]);
 
   useEffect(() => {
     if (stage === "opening") {
@@ -332,6 +370,59 @@ function ShadowTheaterTitle() {
             transition: "background 0.3s, box-shadow 0.3s",
           }}
         />
+
+        {/* BGM volume + mute control */}
+        <div
+          className="absolute flex items-center gap-2 rounded-full px-3 py-1.5 backdrop-blur-md"
+          style={{
+            right: "2%",
+            top: "2.5%",
+            background: "oklch(0.18 0.02 50 / 0.55)",
+            border: "1px solid oklch(0.85 0.08 75 / 0.25)",
+            boxShadow: "0 4px 14px oklch(0 0 0 / 0.35)",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setMuted((m) => !m)}
+            aria-label={muted ? "Unmute BGM" : "Mute BGM"}
+            className="grid place-items-center rounded-full transition-transform active:scale-95"
+            style={{
+              width: 28,
+              height: 28,
+              color: muted ? "oklch(0.65 0.02 60)" : "oklch(0.92 0.08 80)",
+            }}
+          >
+            {muted ? (
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 5 6 9H2v6h4l5 4z" />
+                <line x1="22" y1="9" x2="16" y2="15" />
+                <line x1="16" y1="9" x2="22" y2="15" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 5 6 9H2v6h4l5 4z" />
+                <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+                <path d="M18.5 5.5a9 9 0 0 1 0 13" />
+              </svg>
+            )}
+          </button>
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.01}
+            value={muted ? 0 : volume}
+            onChange={(e) => {
+              const v = parseFloat(e.target.value);
+              setVolume(v);
+              if (muted && v > 0) setMuted(false);
+            }}
+            aria-label="BGM volume"
+            className="bgm-slider"
+            style={{ width: 90, ["--p" as string]: `${(muted ? 0 : volume) * 100}%` }}
+          />
+        </div>
       </div>
     </main>
   );
@@ -592,6 +683,33 @@ function Keyframes() {
         0%   { opacity: 0; transform: rotate(28deg) translateX(-30%) scaleX(0.2); }
         20%  { opacity: 1; }
         100% { opacity: 0; transform: rotate(28deg) translateX(40%) scaleX(1); }
+      }
+      .bgm-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 4px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, oklch(0.85 0.12 80) 0%, oklch(0.85 0.12 80) var(--p,55%), oklch(0.35 0.02 60) var(--p,55%), oklch(0.35 0.02 60) 100%);
+        outline: none;
+        cursor: pointer;
+      }
+      .bgm-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: oklch(0.95 0.06 80);
+        box-shadow: 0 0 6px oklch(0.85 0.18 80 / 0.7);
+        border: none;
+      }
+      .bgm-slider::-moz-range-thumb {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: oklch(0.95 0.06 80);
+        box-shadow: 0 0 6px oklch(0.85 0.18 80 / 0.7);
+        border: none;
       }
     `}</style>
   );
