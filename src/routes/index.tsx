@@ -304,7 +304,7 @@ function ShadowTheaterTitle() {
           />
         </div>
 
-        <p className="mt-4 text-center text-[11px] tracking-[0.3em] text-[oklch(0.75_0.05_70)/_0.6] opacity-70">
+        <p className="mt-4 text-center text-[11px] tracking-[0.3em] opacity-70" style={{ color: "oklch(0.75 0.05 70)" }}>
           ✦  부모와 아이가 함께 즐기는 그림자 동화  ✦
         </p>
       </div>
