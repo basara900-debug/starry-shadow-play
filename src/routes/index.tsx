@@ -370,6 +370,59 @@ function ShadowTheaterTitle() {
             transition: "background 0.3s, box-shadow 0.3s",
           }}
         />
+
+        {/* BGM volume + mute control */}
+        <div
+          className="absolute flex items-center gap-2 rounded-full px-3 py-1.5 backdrop-blur-md"
+          style={{
+            right: "2%",
+            top: "2.5%",
+            background: "oklch(0.18 0.02 50 / 0.55)",
+            border: "1px solid oklch(0.85 0.08 75 / 0.25)",
+            boxShadow: "0 4px 14px oklch(0 0 0 / 0.35)",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setMuted((m) => !m)}
+            aria-label={muted ? "Unmute BGM" : "Mute BGM"}
+            className="grid place-items-center rounded-full transition-transform active:scale-95"
+            style={{
+              width: 28,
+              height: 28,
+              color: muted ? "oklch(0.65 0.02 60)" : "oklch(0.92 0.08 80)",
+            }}
+          >
+            {muted ? (
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 5 6 9H2v6h4l5 4z" />
+                <line x1="22" y1="9" x2="16" y2="15" />
+                <line x1="16" y1="9" x2="22" y2="15" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 5 6 9H2v6h4l5 4z" />
+                <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+                <path d="M18.5 5.5a9 9 0 0 1 0 13" />
+              </svg>
+            )}
+          </button>
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.01}
+            value={muted ? 0 : volume}
+            onChange={(e) => {
+              const v = parseFloat(e.target.value);
+              setVolume(v);
+              if (muted && v > 0) setMuted(false);
+            }}
+            aria-label="BGM volume"
+            className="bgm-slider"
+            style={{ width: 90 }}
+          />
+        </div>
       </div>
     </main>
   );
