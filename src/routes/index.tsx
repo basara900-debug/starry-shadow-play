@@ -420,7 +420,7 @@ function ShadowTheaterTitle() {
             }}
             aria-label="BGM volume"
             className="bgm-slider"
-            style={{ width: 90 }}
+            style={{ width: 90, ["--p" as string]: `${(muted ? 0 : volume) * 100}%` }}
           />
         </div>
       </div>
