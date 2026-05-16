@@ -684,6 +684,33 @@ function Keyframes() {
         20%  { opacity: 1; }
         100% { opacity: 0; transform: rotate(28deg) translateX(40%) scaleX(1); }
       }
+      .bgm-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 4px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, oklch(0.85 0.12 80) 0%, oklch(0.85 0.12 80) var(--p,55%), oklch(0.35 0.02 60) var(--p,55%), oklch(0.35 0.02 60) 100%);
+        outline: none;
+        cursor: pointer;
+      }
+      .bgm-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: oklch(0.95 0.06 80);
+        box-shadow: 0 0 6px oklch(0.85 0.18 80 / 0.7);
+        border: none;
+      }
+      .bgm-slider::-moz-range-thumb {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: oklch(0.95 0.06 80);
+        box-shadow: 0 0 6px oklch(0.85 0.18 80 / 0.7);
+        border: none;
+      }
     `}</style>
   );
 }
