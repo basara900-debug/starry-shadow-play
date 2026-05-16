@@ -14,6 +14,33 @@ function useAudio() {
   const ctxRef = useRef<AudioContext | null>(null);
   const masterRef = useRef<GainNode | null>(null);
   const bgmAudioRef = useRef<HTMLAudioElement | null>(null);
+  const bgmTargetRef = useRef<number>(0.55);
+  const bgmMutedRef = useRef<boolean>(false);
+  const fadeTimerRef = useRef<number | null>(null);
+
+  const applyBgmVolume = useCallback(() => {
+    const a = bgmAudioRef.current;
+    if (!a) return;
+    a.volume = bgmMutedRef.current ? 0 : bgmTargetRef.current;
+  }, []);
+
+  const setBgmVolume = useCallback((v: number) => {
+    bgmTargetRef.current = Math.max(0, Math.min(1, v));
+    if (fadeTimerRef.current) {
+      clearInterval(fadeTimerRef.current);
+      fadeTimerRef.current = null;
+    }
+    applyBgmVolume();
+  }, [applyBgmVolume]);
+
+  const setBgmMuted = useCallback((m: boolean) => {
+    bgmMutedRef.current = m;
+    if (fadeTimerRef.current) {
+      clearInterval(fadeTimerRef.current);
+      fadeTimerRef.current = null;
+    }
+    applyBgmVolume();
+  }, [applyBgmVolume]);
 
   const ensure = useCallback(async () => {
     if (!ctxRef.current) {
@@ -50,31 +77,37 @@ function useAudio() {
     } catch {
       // autoplay blocked until user gesture; ignore
     }
-    // fade in
-    const target = 0.55;
+    // fade in to current target (respecting mute)
+    if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
+    const target = bgmMutedRef.current ? 0 : bgmTargetRef.current;
     const steps = 24;
     const dur = 1200;
     let i = 0;
     const start = a.volume;
-    const id = window.setInterval(() => {
+    fadeTimerRef.current = window.setInterval(() => {
       i++;
       a.volume = Math.min(1, start + (target - start) * (i / steps));
-      if (i >= steps) clearInterval(id);
+      if (i >= steps) {
+        if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
+        fadeTimerRef.current = null;
+      }
     }, dur / steps);
   }, [ensure]);
 
   const stopBgm = useCallback(() => {
     const a = bgmAudioRef.current;
     if (!a) return;
+    if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
     const steps = 16;
     const dur = 600;
     const start = a.volume;
     let i = 0;
-    const id = window.setInterval(() => {
+    fadeTimerRef.current = window.setInterval(() => {
       i++;
       a.volume = Math.max(0, start * (1 - i / steps));
       if (i >= steps) {
-        clearInterval(id);
+        if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
+        fadeTimerRef.current = null;
         a.pause();
       }
     }, dur / steps);
@@ -172,7 +205,7 @@ function useAudio() {
     [ensure]
   );
 
-  return { startBgm, stopBgm, sfx };
+  return { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted };
 }
 
 /* ---------- Geometry of the cassette image (percent of image box) ---------- */
