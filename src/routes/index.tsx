@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import cassetteImg from "@/assets/cassette-base.jpg";
+import treeLeftImg from "@/assets/tree-left.png";
+import treeRightImg from "@/assets/tree-right.png";
 import mainThemeUrl from "@/assets/main-theme.mp3";
 
 export const Route = createFileRoute("/")({
@@ -328,6 +330,41 @@ function ShadowTheaterTitle() {
           alt="Little Star, Little Forest, Shadow Theater cassette"
           className="absolute inset-0 h-full w-full select-none"
           draggable={false}
+        />
+
+        {/* ===== LEFT CIRCLE: outermost pine sway (leftmost + rightmost only) ===== */}
+        <img
+          src={treeLeftImg}
+          alt=""
+          aria-hidden
+          draggable={false}
+          className="pointer-events-none absolute select-none"
+          style={{
+            left: "14.172%",
+            top: "39.714%",
+            width: "5.305%",
+            height: "32.552%",
+            transformOrigin: "50% 78%",
+            animation: "treeSway 7s ease-in-out infinite",
+            willChange: "transform",
+          }}
+        />
+        <img
+          src={treeRightImg}
+          alt=""
+          aria-hidden
+          draggable={false}
+          className="pointer-events-none absolute select-none"
+          style={{
+            left: "42.733%",
+            top: "39.714%",
+            width: "5.233%",
+            height: "32.552%",
+            transformOrigin: "50% 78%",
+            animation: "treeSway 7s ease-in-out infinite",
+            animationDelay: "-0.4s",
+            willChange: "transform",
+          }}
         />
 
         {/* ===== RIGHT STAGE OVERLAY (no star twinkles, no reel grid) ===== */}
