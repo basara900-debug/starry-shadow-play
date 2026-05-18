@@ -782,6 +782,13 @@ function Keyframes() {
         20%  { opacity: 1; }
         100% { opacity: 0; transform: rotate(28deg) translateX(40%) scaleX(1); }
       }
+      @keyframes treeSway {
+        0%   { transform: rotate(0deg); }
+        18%  { transform: rotate(0.65deg); }
+        32%  { transform: rotate(0.55deg); }
+        50%  { transform: rotate(0deg); }
+        100% { transform: rotate(0deg); }
+      }
       .bgm-slider {
         -webkit-appearance: none;
         appearance: none;
