@@ -281,13 +281,7 @@ function ShadowTheaterTitle() {
           }}
         />
 
-        {/* ===== RIGHT STAGE OVERLAY (no star twinkles, no reel grid) ===== */}
-        <CircleOverlay c={R}>
-          <SwayHint />
-          <HoppingAnimals active={stage === "playing"} />
-          <CurtainOverlay open={curtainOpen} />
-          {shootingKey > 0 && <ShootingStar key={shootingKey} />}
-        </CircleOverlay>
+        {/* ===== RIGHT STAGE OVERLAY: 커튼/동물 점프 구현 제거됨 (재설계 예정) ===== */}
 
         {/* ===== BUTTON HOTSPOTS ===== */}
         {BTN_X.map((x, i) => (
