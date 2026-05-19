@@ -175,9 +175,8 @@ const BTN_X = [30.2, 40.1, 50.0, 59.9, 69.8];
 
 /* ---------- Main component ---------- */
 function ShadowTheaterTitle() {
-  const [stage, setStage] = useState<Stage>("idle");
+  const [stage] = useState<Stage>("idle");
   const [musicOn, setMusicOn] = useState(false);
-  const [shootingKey, setShootingKey] = useState(0);
   const [pressed, setPressed] = useState<number | null>(null);
   const [bgmVol, setBgmVol] = useState(0.55);
   const [bgmMuted, setBgmMutedState] = useState(false);
@@ -192,34 +191,6 @@ function ShadowTheaterTitle() {
   useEffect(() => { setBgmMuted(bgmMuted); }, [bgmMuted, setBgmMuted]);
   useEffect(() => { setMasterVolume(sfxMuted ? 0 : sfxVol); }, [sfxVol, sfxMuted, setMasterVolume]);
 
-  useEffect(() => {
-    if (stage === "opening") {
-      sfx.curtain(true);
-      const t = setTimeout(() => setStage("playing"), 1500);
-      return () => clearTimeout(t);
-    }
-    if (stage === "playing") {
-      const beat = setInterval(() => sfx.hop(), 900);
-      const t = setTimeout(() => setStage("closing"), 6000);
-      return () => {
-        clearInterval(beat);
-        clearTimeout(t);
-      };
-    }
-    if (stage === "closing") {
-      sfx.curtain(false);
-      const t1 = setTimeout(() => {
-        setShootingKey((k) => k + 1);
-        sfx.shootingStar();
-      }, 800);
-      const t2 = setTimeout(() => setStage("idle"), 2400);
-      return () => {
-        clearTimeout(t1);
-        clearTimeout(t2);
-      };
-    }
-  }, [stage, sfx]);
-
   // Idle sparkle cue every few seconds
   useEffect(() => {
     if (stage !== "idle") return;
@@ -232,15 +203,14 @@ function ShadowTheaterTitle() {
     setTimeout(() => setPressed(null), 160);
     await sfx.click();
     if (i === 0) {
-      // PLAY / STOP
-      if (stage === "idle") {
-        if (!musicOn) {
-          setMusicOn(true);
-          startBgm();
-        }
-        setStage("opening");
+      // PLAY: 세컨드 스테이지 전환 구현은 추후 재설계 예정.
+      // 현재는 BGM 토글만 수행.
+      if (!musicOn) {
+        setMusicOn(true);
+        startBgm();
       } else {
-        setStage("closing");
+        setMusicOn(false);
+        stopBgm();
       }
     } else if (i === 3) {
       // SETTING opens settings panel
@@ -249,8 +219,6 @@ function ShadowTheaterTitle() {
     }
     // LIST / INPUT-EJECT / STORE: reserved for future cassette swap
   };
-
-  const curtainOpen = stage === "opening" || stage === "playing";
 
   return (
     <main
