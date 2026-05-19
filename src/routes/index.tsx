@@ -252,15 +252,12 @@ function ShadowTheaterTitle() {
           alt=""
           aria-hidden
           draggable={false}
-          className="pointer-events-none absolute select-none"
+          className="pointer-events-none absolute select-none tree-sway"
           style={{
             left: "14.172%",
             top: "39.714%",
             width: "5.305%",
             height: "32.552%",
-            transformOrigin: "50% 78%",
-            animation: "treeSway 7s ease-in-out infinite",
-            willChange: "transform",
           }}
         />
         <img
@@ -268,16 +265,12 @@ function ShadowTheaterTitle() {
           alt=""
           aria-hidden
           draggable={false}
-          className="pointer-events-none absolute select-none"
+          className="pointer-events-none absolute select-none tree-sway tree-sway-delayed"
           style={{
             left: "42.733%",
             top: "39.714%",
             width: "5.233%",
             height: "32.552%",
-            transformOrigin: "50% 78%",
-            animation: "treeSway 7s ease-in-out infinite",
-            animationDelay: "-0.4s",
-            willChange: "transform",
           }}
         />
 
