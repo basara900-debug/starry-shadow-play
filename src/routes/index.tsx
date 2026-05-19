@@ -9,7 +9,7 @@ export const Route = createFileRoute("/")({
   component: ShadowTheaterTitle,
 });
 
-type Stage = "idle" | "opening" | "playing" | "closing";
+type Stage = "idle";
 
 /* ---------- Audio engine (Web Audio synth, no assets) ---------- */
 function useAudio() {
@@ -132,30 +132,6 @@ function useAudio() {
         o.start(t);
         o.stop(t + 0.14);
       },
-      curtain: async (open: boolean) => {
-        const ctx = await ensure();
-        const t = ctx.currentTime;
-        const dur = 1.6;
-        const bufferSize = Math.floor(ctx.sampleRate * dur);
-        const buf = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const data = buf.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++)
-          data[i] = (Math.random() * 2 - 1) * 0.6;
-        const src = ctx.createBufferSource();
-        src.buffer = buf;
-        const filter = ctx.createBiquadFilter();
-        filter.type = "bandpass";
-        filter.Q.value = 0.9;
-        filter.frequency.setValueAtTime(open ? 400 : 1200, t);
-        filter.frequency.exponentialRampToValueAtTime(open ? 1600 : 300, t + dur);
-        const g = ctx.createGain();
-        g.gain.setValueAtTime(0.0001, t);
-        g.gain.linearRampToValueAtTime(0.22, t + 0.2);
-        g.gain.linearRampToValueAtTime(0.0001, t + dur);
-        src.connect(filter).connect(g).connect(masterRef.current!);
-        src.start(t);
-        src.stop(t + dur + 0.05);
-      },
       sparkle: async () => {
         const ctx = await ensure();
         const t = ctx.currentTime;
@@ -172,36 +148,6 @@ function useAudio() {
           o.start(t + idx * 0.08);
           o.stop(t + idx * 0.08 + 0.4);
         });
-      },
-      shootingStar: async () => {
-        const ctx = await ensure();
-        const t = ctx.currentTime;
-        const o = ctx.createOscillator();
-        o.type = "sine";
-        o.frequency.setValueAtTime(2200, t);
-        o.frequency.exponentialRampToValueAtTime(220, t + 1.1);
-        const g = ctx.createGain();
-        g.gain.setValueAtTime(0.0001, t);
-        g.gain.exponentialRampToValueAtTime(0.22, t + 0.05);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
-        o.connect(g).connect(masterRef.current!);
-        o.start(t);
-        o.stop(t + 1.25);
-      },
-      hop: async () => {
-        const ctx = await ensure();
-        const t = ctx.currentTime;
-        const o = ctx.createOscillator();
-        o.type = "triangle";
-        o.frequency.setValueAtTime(660, t);
-        o.frequency.exponentialRampToValueAtTime(1100, t + 0.18);
-        const g = ctx.createGain();
-        g.gain.setValueAtTime(0.0001, t);
-        g.gain.exponentialRampToValueAtTime(0.16, t + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
-        o.connect(g).connect(masterRef.current!);
-        o.start(t);
-        o.stop(t + 0.24);
       },
     }),
     [ensure]
