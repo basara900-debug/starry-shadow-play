@@ -9,7 +9,7 @@ export const Route = createFileRoute("/")({
   component: ShadowTheaterTitle,
 });
 
-type Stage = "idle" | "opening" | "playing" | "closing";
+type Stage = "idle";
 
 /* ---------- Audio engine (Web Audio synth, no assets) ---------- */
 function useAudio() {
@@ -132,30 +132,6 @@ function useAudio() {
         o.start(t);
         o.stop(t + 0.14);
       },
-      curtain: async (open: boolean) => {
-        const ctx = await ensure();
-        const t = ctx.currentTime;
-        const dur = 1.6;
-        const bufferSize = Math.floor(ctx.sampleRate * dur);
-        const buf = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const data = buf.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++)
-          data[i] = (Math.random() * 2 - 1) * 0.6;
-        const src = ctx.createBufferSource();
-        src.buffer = buf;
-        const filter = ctx.createBiquadFilter();
-        filter.type = "bandpass";
-        filter.Q.value = 0.9;
-        filter.frequency.setValueAtTime(open ? 400 : 1200, t);
-        filter.frequency.exponentialRampToValueAtTime(open ? 1600 : 300, t + dur);
-        const g = ctx.createGain();
-        g.gain.setValueAtTime(0.0001, t);
-        g.gain.linearRampToValueAtTime(0.22, t + 0.2);
-        g.gain.linearRampToValueAtTime(0.0001, t + dur);
-        src.connect(filter).connect(g).connect(masterRef.current!);
-        src.start(t);
-        src.stop(t + dur + 0.05);
-      },
       sparkle: async () => {
         const ctx = await ensure();
         const t = ctx.currentTime;
@@ -172,36 +148,6 @@ function useAudio() {
           o.start(t + idx * 0.08);
           o.stop(t + idx * 0.08 + 0.4);
         });
-      },
-      shootingStar: async () => {
-        const ctx = await ensure();
-        const t = ctx.currentTime;
-        const o = ctx.createOscillator();
-        o.type = "sine";
-        o.frequency.setValueAtTime(2200, t);
-        o.frequency.exponentialRampToValueAtTime(220, t + 1.1);
-        const g = ctx.createGain();
-        g.gain.setValueAtTime(0.0001, t);
-        g.gain.exponentialRampToValueAtTime(0.22, t + 0.05);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
-        o.connect(g).connect(masterRef.current!);
-        o.start(t);
-        o.stop(t + 1.25);
-      },
-      hop: async () => {
-        const ctx = await ensure();
-        const t = ctx.currentTime;
-        const o = ctx.createOscillator();
-        o.type = "triangle";
-        o.frequency.setValueAtTime(660, t);
-        o.frequency.exponentialRampToValueAtTime(1100, t + 0.18);
-        const g = ctx.createGain();
-        g.gain.setValueAtTime(0.0001, t);
-        g.gain.exponentialRampToValueAtTime(0.16, t + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
-        o.connect(g).connect(masterRef.current!);
-        o.start(t);
-        o.stop(t + 0.24);
       },
     }),
     [ensure]
@@ -229,9 +175,8 @@ const BTN_X = [30.2, 40.1, 50.0, 59.9, 69.8];
 
 /* ---------- Main component ---------- */
 function ShadowTheaterTitle() {
-  const [stage, setStage] = useState<Stage>("idle");
+  const [stage] = useState<Stage>("idle");
   const [musicOn, setMusicOn] = useState(false);
-  const [shootingKey, setShootingKey] = useState(0);
   const [pressed, setPressed] = useState<number | null>(null);
   const [bgmVol, setBgmVol] = useState(0.55);
   const [bgmMuted, setBgmMutedState] = useState(false);
@@ -246,34 +191,6 @@ function ShadowTheaterTitle() {
   useEffect(() => { setBgmMuted(bgmMuted); }, [bgmMuted, setBgmMuted]);
   useEffect(() => { setMasterVolume(sfxMuted ? 0 : sfxVol); }, [sfxVol, sfxMuted, setMasterVolume]);
 
-  useEffect(() => {
-    if (stage === "opening") {
-      sfx.curtain(true);
-      const t = setTimeout(() => setStage("playing"), 1500);
-      return () => clearTimeout(t);
-    }
-    if (stage === "playing") {
-      const beat = setInterval(() => sfx.hop(), 900);
-      const t = setTimeout(() => setStage("closing"), 6000);
-      return () => {
-        clearInterval(beat);
-        clearTimeout(t);
-      };
-    }
-    if (stage === "closing") {
-      sfx.curtain(false);
-      const t1 = setTimeout(() => {
-        setShootingKey((k) => k + 1);
-        sfx.shootingStar();
-      }, 800);
-      const t2 = setTimeout(() => setStage("idle"), 2400);
-      return () => {
-        clearTimeout(t1);
-        clearTimeout(t2);
-      };
-    }
-  }, [stage, sfx]);
-
   // Idle sparkle cue every few seconds
   useEffect(() => {
     if (stage !== "idle") return;
@@ -286,15 +203,14 @@ function ShadowTheaterTitle() {
     setTimeout(() => setPressed(null), 160);
     await sfx.click();
     if (i === 0) {
-      // PLAY / STOP
-      if (stage === "idle") {
-        if (!musicOn) {
-          setMusicOn(true);
-          startBgm();
-        }
-        setStage("opening");
+      // PLAY: 세컨드 스테이지 전환 구현은 추후 재설계 예정.
+      // 현재는 BGM 토글만 수행.
+      if (!musicOn) {
+        setMusicOn(true);
+        startBgm();
       } else {
-        setStage("closing");
+        setMusicOn(false);
+        stopBgm();
       }
     } else if (i === 3) {
       // SETTING opens settings panel
@@ -303,8 +219,6 @@ function ShadowTheaterTitle() {
     }
     // LIST / INPUT-EJECT / STORE: reserved for future cassette swap
   };
-
-  const curtainOpen = stage === "opening" || stage === "playing";
 
   return (
     <main
@@ -367,13 +281,7 @@ function ShadowTheaterTitle() {
           }}
         />
 
-        {/* ===== RIGHT STAGE OVERLAY (no star twinkles, no reel grid) ===== */}
-        <CircleOverlay c={R}>
-          <SwayHint />
-          <HoppingAnimals active={stage === "playing"} />
-          <CurtainOverlay open={curtainOpen} />
-          {shootingKey > 0 && <ShootingStar key={shootingKey} />}
-        </CircleOverlay>
+        {/* ===== RIGHT STAGE OVERLAY: 커튼/동물 점프 구현 제거됨 (재설계 예정) ===== */}
 
         {/* ===== BUTTON HOTSPOTS ===== */}
         {BTN_X.map((x, i) => (
