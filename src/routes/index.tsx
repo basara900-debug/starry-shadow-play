@@ -4,6 +4,7 @@ import cassetteImg from "@/assets/cassette-base.jpg";
 import treeLeftImg from "@/assets/tree-left.png";
 import treeRightImg from "@/assets/tree-right.png";
 import mainThemeUrl from "@/assets/main-theme.mp3";
+import { CASSETTES, type Cassette } from "@/data/cassettes";
 
 export const Route = createFileRoute("/")({
   component: ShadowTheaterTitle,
@@ -185,6 +186,7 @@ function ShadowTheaterTitle() {
   const [voiceVol, setVoiceVol] = useState(0.8);
   const [voiceMuted, setVoiceMuted] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [listOpen, setListOpen] = useState(false);
   const { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted, setMasterVolume, ensure } = useAudio();
 
   useEffect(() => { setBgmVolume(bgmVol); }, [bgmVol, setBgmVolume]);
@@ -216,6 +218,10 @@ function ShadowTheaterTitle() {
       // SETTING opens settings panel
       await ensure();
       setSettingsOpen(true);
+    } else if (i === 1) {
+      // LIST opens cassette list panel
+      await ensure();
+      setListOpen(true);
     }
     // LIST / INPUT-EJECT / STORE: reserved for future cassette swap
   };
@@ -327,6 +333,8 @@ function ShadowTheaterTitle() {
             ]}
           />
         )}
+
+        {listOpen && <ListPanel onClose={() => setListOpen(false)} />}
       </div>
     </main>
   );
