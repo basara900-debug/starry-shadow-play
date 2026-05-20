@@ -193,13 +193,15 @@ function ShadowTheaterTitle() {
   const [sfxMuted, setSfxMuted] = useState(false);
   const [voiceVol, setVoiceVol] = useState(0.8);
   const [voiceMuted, setVoiceMuted] = useState(false);
+  const [playbackRate, setPlaybackRateState] = useState(1.0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [listOpen, setListOpen] = useState(false);
-  const { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted, setMasterVolume, ensure } = useAudio();
+  const { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted, setMasterVolume, setPlaybackRate, ensure } = useAudio();
 
   useEffect(() => { setBgmVolume(bgmVol); }, [bgmVol, setBgmVolume]);
   useEffect(() => { setBgmMuted(bgmMuted); }, [bgmMuted, setBgmMuted]);
   useEffect(() => { setMasterVolume(sfxMuted ? 0 : sfxVol); }, [sfxVol, sfxMuted, setMasterVolume]);
+  useEffect(() => { setPlaybackRate(playbackRate); }, [playbackRate, setPlaybackRate]);
 
   const handleButton = async (i: number) => {
     setPressed(i);
