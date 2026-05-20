@@ -334,6 +334,8 @@ function ShadowTheaterTitle() {
               { label: "SFX", volume: sfxVol, muted: sfxMuted, setVolume: setSfxVol, setMuted: setSfxMuted },
               { label: "대사 / 나레이션", volume: voiceVol, muted: voiceMuted, setVolume: setVoiceVol, setMuted: setVoiceMuted },
             ]}
+            playbackRate={playbackRate}
+            setPlaybackRate={setPlaybackRateState}
           />
         )}
 
