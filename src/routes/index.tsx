@@ -4,6 +4,7 @@ import cassetteImg from "@/assets/cassette-base.jpg";
 import treeLeftImg from "@/assets/tree-left.png";
 import treeRightImg from "@/assets/tree-right.png";
 import mainThemeUrl from "@/assets/main-theme.mp3";
+import { CASSETTES, type Cassette } from "@/data/cassettes";
 
 export const Route = createFileRoute("/")({
   component: ShadowTheaterTitle,
@@ -185,6 +186,7 @@ function ShadowTheaterTitle() {
   const [voiceVol, setVoiceVol] = useState(0.8);
   const [voiceMuted, setVoiceMuted] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [listOpen, setListOpen] = useState(false);
   const { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted, setMasterVolume, ensure } = useAudio();
 
   useEffect(() => { setBgmVolume(bgmVol); }, [bgmVol, setBgmVolume]);
@@ -216,6 +218,10 @@ function ShadowTheaterTitle() {
       // SETTING opens settings panel
       await ensure();
       setSettingsOpen(true);
+    } else if (i === 1) {
+      // LIST opens cassette list panel
+      await ensure();
+      setListOpen(true);
     }
     // LIST / INPUT-EJECT / STORE: reserved for future cassette swap
   };
@@ -327,6 +333,8 @@ function ShadowTheaterTitle() {
             ]}
           />
         )}
+
+        {listOpen && <ListPanel onClose={() => setListOpen(false)} />}
       </div>
     </main>
   );
@@ -718,5 +726,233 @@ function Keyframes() {
         border: none;
       }
     `}</style>
+  );
+}
+
+/* ---------- List Panel (cassette tape case collection) ---------- */
+function ListPanel({ onClose }: { onClose: () => void }) {
+  const [devMode, setDevMode] = useState(false);
+  const items = useMemo<Cassette[]>(
+    () =>
+      devMode
+        ? CASSETTES.filter((c) => c.isUpdate)
+        : CASSETTES.filter((c) => c.purchased),
+    [devMode]
+  );
+
+  return (
+    <div
+      className="absolute inset-0 z-20 flex items-center justify-center"
+      style={{
+        background: "oklch(0 0 0 / 0.55)",
+        backdropFilter: "blur(4px)",
+        animation: "fade-in 0.2s ease-out",
+      }}
+      onClick={onClose}
+    >
+      <div
+        className="flex flex-col rounded-2xl"
+        style={{
+          width: "min(88%, 520px)",
+          maxHeight: "82%",
+          background:
+            "linear-gradient(180deg, oklch(0.22 0.04 55), oklch(0.12 0.03 45))",
+          border: "1px solid oklch(0.85 0.08 75 / 0.3)",
+          boxShadow: "0 20px 60px oklch(0 0 0 / 0.55)",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div
+          className="flex items-center justify-between px-5 py-3"
+          style={{ borderBottom: "1px solid oklch(0.85 0.08 75 / 0.18)" }}
+        >
+          <div className="flex items-baseline gap-2">
+            <h2
+              className="text-base font-semibold"
+              style={{ color: "oklch(0.95 0.06 80)" }}
+            >
+              {devMode ? "업데이트 목록" : "내 카세트"}
+            </h2>
+            <span
+              className="text-xs"
+              style={{ color: "oklch(0.7 0.03 70)" }}
+            >
+              {items.length}개
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            {/* DEV toggle */}
+            <button
+              type="button"
+              onClick={() => setDevMode((d) => !d)}
+              aria-pressed={devMode}
+              aria-label="개발자 모드 전환"
+              className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors"
+              style={{
+                background: devMode
+                  ? "oklch(0.72 0.18 145 / 0.25)"
+                  : "oklch(0.3 0.02 50 / 0.6)",
+                color: devMode
+                  ? "oklch(0.9 0.16 145)"
+                  : "oklch(0.75 0.04 75)",
+                border: devMode
+                  ? "1px solid oklch(0.72 0.18 145 / 0.6)"
+                  : "1px solid oklch(0.85 0.08 75 / 0.15)",
+              }}
+            >
+              <span
+                className="inline-block rounded-full"
+                style={{
+                  width: 6,
+                  height: 6,
+                  background: devMode
+                    ? "oklch(0.85 0.2 145)"
+                    : "oklch(0.55 0.02 60)",
+                  boxShadow: devMode
+                    ? "0 0 6px oklch(0.85 0.2 145)"
+                    : "none",
+                }}
+              />
+              DEV
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="닫기"
+              className="grid h-7 w-7 place-items-center rounded-full"
+              style={{
+                background: "oklch(0.3 0.02 50 / 0.6)",
+                color: "oklch(0.9 0.04 80)",
+              }}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+              >
+                <line x1="6" y1="6" x2="18" y2="18" />
+                <line x1="18" y1="6" x2="6" y2="18" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto px-4 py-4">
+          {items.length === 0 ? (
+            <div
+              className="grid place-items-center py-12 text-center text-sm"
+              style={{ color: "oklch(0.7 0.03 70)" }}
+            >
+              {devMode
+                ? "업데이트된 카세트가 없습니다."
+                : "구매한 카세트가 없습니다.\n상점에서 새 카세트를 만나보세요."}
+            </div>
+          ) : (
+            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {items.map((c) => (
+                <li key={c.id}>
+                  <CassetteCard cassette={c} showUpdateBadge={devMode} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CassetteCard({
+  cassette,
+  showUpdateBadge,
+}: {
+  cassette: Cassette;
+  showUpdateBadge: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      className="group relative flex w-full flex-col gap-1.5 rounded-xl p-2 text-left transition-transform active:scale-[0.97]"
+      style={{
+        background: "oklch(0.18 0.02 50 / 0.7)",
+        border: "1px solid oklch(0.85 0.08 75 / 0.12)",
+      }}
+    >
+      {/* Cassette tape case thumbnail */}
+      <div
+        className="relative w-full overflow-hidden rounded-md"
+        style={{
+          aspectRatio: "16 / 10",
+          background: `linear-gradient(135deg, ${cassette.hueA}, ${cassette.hueB})`,
+          boxShadow:
+            "inset 0 1px 0 oklch(1 0 0 / 0.25), inset 0 -8px 18px oklch(0 0 0 / 0.35)",
+        }}
+      >
+        {/* Top label strip */}
+        <div
+          className="absolute inset-x-2 top-2 rounded-sm px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider"
+          style={{
+            background: "oklch(0.96 0.02 90 / 0.92)",
+            color: "oklch(0.25 0.05 50)",
+          }}
+        >
+          Shadow Theater
+        </div>
+        {/* Two reels */}
+        <div className="absolute inset-x-0 bottom-1.5 flex items-end justify-center gap-6">
+          <Reel />
+          <Reel />
+        </div>
+        {/* Update badge */}
+        {showUpdateBadge && cassette.isUpdate && (
+          <span
+            className="absolute right-1.5 top-1.5 rounded-full px-1.5 py-0.5 text-[9px] font-bold"
+            style={{
+              background: "oklch(0.78 0.2 145)",
+              color: "oklch(0.15 0.05 145)",
+              boxShadow: "0 0 8px oklch(0.78 0.2 145 / 0.6)",
+            }}
+          >
+            NEW
+          </span>
+        )}
+      </div>
+      {/* Title + subtitle */}
+      <div className="px-0.5">
+        <div
+          className="truncate text-xs font-semibold"
+          style={{ color: "oklch(0.95 0.04 80)" }}
+        >
+          {cassette.title}
+        </div>
+        <div
+          className="truncate text-[10px]"
+          style={{ color: "oklch(0.7 0.03 70)" }}
+        >
+          {cassette.subtitle}
+        </div>
+      </div>
+    </button>
+  );
+}
+
+function Reel() {
+  return (
+    <div
+      className="rounded-full"
+      style={{
+        width: "22%",
+        aspectRatio: "1",
+        background:
+          "radial-gradient(circle, oklch(0.96 0.02 90) 28%, oklch(0.2 0.02 50) 30%, oklch(0.2 0.02 50) 55%, oklch(0.4 0.03 60) 58%)",
+        border: "1px solid oklch(0 0 0 / 0.4)",
+      }}
+    />
   );
 }
