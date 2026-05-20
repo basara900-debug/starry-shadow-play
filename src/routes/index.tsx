@@ -193,13 +193,6 @@ function ShadowTheaterTitle() {
   useEffect(() => { setBgmMuted(bgmMuted); }, [bgmMuted, setBgmMuted]);
   useEffect(() => { setMasterVolume(sfxMuted ? 0 : sfxVol); }, [sfxVol, sfxMuted, setMasterVolume]);
 
-  // Idle sparkle cue every few seconds
-  useEffect(() => {
-    if (stage !== "idle") return;
-    const id = setInterval(() => sfx.sparkle(), 4200);
-    return () => clearInterval(id);
-  }, [stage, sfx]);
-
   const handleButton = async (i: number) => {
     setPressed(i);
     setTimeout(() => setPressed(null), 160);
