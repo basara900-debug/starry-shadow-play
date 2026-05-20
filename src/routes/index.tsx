@@ -355,7 +355,7 @@ type SettingsRow = {
   setMuted: (m: boolean | ((prev: boolean) => boolean)) => void;
 };
 
-function SettingsPanel({ onClose, rows }: { onClose: () => void; rows: SettingsRow[] }) {
+function SettingsPanel({ onClose, rows, playbackRate, setPlaybackRate }: { onClose: () => void; rows: SettingsRow[]; playbackRate: number; setPlaybackRate: (v: number) => void }) {
   return (
     <div
       className="absolute inset-0 z-20 flex items-center justify-center"
@@ -390,6 +390,7 @@ function SettingsPanel({ onClose, rows }: { onClose: () => void; rows: SettingsR
           {rows.map((row) => (
             <VolumeRow key={row.label} {...row} />
           ))}
+          <SpeedRow value={playbackRate} onChange={setPlaybackRate} />
         </div>
       </div>
     </div>
