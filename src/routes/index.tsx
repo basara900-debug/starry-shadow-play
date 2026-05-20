@@ -20,6 +20,7 @@ function useAudio() {
   const bgmTargetRef = useRef<number>(0.55);
   const bgmMutedRef = useRef<boolean>(false);
   const fadeTimerRef = useRef<number | null>(null);
+  const playbackRateRef = useRef<number>(1.0);
 
   const applyBgmVolume = useCallback(() => {
     const a = bgmAudioRef.current;
@@ -44,6 +45,12 @@ function useAudio() {
     }
     applyBgmVolume();
   }, [applyBgmVolume]);
+
+  const setPlaybackRate = useCallback((rate: number) => {
+    playbackRateRef.current = Math.max(0.1, Math.min(2.0, rate));
+    const a = bgmAudioRef.current;
+    if (a) a.playbackRate = playbackRateRef.current;
+  }, []);
 
   const ensure = useCallback(async () => {
     if (!ctxRef.current) {
@@ -72,6 +79,7 @@ function useAudio() {
       a.loop = true;
       a.preload = "auto";
       a.volume = 0;
+      a.playbackRate = playbackRateRef.current;
       bgmAudioRef.current = a;
     }
     const a = bgmAudioRef.current;
@@ -160,7 +168,7 @@ function useAudio() {
     m.gain.value = Math.max(0, Math.min(1, v));
   }, []);
 
-  return { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted, setMasterVolume, ensure };
+  return { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted, setMasterVolume, setPlaybackRate, ensure };
 }
 
 /* ---------- Geometry of the cassette image (percent of image box) ---------- */
@@ -185,13 +193,15 @@ function ShadowTheaterTitle() {
   const [sfxMuted, setSfxMuted] = useState(false);
   const [voiceVol, setVoiceVol] = useState(0.8);
   const [voiceMuted, setVoiceMuted] = useState(false);
+  const [playbackRate, setPlaybackRateState] = useState(1.0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [listOpen, setListOpen] = useState(false);
-  const { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted, setMasterVolume, ensure } = useAudio();
+  const { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted, setMasterVolume, setPlaybackRate, ensure } = useAudio();
 
   useEffect(() => { setBgmVolume(bgmVol); }, [bgmVol, setBgmVolume]);
   useEffect(() => { setBgmMuted(bgmMuted); }, [bgmMuted, setBgmMuted]);
   useEffect(() => { setMasterVolume(sfxMuted ? 0 : sfxVol); }, [sfxVol, sfxMuted, setMasterVolume]);
+  useEffect(() => { setPlaybackRate(playbackRate); }, [playbackRate, setPlaybackRate]);
 
   const handleButton = async (i: number) => {
     setPressed(i);
@@ -324,6 +334,8 @@ function ShadowTheaterTitle() {
               { label: "SFX", volume: sfxVol, muted: sfxMuted, setVolume: setSfxVol, setMuted: setSfxMuted },
               { label: "대사 / 나레이션", volume: voiceVol, muted: voiceMuted, setVolume: setVoiceVol, setMuted: setVoiceMuted },
             ]}
+            playbackRate={playbackRate}
+            setPlaybackRate={setPlaybackRateState}
           />
         )}
 
@@ -343,7 +355,7 @@ type SettingsRow = {
   setMuted: (m: boolean | ((prev: boolean) => boolean)) => void;
 };
 
-function SettingsPanel({ onClose, rows }: { onClose: () => void; rows: SettingsRow[] }) {
+function SettingsPanel({ onClose, rows, playbackRate, setPlaybackRate }: { onClose: () => void; rows: SettingsRow[]; playbackRate: number; setPlaybackRate: (v: number) => void }) {
   return (
     <div
       className="absolute inset-0 z-20 flex items-center justify-center"
@@ -378,6 +390,7 @@ function SettingsPanel({ onClose, rows }: { onClose: () => void; rows: SettingsR
           {rows.map((row) => (
             <VolumeRow key={row.label} {...row} />
           ))}
+          <SpeedRow value={playbackRate} onChange={setPlaybackRate} />
         </div>
       </div>
     </div>
@@ -424,6 +437,37 @@ function VolumeRow({ label, volume, muted, setVolume, setMuted }: SettingsRow) {
           aria-label={`${label} 볼륨`}
           className="bgm-slider w-full"
           style={{ ["--p" as string]: `${displayed * 100}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+function SpeedRow({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  return (
+    <div className="flex items-center gap-3 rounded-xl px-3 py-2" style={{ background: "oklch(0.18 0.02 50 / 0.7)" }}>
+      <div
+        className="grid place-items-center rounded-full"
+        style={{ width: 30, height: 30, color: "oklch(0.92 0.08 80)" }}
+      >
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+        </svg>
+      </div>
+      <div className="flex-1">
+        <div className="mb-1 flex items-center justify-between text-xs" style={{ color: "oklch(0.85 0.04 80)" }}>
+          <span>재생 속도</span>
+          <span style={{ color: "oklch(0.7 0.03 70)" }}>{value.toFixed(1)}x</span>
+        </div>
+        <input
+          type="range"
+          min={0.1}
+          max={2.0}
+          step={0.1}
+          value={value}
+          onChange={(e) => onChange(parseFloat(e.target.value))}
+          aria-label="재생 속도"
+          className="bgm-slider w-full"
+          style={{ ["--p" as string]: `${((value - 0.1) / 1.9) * 100}%` }}
         />
       </div>
     </div>
