@@ -441,6 +441,7 @@ function VolumeRow({ label, volume, muted, setVolume, setMuted }: SettingsRow) {
       </div>
     </div>
   );
+}
 function SpeedRow({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   return (
     <div className="flex items-center gap-3 rounded-xl px-3 py-2" style={{ background: "oklch(0.18 0.02 50 / 0.7)" }}>
