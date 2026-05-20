@@ -20,6 +20,7 @@ function useAudio() {
   const bgmTargetRef = useRef<number>(0.55);
   const bgmMutedRef = useRef<boolean>(false);
   const fadeTimerRef = useRef<number | null>(null);
+  const playbackRateRef = useRef<number>(1.0);
 
   const applyBgmVolume = useCallback(() => {
     const a = bgmAudioRef.current;
@@ -44,6 +45,12 @@ function useAudio() {
     }
     applyBgmVolume();
   }, [applyBgmVolume]);
+
+  const setPlaybackRate = useCallback((rate: number) => {
+    playbackRateRef.current = Math.max(0.1, Math.min(2.0, rate));
+    const a = bgmAudioRef.current;
+    if (a) a.playbackRate = playbackRateRef.current;
+  }, []);
 
   const ensure = useCallback(async () => {
     if (!ctxRef.current) {
@@ -72,6 +79,7 @@ function useAudio() {
       a.loop = true;
       a.preload = "auto";
       a.volume = 0;
+      a.playbackRate = playbackRateRef.current;
       bgmAudioRef.current = a;
     }
     const a = bgmAudioRef.current;
@@ -160,7 +168,7 @@ function useAudio() {
     m.gain.value = Math.max(0, Math.min(1, v));
   }, []);
 
-  return { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted, setMasterVolume, ensure };
+  return { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted, setMasterVolume, setPlaybackRate, ensure };
 }
 
 /* ---------- Geometry of the cassette image (percent of image box) ---------- */
