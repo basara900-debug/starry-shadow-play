@@ -1,8 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import cassetteImg from "@/assets/cassette-base.jpg";
-import treeLeftImg from "@/assets/tree-left.png";
-import treeRightImg from "@/assets/tree-right.png";
+import cassetteImg from "@/assets/idle-animation.gif";
 import mainThemeUrl from "@/assets/main-theme.mp3";
 import { CASSETTES, type Cassette } from "@/data/cassettes";
 
@@ -256,32 +254,7 @@ function ShadowTheaterTitle() {
         />
 
         {/* ===== LEFT CIRCLE: outermost pine sway (leftmost + rightmost only) ===== */}
-        <img
-          src={treeLeftImg}
-          alt=""
-          aria-hidden
-          draggable={false}
-          className="pointer-events-none absolute select-none tree-sway"
-          style={{
-            left: "14.172%",
-            top: "39.714%",
-            width: "5.305%",
-            height: "32.552%",
-          }}
-        />
-        <img
-          src={treeRightImg}
-          alt=""
-          aria-hidden
-          draggable={false}
-          className="pointer-events-none absolute select-none tree-sway tree-sway-delayed"
-          style={{
-            left: "42.733%",
-            top: "39.714%",
-            width: "5.233%",
-            height: "32.552%",
-          }}
-        />
+        {/* 나무 모션은 idle GIF에 포함되어 별도 오버레이 제거 */}
 
         {/* ===== RIGHT STAGE OVERLAY: 커튼/동물 점프 구현 제거됨 (재설계 예정) ===== */}
 
