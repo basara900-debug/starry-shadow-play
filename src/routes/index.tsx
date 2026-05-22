@@ -201,20 +201,31 @@ function ShadowTheaterTitle() {
   useEffect(() => { setMasterVolume(sfxMuted ? 0 : sfxVol); }, [sfxVol, sfxMuted, setMasterVolume]);
   useEffect(() => { setPlaybackRate(playbackRate); }, [playbackRate, setPlaybackRate]);
 
+  // 타이틀 등장과 동시에 BGM 자동 재생. 브라우저 autoplay 차단 시 첫 사용자 제스처에서 재시도.
+  useEffect(() => {
+    let started = false;
+    const tryStart = async () => {
+      if (started) return;
+      started = true;
+      setMusicOn(true);
+      await startBgm();
+    };
+    tryStart();
+    const onGesture = () => { tryStart(); };
+    window.addEventListener("pointerdown", onGesture, { once: true });
+    window.addEventListener("keydown", onGesture, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", onGesture);
+      window.removeEventListener("keydown", onGesture);
+    };
+  }, [startBgm]);
+
   const handleButton = async (i: number) => {
     setPressed(i);
     setTimeout(() => setPressed(null), 160);
     await sfx.click();
     if (i === 0) {
-      // PLAY: 세컨드 스테이지 전환 구현은 추후 재설계 예정.
-      // 현재는 BGM 토글만 수행.
-      if (!musicOn) {
-        setMusicOn(true);
-        startBgm();
-      } else {
-        setMusicOn(false);
-        stopBgm();
-      }
+      // PLAY: 세컨드 스테이지 전환은 추후 재설계 예정. (BGM은 타이틀 등장 시 자동 재생되므로 토글 제거)
     } else if (i === 3) {
       // SETTING opens settings panel
       await ensure();
