@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import cassetteImg from "@/assets/idle-animation.gif";
+import animalsLogImg from "@/assets/animals-log.png";
 import mainThemeUrl from "@/assets/main-theme.mp3";
 import { CASSETTES, type Cassette } from "@/data/cassettes";
 
@@ -268,6 +269,25 @@ function ShadowTheaterTitle() {
         {/* 나무 모션은 idle GIF에 포함되어 별도 오버레이 제거 */}
 
         {/* ===== RIGHT STAGE OVERLAY: 커튼/동물 점프 구현 제거됨 (재설계 예정) ===== */}
+        {/* 우측 원형 무대 하단 — 통나무 위 동물 실루엣 레이어 (잔잔한 호흡 모션) */}
+        <CircleOverlay c={R}>
+          <img
+            src={animalsLogImg}
+            alt=""
+            aria-hidden
+            draggable={false}
+            className="absolute select-none"
+            style={{
+              left: "50%",
+              bottom: "6%",
+              width: "88%",
+              transform: "translateX(-50%)",
+              transformOrigin: "50% 100%",
+              animation: "animalsBob 4.2s ease-in-out infinite",
+              filter: "drop-shadow(0 2px 4px oklch(0 0 0 / 0.5))",
+            }}
+          />
+        </CircleOverlay>
 
         {/* ===== BUTTON HOTSPOTS ===== */}
         {BTN_X.map((x, i) => (
@@ -718,6 +738,10 @@ function Keyframes() {
         32%  { transform: rotate(0.55deg); }
         50%  { transform: rotate(0deg); }
         100% { transform: rotate(0deg); }
+      }
+      @keyframes animalsBob {
+        0%, 100% { transform: translateX(-50%) translateY(0) scaleY(1); }
+        50%      { transform: translateX(-50%) translateY(-1.2%) scaleY(1.015); }
       }
       .bgm-slider {
         -webkit-appearance: none;
