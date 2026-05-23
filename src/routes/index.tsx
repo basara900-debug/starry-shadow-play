@@ -739,6 +739,10 @@ function Keyframes() {
         50%  { transform: rotate(0deg); }
         100% { transform: rotate(0deg); }
       }
+      @keyframes animalsBob {
+        0%, 100% { transform: translateX(-50%) translateY(0) scaleY(1); }
+        50%      { transform: translateX(-50%) translateY(-1.2%) scaleY(1.015); }
+      }
       .bgm-slider {
         -webkit-appearance: none;
         appearance: none;
