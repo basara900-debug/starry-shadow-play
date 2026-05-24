@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import cassetteImg from "@/assets/idle-animation.gif";
+import logGrassImg from "@/assets/log-grass.png";
 import mainThemeUrl from "@/assets/main-theme.mp3";
 import { CASSETTES, type Cassette } from "@/data/cassettes";
 
@@ -268,6 +269,19 @@ function ShadowTheaterTitle() {
         {/* 나무 모션은 idle GIF에 포함되어 별도 오버레이 제거 */}
 
         {/* ===== RIGHT STAGE OVERLAY: 커튼/동물 점프 구현 제거됨 (재설계 예정) ===== */}
+        {/* 우측 원형 무대 하단 — 통나무 + 풀 레이어 (잔잔한 호흡 모션) */}
+        <img
+          src={logGrassImg}
+          alt=""
+          aria-hidden
+          draggable={false}
+          className="pointer-events-none absolute inset-0 h-full w-full select-none"
+          style={{
+            transformOrigin: "50% 100%",
+            animation: "logBob 4.6s ease-in-out infinite",
+            filter: "drop-shadow(0 2px 4px oklch(0 0 0 / 0.45))",
+          }}
+        />
 
         {/* ===== BUTTON HOTSPOTS ===== */}
         {BTN_X.map((x, i) => (
@@ -718,6 +732,10 @@ function Keyframes() {
         32%  { transform: rotate(0.55deg); }
         50%  { transform: rotate(0deg); }
         100% { transform: rotate(0deg); }
+      }
+      @keyframes logBob {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50%      { transform: translateY(-0.4%) scale(1.004); }
       }
       .bgm-slider {
         -webkit-appearance: none;
