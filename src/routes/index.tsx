@@ -275,8 +275,15 @@ function ShadowTheaterTitle() {
           alt=""
           aria-hidden
           draggable={false}
-          className="pointer-events-none absolute inset-0 h-full w-full select-none"
+          className="pointer-events-none absolute select-none"
           style={{
+            // Scale the extracted log+grass layer (content bbox 6.8%–93.2% × 46.6%–74.1%
+            // within the 1376×768 PNG) down to fit the right circle bottom in the
+            // cassette stage (right circle log spans ~60.7%–83.7% width, ~63%–73% height).
+            left: "58.9%",
+            top: "50.6%",
+            width: "26.6%",
+            height: "auto",
             transformOrigin: "50% 100%",
             animation: "logBob 4.6s ease-in-out infinite",
             filter: "drop-shadow(0 2px 4px oklch(0 0 0 / 0.45))",
