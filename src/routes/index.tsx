@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import cassetteImg from "@/assets/idle-animation.gif";
-import cassetteSkinImg from "@/assets/cassette-skin.jpg";
 import mainThemeUrl from "@/assets/main-theme.mp3";
 import { CASSETTES, type Cassette } from "@/data/cassettes";
 
@@ -269,18 +268,6 @@ function ShadowTheaterTitle() {
           draggable={false}
         />
 
-        {/* 오른쪽 무대 원형 영역만 정적 스킨으로 마스킹하여 GIF의 동물/통나무 레이어를 가립니다. */}
-        <img
-          src={cassetteSkinImg}
-          alt=""
-          aria-hidden
-          className="pointer-events-none absolute inset-0 h-full w-full select-none"
-          draggable={false}
-          style={{
-            clipPath: `circle(${R.r}% at ${R.cx}% ${R.cy}%)`,
-            WebkitClipPath: `circle(${R.r}% at ${R.cx}% ${R.cy}%)`,
-          }}
-        />
 
         {/* ===== BUTTON HOTSPOTS ===== */}
         {BTN_X.map((x, i) => (
