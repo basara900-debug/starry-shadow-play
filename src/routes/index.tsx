@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import cassetteImg from "@/assets/idle-animation.gif";
+import theaterStageImg from "@/assets/theater-stage.jpg";
 import mainThemeUrl from "@/assets/main-theme.mp3";
 import { CASSETTES, type Cassette } from "@/data/cassettes";
 
@@ -8,7 +9,7 @@ export const Route = createFileRoute("/")({
   component: ShadowTheaterTitle,
 });
 
-type Stage = "idle";
+type Stage = "idle" | "theater";
 
 /* ---------- Audio engine (Web Audio synth, no assets) ---------- */
 function useAudio() {
@@ -182,7 +183,7 @@ const BTN_X = [30.2, 40.1, 50.0, 59.9, 69.8];
 
 /* ---------- Main component ---------- */
 function ShadowTheaterTitle() {
-  const [stage] = useState<Stage>("idle");
+  const [stage, setStage] = useState<Stage>("idle");
   const [musicOn, setMusicOn] = useState(false);
   const [pressed, setPressed] = useState<number | null>(null);
   const [bgmVol, setBgmVol] = useState(0.55);
@@ -194,6 +195,8 @@ function ShadowTheaterTitle() {
   const [playbackRate, setPlaybackRateState] = useState(1.0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [listOpen, setListOpen] = useState(false);
+  const [scenes, setScenes] = useState<string[]>([]);
+  const [sceneIndex, setSceneIndex] = useState(0);
   const { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted, setMasterVolume, setPlaybackRate, ensure } = useAudio();
 
   useEffect(() => { setBgmVolume(bgmVol); }, [bgmVol, setBgmVolume]);
@@ -225,10 +228,11 @@ function ShadowTheaterTitle() {
     setTimeout(() => setPressed(null), 160);
     await sfx.click();
     if (i === 0) {
-      // PLAY: 12프레임(약 1.2초) 재생 후 BGM 정지. 추후 그림자 연극 화면으로 전환.
+      // PLAY: 12프레임(약 1.2초) 재생 후 BGM 정지 + 그림자 연극(세컨드 스테이지) 전환.
       window.setTimeout(() => {
         stopBgm();
         setMusicOn(false);
+        setStage("theater");
       }, 1200);
     } else if (i === 3) {
       // SETTING opens settings panel
@@ -240,6 +244,13 @@ function ShadowTheaterTitle() {
       setListOpen(true);
     }
     // LIST / INPUT-EJECT / STORE: reserved for future cassette swap
+  };
+
+  const exitTheater = async () => {
+    await sfx.click();
+    setStage("idle");
+    setMusicOn(true);
+    await startBgm();
   };
 
   return (
@@ -260,17 +271,18 @@ function ShadowTheaterTitle() {
           height: "min(100dvh, calc(100vw * 768 / 1376))",
         }}
       >
-        {/* Base cassette image — used as-is */}
-        <img
-          src={cassetteImg}
-          alt="Little Star, Little Forest, Shadow Theater cassette"
-          className="absolute inset-0 h-full w-full select-none"
-          draggable={false}
-        />
+        {stage === "idle" && (
+          <>
+            {/* Base cassette image — used as-is */}
+            <img
+              src={cassetteImg}
+              alt="Little Star, Little Forest, Shadow Theater cassette"
+              className="absolute inset-0 h-full w-full select-none"
+              draggable={false}
+            />
 
-
-        {/* ===== BUTTON HOTSPOTS ===== */}
-        {BTN_X.map((x, i) => (
+            {/* ===== BUTTON HOTSPOTS ===== */}
+            {BTN_X.map((x, i) => (
           <button
             key={i}
             onClick={() => handleButton(i)}
@@ -288,10 +300,10 @@ function ShadowTheaterTitle() {
                   : "0 0 0 transparent",
             }}
           />
-        ))}
+            ))}
 
-        {/* tiny LED on cassette to show music state */}
-        <div
+            {/* tiny LED on cassette to show music state */}
+            <div
           className="pointer-events-none absolute rounded-full"
           style={{
             left: "50%",
@@ -307,7 +319,21 @@ function ShadowTheaterTitle() {
               : "none",
             transition: "background 0.3s, box-shadow 0.3s",
           }}
-        />
+            />
+          </>
+        )}
+
+        {stage === "theater" && (
+          <TheaterStage
+            scenes={scenes}
+            setScenes={setScenes}
+            sceneIndex={sceneIndex}
+            setSceneIndex={setSceneIndex}
+            onOpenSettings={async () => { await sfx.click(); await ensure(); setSettingsOpen(true); }}
+            onExit={exitTheater}
+            onClickSfx={sfx.click}
+          />
+        )}
 
         {/* Settings panel (opens from SETTING button) */}
         {settingsOpen && (
