@@ -357,6 +357,221 @@ function ShadowTheaterTitle() {
 
 /* ---------- Helpers ---------- */
 
+/* ---------- Theater Stage (세컨드 스테이지) ---------- */
+// 무대 이미지 내 스크린 영역(이미지 박스 % 좌표)
+const SCREEN = { x: 13.2, y: 7.5, w: 73.6, h: 70.5 };
+// 무대 이미지에 그려져 있는 4개 컨트롤 버튼의 클릭 핫스팟 (중심 x%, y% 고정)
+const THEATER_BTN_Y = 81.0;
+const THEATER_BTN_W = 7.5;
+const THEATER_BTN_H = 7.2;
+const THEATER_BTN_X = [29.0, 43.0, 57.0, 68.0];
+
+function TheaterStage({
+  scenes,
+  setScenes,
+  sceneIndex,
+  setSceneIndex,
+  onOpenSettings,
+  onExit,
+  onClickSfx,
+}: {
+  scenes: string[];
+  setScenes: React.Dispatch<React.SetStateAction<string[]>>;
+  sceneIndex: number;
+  setSceneIndex: React.Dispatch<React.SetStateAction<number>>;
+  onOpenSettings: () => void;
+  onExit: () => void;
+  onClickSfx: () => Promise<void>;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [paused, setPaused] = useState(false);
+  const [pressed, setPressed] = useState<number | null>(null);
+
+  const current = scenes[sceneIndex];
+
+  const openPicker = () => fileRef.current?.click();
+
+  const onUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    const urls = files.map((f) => URL.createObjectURL(f));
+    setScenes((prev) => {
+      const startIndex = prev.length;
+      // 새로 추가된 씬의 첫 장으로 이동
+      setSceneIndex(startIndex);
+      return [...prev, ...urls];
+    });
+    e.target.value = "";
+  };
+
+  const press = async (i: number, fn: () => void) => {
+    setPressed(i);
+    setTimeout(() => setPressed(null), 160);
+    await onClickSfx();
+    fn();
+  };
+
+  const actions = [
+    {
+      label: "Play/Pause",
+      onClick: () => setPaused((p) => !p),
+    },
+    {
+      label: "Next scene",
+      onClick: () => {
+        if (scenes.length === 0) {
+          openPicker();
+          return;
+        }
+        setSceneIndex((i) => (i + 1) % scenes.length);
+      },
+    },
+    { label: "Settings", onClick: onOpenSettings },
+    { label: "Exit", onClick: onExit },
+  ];
+
+  return (
+    <div className="absolute inset-0" style={{ animation: "fade-in 0.4s ease-out" }}>
+      <img
+        src={theaterStageImg}
+        alt="Shadow theater stage"
+        className="absolute inset-0 h-full w-full select-none"
+        draggable={false}
+      />
+
+      {/* 스크린 영역 - 씬 이미지 렌더링 */}
+      <div
+        className="absolute overflow-hidden"
+        style={{
+          left: `${SCREEN.x}%`,
+          top: `${SCREEN.y}%`,
+          width: `${SCREEN.w}%`,
+          height: `${SCREEN.h}%`,
+        }}
+      >
+        {current ? (
+          <img
+            src={current}
+            alt={`Scene ${sceneIndex + 1}`}
+            className="h-full w-full object-contain"
+            style={{
+              opacity: paused ? 0.55 : 1,
+              filter: paused ? "grayscale(0.4)" : "none",
+              transition: "opacity 0.25s, filter 0.25s",
+            }}
+            draggable={false}
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={openPicker}
+            className="grid h-full w-full place-items-center cursor-pointer border-0 bg-transparent"
+          >
+            <div
+              className="rounded-2xl px-6 py-5 text-center"
+              style={{
+                background: "oklch(0 0 0 / 0.3)",
+                border: "1px dashed oklch(1 0 0 / 0.45)",
+                color: "oklch(0.95 0.04 80)",
+                backdropFilter: "blur(2px)",
+              }}
+            >
+              <div className="text-sm font-semibold">씬 이미지를 업로드하세요</div>
+              <div className="mt-1 text-xs opacity-75">
+                JPG / PNG · 여러 장 선택 시 순서대로 씬 1, 씬 2…
+              </div>
+            </div>
+          </button>
+        )}
+      </div>
+
+      {/* 씬 카운터 */}
+      {scenes.length > 0 && (
+        <div
+          className="pointer-events-none absolute text-[11px] font-semibold"
+          style={{
+            left: "50%",
+            top: "4%",
+            transform: "translateX(-50%)",
+            background: "oklch(0 0 0 / 0.45)",
+            color: "oklch(0.95 0.06 80)",
+            padding: "3px 12px",
+            borderRadius: 999,
+            border: "1px solid oklch(0.85 0.08 75 / 0.4)",
+          }}
+        >
+          씬 {sceneIndex + 1} / {scenes.length}
+        </div>
+      )}
+
+      {/* 우상단 - 씬 추가 / 초기화 */}
+      <div className="absolute flex gap-2" style={{ right: "2.5%", top: "3.5%" }}>
+        <button
+          type="button"
+          onClick={openPicker}
+          className="cursor-pointer rounded-full border-0 text-[11px] font-semibold"
+          style={{
+            padding: "5px 12px",
+            background: "oklch(0.88 0.14 80 / 0.92)",
+            color: "oklch(0.22 0.05 50)",
+            boxShadow: "0 4px 12px oklch(0 0 0 / 0.35)",
+          }}
+        >
+          + 씬 추가
+        </button>
+        {scenes.length > 0 && (
+          <button
+            type="button"
+            onClick={() => {
+              setScenes([]);
+              setSceneIndex(0);
+            }}
+            className="cursor-pointer rounded-full border-0 text-[11px] font-semibold"
+            style={{
+              padding: "5px 12px",
+              background: "oklch(0.3 0.02 50 / 0.75)",
+              color: "oklch(0.92 0.04 80)",
+              border: "1px solid oklch(0.85 0.08 75 / 0.25)",
+            }}
+          >
+            전체 비우기
+          </button>
+        )}
+      </div>
+
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        multiple
+        hidden
+        onChange={onUpload}
+      />
+
+      {/* 하단 컨트롤 핫스팟 (무대 이미지의 4개 버튼 위치에 정렬) */}
+      {THEATER_BTN_X.map((x, i) => (
+        <button
+          key={i}
+          onClick={() => press(i, actions[i].onClick)}
+          aria-label={actions[i].label}
+          className="absolute cursor-pointer rounded-full border-0 bg-transparent p-0 transition-transform"
+          style={{
+            left: `${x - THEATER_BTN_W / 2}%`,
+            top: `${THEATER_BTN_Y - THEATER_BTN_H / 2}%`,
+            width: `${THEATER_BTN_W}%`,
+            height: `${THEATER_BTN_H}%`,
+            transform: pressed === i ? "translateY(2%) scale(0.95)" : "none",
+            boxShadow:
+              pressed === i
+                ? "inset 0 0 0 2px oklch(0.95 0.12 80 / 0.85), 0 0 18px oklch(0.95 0.12 80 / 0.5)"
+                : "none",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 type SettingsRow = {
   label: string;
   volume: number;
