@@ -414,15 +414,15 @@ const THEATER_BTN_X = [29.0, 43.0, 57.0, 68.0];
 
 function TheaterStage({
   scenes,
-  setScenes,
+  onRefresh,
   sceneIndex,
   setSceneIndex,
   onOpenSettings,
   onExit,
   onClickSfx,
 }: {
-  scenes: string[];
-  setScenes: React.Dispatch<React.SetStateAction<string[]>>;
+  scenes: SceneRow[];
+  onRefresh: () => Promise<void>;
   sceneIndex: number;
   setSceneIndex: React.Dispatch<React.SetStateAction<number>>;
   onOpenSettings: () => void;
@@ -430,24 +430,59 @@ function TheaterStage({
   onClickSfx: () => Promise<void>;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
-  const [paused, setPaused] = useState(false);
+  // 1x → 2x → paused → 1x ... 세 단계 순환
+  const [playState, setPlayState] = useState<"1x" | "2x" | "paused">("1x");
   const [pressed, setPressed] = useState<number | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const current = scenes[sceneIndex];
+  const paused = playState === "paused";
 
   const openPicker = () => fileRef.current?.click();
 
-  const onUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
-    if (!files.length) return;
-    const urls = files.map((f) => URL.createObjectURL(f));
-    setScenes((prev) => {
-      const startIndex = prev.length;
-      // 새로 추가된 씬의 첫 장으로 이동
-      setSceneIndex(startIndex);
-      return [...prev, ...urls];
-    });
     e.target.value = "";
+    if (!files.length) return;
+    setUploading(true);
+    const startIndex = scenes.length;
+    const baseOrder = scenes.length;
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const ext = (file.name.split(".").pop() || "png").toLowerCase();
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safeName}`;
+        const { error: upErr } = await supabase.storage
+          .from(SCENES_BUCKET)
+          .upload(path, file, { contentType: file.type || `image/${ext}`, upsert: false });
+        if (upErr) {
+          console.error("[scenes] upload failed", upErr);
+          continue;
+        }
+        const { error: insErr } = await supabase.from("scenes").insert({
+          name: file.name,
+          image_path: path,
+          sort_order: baseOrder + i,
+        });
+        if (insErr) console.error("[scenes] insert row failed", insErr);
+      }
+      await onRefresh();
+      setSceneIndex(startIndex);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const clearAll = async () => {
+    if (!confirm("모든 씬을 삭제할까요?")) return;
+    const paths = scenes.map((s) => s.path);
+    if (paths.length) {
+      await supabase.storage.from(SCENES_BUCKET).remove(paths);
+    }
+    await supabase.from("scenes").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+    setSceneIndex(0);
+    await onRefresh();
   };
 
   const press = async (i: number, fn: () => void) => {
@@ -457,10 +492,21 @@ function TheaterStage({
     fn();
   };
 
+  // 자동 씬 전환: 1x = 8s, 2x = 4s, paused = 정지
+  useEffect(() => {
+    if (scenes.length < 2 || paused) return;
+    const interval = playState === "2x" ? 4000 : 8000;
+    const t = window.setInterval(() => {
+      setSceneIndex((i) => (i + 1) % scenes.length);
+    }, interval);
+    return () => window.clearInterval(t);
+  }, [playState, paused, scenes.length, setSceneIndex]);
+
   const actions = [
     {
-      label: "Play/Pause",
-      onClick: () => setPaused((p) => !p),
+      label: "Play / 2x / Pause",
+      onClick: () =>
+        setPlayState((s) => (s === "1x" ? "2x" : s === "2x" ? "paused" : "1x")),
     },
     {
       label: "Next scene",
@@ -493,11 +539,13 @@ function TheaterStage({
           top: `${SCREEN.y}%`,
           width: `${SCREEN.w}%`,
           height: `${SCREEN.h}%`,
+          // 비율 유지로 남는 부분은 무대 스크린과 같은 톤으로 채움
+          background: "oklch(0.9 0.03 85)",
         }}
       >
         {current ? (
           <img
-            src={current}
+            src={current.url}
             alt={`Scene ${sceneIndex + 1}`}
             className="h-full w-full object-contain"
             style={{
@@ -522,13 +570,31 @@ function TheaterStage({
                 backdropFilter: "blur(2px)",
               }}
             >
-              <div className="text-sm font-semibold">씬 이미지를 업로드하세요</div>
+              <div className="text-sm font-semibold">
+                {uploading ? "업로드 중…" : "씬 이미지를 업로드하세요"}
+              </div>
               <div className="mt-1 text-xs opacity-75">
                 JPG / PNG · 여러 장 선택 시 순서대로 씬 1, 씬 2…
               </div>
             </div>
           </button>
         )}
+      </div>
+
+      {/* 재생 상태 뱃지 */}
+      <div
+        className="pointer-events-none absolute text-[11px] font-semibold"
+        style={{
+          left: "2.5%",
+          top: "4%",
+          background: "oklch(0 0 0 / 0.5)",
+          color: playState === "paused" ? "oklch(0.75 0.04 80)" : "oklch(0.95 0.14 80)",
+          padding: "3px 12px",
+          borderRadius: 999,
+          border: "1px solid oklch(0.85 0.08 75 / 0.4)",
+        }}
+      >
+        {playState === "1x" ? "▶ 재생 1x" : playState === "2x" ? "▶▶ 2x" : "⏸ 일시정지"}
       </div>
 
       {/* 씬 카운터 */}
@@ -555,23 +621,22 @@ function TheaterStage({
         <button
           type="button"
           onClick={openPicker}
+          disabled={uploading}
           className="cursor-pointer rounded-full border-0 text-[11px] font-semibold"
           style={{
             padding: "5px 12px",
             background: "oklch(0.88 0.14 80 / 0.92)",
             color: "oklch(0.22 0.05 50)",
             boxShadow: "0 4px 12px oklch(0 0 0 / 0.35)",
+            opacity: uploading ? 0.6 : 1,
           }}
         >
-          + 씬 추가
+          {uploading ? "업로드 중…" : "+ 씬 추가"}
         </button>
         {scenes.length > 0 && (
           <button
             type="button"
-            onClick={() => {
-              setScenes([]);
-              setSceneIndex(0);
-            }}
+            onClick={clearAll}
             className="cursor-pointer rounded-full border-0 text-[11px] font-semibold"
             style={{
               padding: "5px 12px",
