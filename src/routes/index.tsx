@@ -4,6 +4,7 @@ import cassetteImg from "@/assets/idle-animation.gif";
 import theaterStageImg from "@/assets/theater-stage.jpg";
 import mainThemeUrl from "@/assets/main-theme.mp3";
 import { CASSETTES, type Cassette } from "@/data/cassettes";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
   component: ShadowTheaterTitle,
