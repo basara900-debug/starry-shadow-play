@@ -12,6 +12,33 @@ export const Route = createFileRoute("/")({
 
 type Stage = "idle" | "theater";
 
+export type SceneRow = { id: string; url: string; path: string; name: string };
+
+const SCENES_BUCKET = "scenes";
+
+function publicUrlFor(path: string): string {
+  const { data } = supabase.storage.from(SCENES_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
+async function loadScenesFromCloud(): Promise<SceneRow[]> {
+  const { data, error } = await supabase
+    .from("scenes")
+    .select("id, name, image_path, sort_order, created_at")
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
+  if (error) {
+    console.error("[scenes] load failed", error);
+    return [];
+  }
+  return (data ?? []).map((r) => ({
+    id: r.id as string,
+    name: (r.name as string) ?? "",
+    path: r.image_path as string,
+    url: publicUrlFor(r.image_path as string),
+  }));
+}
+
 /* ---------- Audio engine (Web Audio synth, no assets) ---------- */
 function useAudio() {
   const ctxRef = useRef<AudioContext | null>(null);
