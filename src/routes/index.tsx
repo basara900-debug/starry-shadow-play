@@ -196,7 +196,7 @@ function ShadowTheaterTitle() {
   const [playbackRate, setPlaybackRateState] = useState(1.0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [listOpen, setListOpen] = useState(false);
-  const [scenes, setScenes] = useState<string[]>([]);
+  const [scenes, setScenes] = useState<SceneRow[]>([]);
   const [sceneIndex, setSceneIndex] = useState(0);
   const { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted, setMasterVolume, setPlaybackRate, ensure } = useAudio();
 
