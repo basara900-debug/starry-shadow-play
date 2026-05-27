@@ -281,6 +281,24 @@ function ShadowTheaterTitle() {
     await startBgm();
   };
 
+  // 씬 라이브러리 로드 (Cloud)
+  useEffect(() => {
+    let cancelled = false;
+    loadScenesFromCloud().then((rows) => {
+      if (cancelled) return;
+      setScenes(rows);
+      setSceneIndex(0);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const refreshScenes = useCallback(async () => {
+    const rows = await loadScenesFromCloud();
+    setScenes(rows);
+  }, []);
+
   return (
     <main
       className="fixed inset-0 flex items-center justify-center overflow-hidden"
