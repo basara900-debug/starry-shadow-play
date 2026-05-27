@@ -372,7 +372,7 @@ function ShadowTheaterTitle() {
         {stage === "theater" && (
           <TheaterStage
             scenes={scenes}
-            setScenes={setScenes}
+            onRefresh={refreshScenes}
             sceneIndex={sceneIndex}
             setSceneIndex={setSceneIndex}
             onOpenSettings={async () => { await sfx.click(); await ensure(); setSettingsOpen(true); }}
