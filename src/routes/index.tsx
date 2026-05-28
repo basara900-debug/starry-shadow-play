@@ -1072,6 +1072,11 @@ function Keyframes() {
         50%  { transform: rotate(0deg); }
         100% { transform: rotate(0deg); }
       }
+      @keyframes note-float {
+        0%   { transform: translate(0, 0) scale(0.7); opacity: 0; }
+        20%  { opacity: 0.9; }
+        100% { transform: translate(-30%, -180%) scale(1.1); opacity: 0; }
+      }
       .bgm-slider {
         -webkit-appearance: none;
         appearance: none;
