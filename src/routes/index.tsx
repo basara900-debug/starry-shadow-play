@@ -5,6 +5,7 @@ import theaterStageImg from "@/assets/theater-stage.jpg";
 import mainThemeUrl from "@/assets/main-theme.mp3";
 import { CASSETTES, type Cassette } from "@/data/cassettes";
 import { supabase } from "@/integrations/supabase/client";
+import { Scene1Motion, type Scene1Speed } from "@/components/Scene1Motion";
 
 export const Route = createFileRoute("/")({
   component: ShadowTheaterTitle,
