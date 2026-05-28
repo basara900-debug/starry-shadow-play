@@ -545,17 +545,24 @@ function TheaterStage({
         }}
       >
         {current ? (
-          <img
-            src={current.url}
-            alt={`Scene ${sceneIndex + 1}`}
-            className="h-full w-full object-contain"
-            style={{
-              opacity: paused ? 0.55 : 1,
-              filter: paused ? "grayscale(0.4)" : "none",
-              transition: "opacity 0.25s, filter 0.25s",
-            }}
-            draggable={false}
-          />
+          <div className="relative h-full w-full">
+            <img
+              src={current.url}
+              alt={`Scene ${sceneIndex + 1}`}
+              className="h-full w-full object-contain"
+              style={{
+                opacity: paused ? 0.55 : 1,
+                filter: paused ? "grayscale(0.4)" : "none",
+                transition: "opacity 0.25s, filter 0.25s",
+              }}
+              draggable={false}
+            />
+            {sceneIndex === 0 && (
+              <Scene1Motion
+                speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene1Speed}
+              />
+            )}
+          </div>
         ) : (
           <button
             type="button"
