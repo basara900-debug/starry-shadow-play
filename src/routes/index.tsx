@@ -5,6 +5,7 @@ import theaterStageImg from "@/assets/theater-stage.jpg";
 import mainThemeUrl from "@/assets/main-theme.mp3";
 import { CASSETTES, type Cassette } from "@/data/cassettes";
 import { supabase } from "@/integrations/supabase/client";
+import { Scene1Motion, type Scene1Speed } from "@/components/Scene1Motion";
 
 export const Route = createFileRoute("/")({
   component: ShadowTheaterTitle,
@@ -544,17 +545,24 @@ function TheaterStage({
         }}
       >
         {current ? (
-          <img
-            src={current.url}
-            alt={`Scene ${sceneIndex + 1}`}
-            className="h-full w-full object-contain"
-            style={{
-              opacity: paused ? 0.55 : 1,
-              filter: paused ? "grayscale(0.4)" : "none",
-              transition: "opacity 0.25s, filter 0.25s",
-            }}
-            draggable={false}
-          />
+          <div className="relative h-full w-full">
+            <img
+              src={current.url}
+              alt={`Scene ${sceneIndex + 1}`}
+              className="h-full w-full object-contain"
+              style={{
+                opacity: paused ? 0.55 : 1,
+                filter: paused ? "grayscale(0.4)" : "none",
+                transition: "opacity 0.25s, filter 0.25s",
+              }}
+              draggable={false}
+            />
+            {sceneIndex === 0 && (
+              <Scene1Motion
+                speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene1Speed}
+              />
+            )}
+          </div>
         ) : (
           <button
             type="button"
@@ -1070,6 +1078,11 @@ function Keyframes() {
         32%  { transform: rotate(0.55deg); }
         50%  { transform: rotate(0deg); }
         100% { transform: rotate(0deg); }
+      }
+      @keyframes note-float {
+        0%   { transform: translate(0, 0) scale(0.7); opacity: 0; }
+        20%  { opacity: 0.9; }
+        100% { transform: translate(-30%, -180%) scale(1.1); opacity: 0; }
       }
       .bgm-slider {
         -webkit-appearance: none;
