@@ -78,8 +78,8 @@ export function Scene1Motion({ speed }: { speed: Scene1Speed }) {
       <div
         className="absolute"
         style={{
-          right: "6%",
-          bottom: `${16 + jump}%`,
+          left: "3%",
+          bottom: `${8 + jump}%`,
           height: "34%",
           transform: `translateY(${bob}px) rotate(${sway * 0.6}deg)`,
           transition: "bottom 0.12s linear",
