@@ -74,6 +74,21 @@ export function Scene1Motion({ speed }: { speed: Scene1Speed }) {
 
   // 베짱이가 신나게 노래/점프하는 구간: 52–58s, 70–90s
   const partyMode = (t >= 52 && t < 58) || (t >= 70 && t < 90);
+
+  // 베짱이 진입 애니메이션 (0–2.4s): 화면 아래에서 꽃밭 앞쪽으로 살짝 튀어오르며 등장
+  const ENTRY_DUR = 2.4;
+  const entryP = Math.min(1, Math.max(0, t / ENTRY_DUR));
+  // easeOutBack 느낌
+  const easeOutBack = (p: number) => {
+    const c1 = 1.70158;
+    const c3 = c1 + 1;
+    return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2);
+  };
+  const eased = easeOutBack(entryP);
+  // 시작: 화면 아래로 -60% 내려간 상태, 종료: 0
+  const entryOffsetY = (1 - eased) * 60; // %
+  const entryOpacity = Math.min(1, entryP * 1.6);
+  const entryHop = entryP < 1 ? Math.sin(entryP * Math.PI * 2) * 2 : 0;
   const jump = partyMode ? Math.abs(Math.sin(t * 4)) * 4 : 0;
 
   return (
@@ -91,8 +106,10 @@ export function Scene1Motion({ speed }: { speed: Scene1Speed }) {
           left: "3%",
           bottom: `${42 + jump}%`,
           height: "34%",
-          transform: `translateY(${bob}px) rotate(${sway * 0.6}deg)`,
+          transform: `translate(0, calc(${entryOffsetY + entryHop}% + ${bob}px)) rotate(${sway * 0.6 + (1 - eased) * -8}deg)`,
+          opacity: entryOpacity,
           transition: "bottom 0.12s linear",
+          transformOrigin: "bottom center",
         }}
       >
         <img
