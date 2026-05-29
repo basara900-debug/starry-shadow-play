@@ -549,7 +549,7 @@ function TheaterStage({
             <img
               src={current.url}
               alt={`Scene ${sceneIndex + 1}`}
-              className="h-full w-full object-contain"
+              className="h-full w-full object-cover"
               style={{
                 opacity: paused ? 0.55 : 1,
                 filter: paused ? "grayscale(0.4)" : "none",
