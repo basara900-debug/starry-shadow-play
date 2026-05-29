@@ -106,7 +106,7 @@ export function Scene1Motion({ speed }: { speed: Scene1Speed }) {
           left: "3%",
           bottom: `${42 + jump}%`,
           height: "34%",
-          transform: `translateY(${bob + entryOffsetY + entryHop}%) rotate(${sway * 0.6 + (1 - eased) * -8}deg)`,
+          transform: `translate(0, calc(${entryOffsetY + entryHop}% + ${bob}px)) rotate(${sway * 0.6 + (1 - eased) * -8}deg)`,
           opacity: entryOpacity,
           transition: "bottom 0.12s linear",
           transformOrigin: "bottom center",
