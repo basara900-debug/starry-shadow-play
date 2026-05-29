@@ -105,7 +105,7 @@ export function Scene1Motion({ speed }: { speed: Scene1Speed }) {
         <div
           className="absolute left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl text-center"
           style={{
-            bottom: "2%",
+            top: "4%",
             maxWidth: "82%",
             background: "oklch(0.18 0.02 50 / 0.78)",
             color: "oklch(0.97 0.05 85)",
