@@ -56,7 +56,8 @@ export function Scene1Motion({ speed }: { speed: Scene1Speed }) {
 
   // 개미 행진 위치 (왼쪽 → 오른쪽, 12초 주기)
   const marchT = (t % 12) / 12;
-  const antX = (offset: number) => ((marchT + offset) % 1) * 110 - 10; // %
+  // 우 → 좌 방향 행진
+  const antX = (offset: number) => 100 - ((marchT + offset) % 1) * 110;
 
   // 베짱이 살짝 흔들림
   const sway = Math.sin(t * 2.4) * 2;
@@ -69,17 +70,17 @@ export function Scene1Motion({ speed }: { speed: Scene1Speed }) {
   return (
     <div className="pointer-events-none absolute inset-0 select-none">
       {/* 개미들 — 바닥(아래쪽) 일렬 행진. 원본 비율 유지를 위해 height 고정 + 자동 width */}
-      <Ant src={antLeaf}  x={antX(0)}    bottom={4}  h={26} />
-      <Ant src={antCarry} x={antX(0.33)} bottom={3}  h={28} />
-      <Ant src={antPush}  x={antX(0.66)} bottom={2}  h={27} />
-      <Ant src={antWalk}  x={antX(0.15)} bottom={6}  h={22} flip />
+      <Ant src={antLeaf}  x={antX(0)}    bottom={4}  h={26} flip />
+      <Ant src={antCarry} x={antX(0.33)} bottom={3}  h={28} flip />
+      <Ant src={antPush}  x={antX(0.66)} bottom={2}  h={27} flip />
+      <Ant src={antWalk}  x={antX(0.15)} bottom={6}  h={22} />
 
       {/* 베짱이 — 오른쪽 위쪽 풀잎 위에서 연주/노래 */}
       <div
         className="absolute"
         style={{
           left: "3%",
-          bottom: `${8 + jump}%`,
+          bottom: `${42 + jump}%`,
           height: "34%",
           transform: `translateY(${bob}px) rotate(${sway * 0.6}deg)`,
           transition: "bottom 0.12s linear",
