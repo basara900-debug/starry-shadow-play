@@ -23,13 +23,22 @@ export type Scene1Speed = 1 | 2 | 0;
 
 const BEATS: { from: number; to: number; who: "gh" | "ant" | "none"; text: string }[] = [
   { from: 0,  to: 6,  who: "none", text: "" },
-  { from: 6,  to: 12, who: "gh",   text: "베짱이: 왜 그렇게 열심히 일하니? 힘들지 않아?" },
-  { from: 12, to: 18, who: "ant",  text: "개미: 추운 겨울을 대비해서 열심히 일해야 해!" },
-  { from: 18, to: 24, who: "gh",   text: "베짱이: 아직 시간 많아~ 같이 놀자!" },
-  { from: 24, to: 32, who: "gh",   text: "베짱이: ♪ 라라라~ 여름은 즐거워 ♪" },
+  { from: 6,  to: 12, who: "ant",  text: "개미들: 영차 영차 열심히 일하자! 오늘 흘린 땀이 내일에는 큰 보답으로 돌아 올 거야!" },
+  { from: 12, to: 18, who: "ant",  text: "개미들: 자 이것도 가져가고, 요것도 챙겨가자~ 어이 친구, 거기 땅 좀 파줘!" },
+  { from: 18, to: 24, who: "gh",   text: "베짱이: 우와 저 개미떼들을 봐! 정말 이 더운 여름에 열심히 일하네. 정말 힘들게 사는군." },
+  { from: 24, to: 32, who: "gh",   text: "베짱이: 개미야 개미야~ 왜 그렇게 열심히 일하니? 힘들지 않아?" },
+  { from: 32, to: 38, who: "none", text: "(베짱이가 연주를 멈추고 다가가자, 개미 한 마리가 베짱이를 바라본다)" },
+  { from: 38, to: 44, who: "ant",  text: "개미: 응 베짱아, 앞으로 다가올 추운 겨울을 대비해서 열심히 일해야 해!" },
+  { from: 44, to: 52, who: "gh",   text: "베짱이: 아직 겨울까지는 시간 많아~ 우리 같이 놀자!" },
+  { from: 52, to: 58, who: "gh",   text: "베짱이: ♪ 랄랄라~ 여름은 즐거워 ♪" },
+  { from: 58, to: 64, who: "ant",  text: "개미: 우리는 놀 시간이 없어. 미안하지만 계속 일할게." },
+  { from: 64, to: 70, who: "gh",   text: "베짱이: 아이고 딱해라~ 일만 하느라 놀지를 못하네. 내가 너희를 위해 즐거운 노래를 불러줄게!" },
+  { from: 70, to: 76, who: "gh",   text: "베짱이: ♪ 라라라~ 신나는 여름의 노래 ♪ (개미들은 노래를 들으며 부지런히 일한다)" },
+  { from: 76, to: 82, who: "ant",  text: "개미들: 자, 해가 지기 전까지 모든 일을 끝마쳐야 한다. 모두 힘내자!" },
+  { from: 82, to: 90, who: "none", text: "(개미들은 더 분주히 일하고, 베짱이는 더욱 신나게 연주하며 노래한다)" },
 ];
 
-const LOOP_SEC = 32;
+const LOOP_SEC = 90;
 
 export function Scene1Motion({ speed }: { speed: Scene1Speed }) {
   const [t, setT] = useState(0);
@@ -63,8 +72,8 @@ export function Scene1Motion({ speed }: { speed: Scene1Speed }) {
   const sway = Math.sin(t * 2.4) * 2;
   const bob = Math.sin(t * 3.1) * 1.5;
 
-  // 베짱이는 24초 이후 점프하며 노래
-  const partyMode = t >= 24;
+  // 베짱이가 신나게 노래/점프하는 구간: 52–58s, 70–90s
+  const partyMode = (t >= 52 && t < 58) || (t >= 70 && t < 90);
   const jump = partyMode ? Math.abs(Math.sin(t * 4)) * 4 : 0;
 
   return (
