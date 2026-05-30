@@ -108,7 +108,7 @@ export function Scene1Motion({ speed }: { speed: Scene1Speed }) {
           className="absolute"
           style={{
             left: "46%",
-            bottom: "8%",
+            bottom: "26%",
             height: "24%",
             width: "auto",
             // 베짱이는 왼쪽에 있으므로 개미는 왼쪽을 향해야 함 (원본은 오른쪽 보고 있음 → flip)
