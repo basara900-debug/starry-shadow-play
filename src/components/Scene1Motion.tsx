@@ -63,10 +63,9 @@ export function Scene1Motion({ speed }: { speed: Scene1Speed }) {
 
   const beat = BEATS.find((b) => t >= b.from && t < b.to) ?? BEATS[0];
 
-  // 개미 행진 위치 (왼쪽 → 오른쪽, 12초 주기)
+  // 개미 행진 위치 (좌 → 우, 12초 주기)
   const marchT = (t % 12) / 12;
-  // 우 → 좌 방향 행진
-  const antX = (offset: number) => 100 - ((marchT + offset) % 1) * 110;
+  const antX = (offset: number) => ((marchT + offset) % 1) * 110 - 10;
 
   // 베짱이 살짝 흔들림
   const sway = Math.sin(t * 2.4) * 2;
@@ -95,8 +94,8 @@ export function Scene1Motion({ speed }: { speed: Scene1Speed }) {
     <div className="pointer-events-none absolute inset-0 select-none">
       {/* 개미들 — 바닥(아래쪽) 일렬 행진. 원본 비율 유지를 위해 height 고정 + 자동 width */}
       <Ant src={antLeaf}  x={antX(0)}    bottom={4}  h={26} flip />
-      <Ant src={antCarry} x={antX(0.33)} bottom={3}  h={28} flip />
-      <Ant src={antPush}  x={antX(0.66)} bottom={2}  h={27} flip />
+      <Ant src={antCarry} x={antX(0.33)} bottom={3}  h={28} />
+      <Ant src={antPush}  x={antX(0.66)} bottom={2}  h={27} />
       <Ant src={antWalk}  x={antX(0.15)} bottom={6}  h={22} />
 
       {/* 32s 이후 등장하는 대화 상대 개미 — 화면 중앙에서 베짱이(왼쪽)를 바라봄 */}
@@ -108,11 +107,11 @@ export function Scene1Motion({ speed }: { speed: Scene1Speed }) {
           className="absolute"
           style={{
             left: "46%",
-            bottom: "32%",
+            bottom: "22%",
             height: "22%",
             width: "auto",
             // 베짱이는 왼쪽에 있으므로 개미는 왼쪽을 향해야 함 (원본은 오른쪽 보고 있음 → flip)
-            transform: `scaleX(-1) translateY(${Math.sin(t * 3) * 1.2}px)`,
+          transform: `scaleX(-1) translateY(${Math.sin(t * 3) * 1.2}px)`,
             transformOrigin: "bottom center",
             filter: "drop-shadow(0 2px 3px oklch(0 0 0 / 0.35))",
             opacity: Math.min(1, (t - 32) / 0.6),
