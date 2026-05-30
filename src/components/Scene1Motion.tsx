@@ -111,7 +111,7 @@ export function Scene1Motion({ speed }: { speed: Scene1Speed }) {
             height: "22%",
             width: "auto",
             // 베짱이는 왼쪽에 있으므로 개미는 왼쪽을 향해야 함 (원본은 오른쪽 보고 있음 → flip)
-          transform: `translateY(${Math.sin(t * 3) * 1.2}px)`,
+          transform: `scaleX(-1) translateY(${Math.sin(t * 3) * 1.2}px)`,
             transformOrigin: "bottom center",
             filter: "drop-shadow(0 2px 3px oklch(0 0 0 / 0.35))",
             opacity: Math.min(1, (t - 32) / 0.6),
