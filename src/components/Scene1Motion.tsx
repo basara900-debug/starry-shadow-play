@@ -99,6 +99,27 @@ export function Scene1Motion({ speed }: { speed: Scene1Speed }) {
       <Ant src={antPush}  x={antX(0.66)} bottom={2}  h={27} flip />
       <Ant src={antWalk}  x={antX(0.15)} bottom={6}  h={22} />
 
+      {/* 32s 이후 등장하는 대화 상대 개미 — 화면 중앙에서 베짱이(왼쪽)를 바라봄 */}
+      {t >= 32 && (
+        <img
+          src={antWalk}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: "46%",
+            bottom: "8%",
+            height: "24%",
+            width: "auto",
+            // 베짱이는 왼쪽에 있으므로 개미는 왼쪽을 향해야 함 (원본은 오른쪽 보고 있음 → flip)
+            transform: `scaleX(-1) translateY(${Math.sin(t * 3) * 1.2}px)`,
+            transformOrigin: "bottom center",
+            filter: "drop-shadow(0 2px 3px oklch(0 0 0 / 0.35))",
+            opacity: Math.min(1, (t - 32) / 0.6),
+          }}
+        />
+      )}
+
       {/* 베짱이 — 오른쪽 위쪽 풀잎 위에서 연주/노래 */}
       <div
         className="absolute"
