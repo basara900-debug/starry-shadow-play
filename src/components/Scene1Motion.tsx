@@ -44,6 +44,38 @@ export function Scene1Motion({ speed }: { speed: Scene1Speed }) {
   const [t, setT] = useState(0);
   const rafRef = useRef<number | null>(null);
   const lastRef = useRef<number | null>(null);
+  const sfxRef = useRef<HTMLAudioElement | null>(null);
+
+  // 여름 풀벌레 VFX — 씬1 동안 루프 재생, speed에 맞춰 재생 속도 조절(0이면 일시정지)
+  useEffect(() => {
+    if (!sfxRef.current) {
+      const a = new Audio("/audio/summer_insects_90s_vfx.wav");
+      a.loop = true;
+      a.preload = "auto";
+      a.volume = 0.55;
+      sfxRef.current = a;
+    }
+    const a = sfxRef.current;
+    if (speed === 0) {
+      a.pause();
+    } else {
+      a.playbackRate = speed;
+      a.play().catch(() => { /* autoplay blocked까지 대기 */ });
+    }
+    return () => {
+      // 컴포넌트 언마운트 시 정리
+    };
+  }, [speed]);
+
+  useEffect(() => {
+    return () => {
+      const a = sfxRef.current;
+      if (a) {
+        a.pause();
+        sfxRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (speed === 0) return;
