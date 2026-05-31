@@ -6,6 +6,7 @@ import mainThemeUrl from "@/assets/main-theme.mp3";
 import { CASSETTES, type Cassette } from "@/data/cassettes";
 import { supabase } from "@/integrations/supabase/client";
 import { Scene1Motion, type Scene1Speed } from "@/components/Scene1Motion";
+import { Scene2Motion, type Scene2Speed } from "@/components/Scene2Motion";
 
 export const Route = createFileRoute("/")({
   component: ShadowTheaterTitle,
