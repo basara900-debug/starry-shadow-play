@@ -93,10 +93,10 @@ export function Scene1Motion({ speed }: { speed: Scene1Speed }) {
   return (
     <div className="pointer-events-none absolute inset-0 select-none">
       {/* 개미들 — 바닥(아래쪽) 일렬 행진. 원본 비율 유지를 위해 height 고정 + 자동 width */}
-      <Ant src={antLeaf}  x={antX(0)}    bottom={4}  h={26} flip />
-      <Ant src={antCarry} x={antX(0.33)} bottom={3}  h={28} />
-      <Ant src={antPush}  x={antX(0.66)} bottom={2}  h={27} />
-      <Ant src={antWalk}  x={antX(0.15)} bottom={6}  h={22} />
+      <Ant src={antLeaf}  x={antX(0)}    bottom={4}  h={26} />
+      <Ant src={antCarry} x={antX(0.33)} bottom={3}  h={28} flip />
+      <Ant src={antPush}  x={antX(0.66)} bottom={2}  h={27} flip />
+      <Ant src={antWalk}  x={antX(0.15)} bottom={6}  h={22} flip />
 
       {/* 32s 이후 등장하는 대화 상대 개미 — 화면 중앙에서 베짱이(왼쪽)를 바라봄 */}
       {t >= 32 && (
