@@ -563,6 +563,11 @@ function TheaterStage({
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene1Speed}
               />
             )}
+            {sceneIndex === 1 && (
+              <Scene2Motion
+                speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene2Speed}
+              />
+            )}
           </div>
         ) : (
           <button
