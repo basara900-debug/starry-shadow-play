@@ -45,6 +45,7 @@ export function Scene1Motion({ speed }: { speed: Scene1Speed }) {
   const rafRef = useRef<number | null>(null);
   const lastRef = useRef<number | null>(null);
   const sfxRef = useRef<HTMLAudioElement | null>(null);
+  const bgmRef = useRef<HTMLAudioElement | null>(null);
 
   // 여름 풀벌레 VFX — 씬1 동안 루프 재생, speed에 맞춰 재생 속도 조절(0이면 일시정지)
   useEffect(() => {
@@ -73,6 +74,40 @@ export function Scene1Motion({ speed }: { speed: Scene1Speed }) {
       if (a) {
         a.pause();
         sfxRef.current = null;
+      }
+    };
+  }, []);
+
+  // BGM — 90초 구간만 재생 후 처음으로 되돌아가며 루프
+  useEffect(() => {
+    if (!bgmRef.current) {
+      const a = new Audio("/audio/scene1_bgm.mp3");
+      a.loop = false;
+      a.preload = "auto";
+      a.volume = 0.45;
+      a.addEventListener("timeupdate", () => {
+        if (a.currentTime >= 90) {
+          a.currentTime = 0;
+          a.play().catch(() => {});
+        }
+      });
+      bgmRef.current = a;
+    }
+    const a = bgmRef.current;
+    if (speed === 0) {
+      a.pause();
+    } else {
+      a.playbackRate = speed;
+      a.play().catch(() => {});
+    }
+  }, [speed]);
+
+  useEffect(() => {
+    return () => {
+      const a = bgmRef.current;
+      if (a) {
+        a.pause();
+        bgmRef.current = null;
       }
     };
   }, []);
