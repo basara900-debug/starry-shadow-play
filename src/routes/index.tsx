@@ -497,12 +497,14 @@ function TheaterStage({
   // 자동 씬 전환: 1x = 8s, 2x = 4s, paused = 정지
   useEffect(() => {
     if (scenes.length < 2 || paused) return;
+    // 씬 1은 Scene1Motion이 자체적으로 90초 루프를 가지며 onComplete로 다음 씬을 트리거함
+    if (sceneIndex === 0) return;
     const interval = playState === "2x" ? 4000 : 8000;
     const t = window.setInterval(() => {
       setSceneIndex((i) => (i + 1) % scenes.length);
     }, interval);
     return () => window.clearInterval(t);
-  }, [playState, paused, scenes.length, setSceneIndex]);
+  }, [playState, paused, scenes.length, sceneIndex, setSceneIndex]);
 
   const actions = [
     {
@@ -561,6 +563,9 @@ function TheaterStage({
             {sceneIndex === 0 && (
               <Scene1Motion
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene1Speed}
+                onComplete={() => {
+                  if (scenes.length > 1) setSceneIndex(1);
+                }}
               />
             )}
             {sceneIndex === 1 && (
