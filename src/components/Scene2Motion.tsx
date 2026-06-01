@@ -126,8 +126,6 @@ function Ant({
         bottom: `${bottom}%`,
         height: `${h}%`,
         width: "auto",
-        // 원본은 오른쪽을 보고 있음 → 좌측 이동에 맞춰 좌우 반전
-        transform: "scaleX(-1)",
         transformOrigin: "bottom center",
         filter: "drop-shadow(0 2px 3px oklch(0 0 0 / 0.35))",
       }}
