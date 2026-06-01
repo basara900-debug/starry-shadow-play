@@ -40,12 +40,14 @@ const BEATS: { from: number; to: number; who: "gh" | "ant" | "none"; text: strin
 
 const LOOP_SEC = 90;
 
-export function Scene1Motion({ speed }: { speed: Scene1Speed }) {
+export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComplete?: () => void }) {
   const [t, setT] = useState(0);
   const rafRef = useRef<number | null>(null);
   const lastRef = useRef<number | null>(null);
   const sfxRef = useRef<HTMLAudioElement | null>(null);
   const bgmRef = useRef<HTMLAudioElement | null>(null);
+  const onCompleteRef = useRef<typeof onComplete>(onComplete);
+  useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
 
   // 여름 풀벌레 VFX — 씬1 동안 루프 재생, speed에 맞춰 재생 속도 조절(0이면 일시정지)
   useEffect(() => {
@@ -118,7 +120,14 @@ export function Scene1Motion({ speed }: { speed: Scene1Speed }) {
       if (lastRef.current == null) lastRef.current = now;
       const dt = (now - lastRef.current) / 1000;
       lastRef.current = now;
-      setT((prev) => (prev + dt * speed) % LOOP_SEC);
+      setT((prev) => {
+        const next = prev + dt * speed;
+        if (next >= LOOP_SEC) {
+          onCompleteRef.current?.();
+          return next % LOOP_SEC;
+        }
+        return next;
+      });
       rafRef.current = requestAnimationFrame(step);
     };
     rafRef.current = requestAnimationFrame(step);
