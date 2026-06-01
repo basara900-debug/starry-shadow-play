@@ -439,6 +439,8 @@ function TheaterStage({
 
   const current = scenes[sceneIndex];
   const paused = playState === "paused";
+  // 씬 2 배경 이미지가 아직 업로드되지 않아도 가을 톤 폴백으로 모션을 보여줌
+  const showScene2Fallback = sceneIndex === 1 && !current;
 
   const openPicker = () => fileRef.current?.click();
 
@@ -547,24 +549,36 @@ function TheaterStage({
           background: "oklch(0.9 0.03 85)",
         }}
       >
-        {current ? (
+        {current || showScene2Fallback ? (
           <div className="relative h-full w-full">
-            <img
-              src={current.url}
-              alt={`Scene ${sceneIndex + 1}`}
-              className="h-full w-full object-cover"
-              style={{
-                opacity: paused ? 0.55 : 1,
-                filter: paused ? "grayscale(0.4)" : "none",
-                transition: "opacity 0.25s, filter 0.25s",
-              }}
-              draggable={false}
-            />
+            {current ? (
+              <img
+                src={current.url}
+                alt={`Scene ${sceneIndex + 1}`}
+                className="h-full w-full object-cover"
+                style={{
+                  opacity: paused ? 0.55 : 1,
+                  filter: paused ? "grayscale(0.4)" : "none",
+                  transition: "opacity 0.25s, filter 0.25s",
+                }}
+                draggable={false}
+              />
+            ) : (
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    "linear-gradient(180deg, oklch(0.78 0.12 70) 0%, oklch(0.68 0.14 55) 45%, oklch(0.55 0.12 45) 100%)",
+                  opacity: paused ? 0.7 : 1,
+                  transition: "opacity 0.25s",
+                }}
+              />
+            )}
             {sceneIndex === 0 && (
               <Scene1Motion
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene1Speed}
                 onComplete={() => {
-                  if (scenes.length > 1) setSceneIndex(1);
+                  setSceneIndex(1);
                 }}
               />
             )}
