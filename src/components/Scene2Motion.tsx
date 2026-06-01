@@ -55,7 +55,7 @@ export function Scene2Motion({ speed }: { speed: Scene2Speed }) {
 
   return (
     <div className="pointer-events-none absolute inset-0 select-none">
-      {/* 개미들 — 우→좌 이동. 원본은 우측을 향하므로 flip 하여 좌측을 보게 함 */}
+      {/* 개미들 — 우→좌 이동, 좌측을 향함 */}
       <Ant src={ANTS[0]} x={antX(0)}    bottom={4} h={24} />
       <Ant src={ANTS[1]} x={antX(0.33)} bottom={6} h={22} />
       <Ant src={ANTS[2]} x={antX(0.66)} bottom={3} h={26} />
@@ -126,8 +126,6 @@ function Ant({
         bottom: `${bottom}%`,
         height: `${h}%`,
         width: "auto",
-        // 원본은 오른쪽을 보고 있음 → 좌측 이동에 맞춰 좌우 반전
-        transform: "scaleX(-1)",
         transformOrigin: "bottom center",
         filter: "drop-shadow(0 2px 3px oklch(0 0 0 / 0.35))",
       }}
