@@ -121,7 +121,7 @@ export function Scene2Motion({ speed }: { speed: Scene2Speed }) {
       <div
         className="absolute"
         style={{
-          right: "4%",
+          right: "19%",
           top: "38%",
           height: "30%",
           transform: `translateY(${bob}px) rotate(${sway * 0.4}deg)`,
@@ -177,7 +177,7 @@ function Subtitle({ line }: { line: Line | null }) {
       className="absolute"
       style={{
         left: "50%",
-        bottom: "6%",
+        top: "4%",
         transform: "translateX(-50%)",
         maxWidth: "84%",
         background: palette.bg,
