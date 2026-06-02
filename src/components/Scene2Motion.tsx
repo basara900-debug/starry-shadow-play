@@ -15,9 +15,31 @@ export type Scene2Speed = 1 | 2 | 0;
 
 const GH_POSES = [gh2, gh3, gh5, gh6];
 const GH_INTERVAL = 6; // 초
-const LOOP_SEC = GH_POSES.length * GH_INTERVAL; // 24s
+const LOOP_SEC = 90; // 전체 씬 2 길이
 
 const ANTS = [ant2, ant4, ant6];
+
+type Line = { from: number; to: number; who: "ant" | "gh" | "narration"; text: string };
+const LINES: Line[] = [
+  { from: 0,  to: 6,  who: "narration", text: "개미들은 잎과 씨앗을 나르고, 베짱이는 나무 위에서 바이올린을 켠다." },
+  { from: 6,  to: 12, who: "ant", text: "영차 영차 열심히 일하자! 이제 곧 겨울이 올 거야. 더 추워지기 전에 열심히 일하자!" },
+  { from: 12, to: 18, who: "ant", text: "자, 이것도 가져가고, 요것도 챙겨가자. 어이 친구, 거기 있는 재료 좀 챙겨줘!" },
+  { from: 18, to: 24, who: "gh",  text: "개미야, 아직도 열심히 일하고 있네! 아직 겨울은 멀었다구. 나랑 같이 노래 부르면서 좀 쉬자~" },
+  { from: 24, to: 32, who: "gh",  text: "개미야, 왜 그렇게 열심히 일하니? 쉬고 싶고 놀고 싶지 않니?" },
+  { from: 32, to: 38, who: "narration", text: "베짱이가 개미에게 말을 걸고, 개미 하나가 베짱이를 보며 대화를 시작한다." },
+  { from: 38, to: 44, who: "ant", text: "베짱아, 추운 겨울이 얼마 안 남았어. 그때를 대비해서 열심히 일해야 해!" },
+  { from: 44, to: 52, who: "gh",  text: "개미야, 일을 많이 했잖아~ 이제 조금 쉬고 우리 같이 놀자!" },
+  { from: 52, to: 58, who: "gh",  text: "♪ 랄랄라~ ♪ (베짱이가 점프하며 노래한다)" },
+  { from: 58, to: 64, who: "ant", text: "미안해. 하지만 아직 해야 할 게 많아서 우린 계속 일할게." },
+  { from: 64, to: 70, who: "gh",  text: "아이고 딱해라, 열심히 일만 하느라 놀지를 못하네. 내가 너희들을 위해 즐거운 노래를 불러줄게!" },
+  { from: 70, to: 76, who: "narration", text: "베짱이는 신나게 연주하며 노래하고, 개미들은 그 노래를 들으며 열심히 일한다." },
+  { from: 76, to: 82, who: "ant", text: "자, 더 추워지기 전까지 모든 준비를 끝마쳐야 한다! 모두 힘내자!" },
+  { from: 82, to: 90, who: "narration", text: "개미들은 더 분주히 일하고, 베짱이는 더 신나게 연주하며 노래를 부른다." },
+];
+
+function currentLine(t: number): Line | null {
+  return LINES.find((l) => t >= l.from && t < l.to) ?? null;
+}
 
 export function Scene2Motion({ speed }: { speed: Scene2Speed }) {
   const [t, setT] = useState(0);
@@ -100,6 +122,51 @@ export function Scene2Motion({ speed }: { speed: Scene2Speed }) {
       >
         씬 2 · {Math.floor(t)}s / {LOOP_SEC}s
       </div>
+
+      {/* 대사 자막 */}
+      <Subtitle line={currentLine(t)} />
+    </div>
+  );
+}
+
+function Subtitle({ line }: { line: Line | null }) {
+  if (!line) return null;
+  const palette =
+    line.who === "ant"
+      ? { bg: "oklch(0.25 0.05 30 / 0.82)", fg: "oklch(0.97 0.02 80)", label: "개미" }
+      : line.who === "gh"
+      ? { bg: "oklch(0.32 0.12 140 / 0.82)", fg: "oklch(0.98 0.04 110)", label: "베짱이" }
+      : { bg: "oklch(0.18 0 0 / 0.78)", fg: "oklch(0.95 0 0)", label: "내레이션" };
+  return (
+    <div
+      className="absolute"
+      style={{
+        left: "50%",
+        bottom: "6%",
+        transform: "translateX(-50%)",
+        maxWidth: "84%",
+        background: palette.bg,
+        color: palette.fg,
+        padding: "10px 16px",
+        borderRadius: 12,
+        fontSize: 16,
+        lineHeight: 1.45,
+        textAlign: "center",
+        boxShadow: "0 6px 18px oklch(0 0 0 / 0.35)",
+        backdropFilter: "blur(4px)",
+      }}
+    >
+      <div
+        style={{
+          fontSize: 11,
+          opacity: 0.85,
+          letterSpacing: "0.06em",
+          marginBottom: 4,
+        }}
+      >
+        {palette.label}
+      </div>
+      {line.text}
     </div>
   );
 }
