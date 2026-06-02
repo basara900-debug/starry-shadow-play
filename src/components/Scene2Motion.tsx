@@ -117,6 +117,27 @@ export function Scene2Motion({ speed }: { speed: Scene2Speed }) {
       <Ant src={ANTS[1]} x={antX(0.33)} bottom={6} h={22} />
       <Ant src={ANTS[2]} x={antX(0.66)} bottom={3} h={26} />
 
+      {/* 32초~ : 나뭇잎을 짊어진 개미가 베짱이와 마주보고 대화 (중앙 하단 15%) */}
+      {t >= 32 && (
+        <img
+          src={ANTS[0]}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: "50%",
+            bottom: "15%",
+            height: "26%",
+            width: "auto",
+            transform: `translateX(-50%) scaleX(-1) translateY(${Math.sin(t * 3) * 1.5}px)`,
+            transformOrigin: "bottom center",
+            filter: "drop-shadow(0 3px 5px oklch(0 0 0 / 0.4))",
+            opacity: Math.min(1, (t - 32) / 0.6),
+            transition: "opacity 0.2s linear",
+          }}
+        />
+      )}
+
       {/* 베짱이 — 우측 중간, 6초마다 포즈 전환 */}
       <div
         className="absolute"
