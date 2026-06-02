@@ -45,6 +45,41 @@ export function Scene2Motion({ speed }: { speed: Scene2Speed }) {
   const [t, setT] = useState(0);
   const rafRef = useRef<number | null>(null);
   const lastRef = useRef<number | null>(null);
+  const bgmRef = useRef<HTMLAudioElement | null>(null);
+
+  // BGM — 90초 구간 루프
+  useEffect(() => {
+    if (!bgmRef.current) {
+      const a = new Audio("/audio/scene2_bgm.mp3");
+      a.loop = false;
+      a.preload = "auto";
+      a.volume = 0.45;
+      a.addEventListener("timeupdate", () => {
+        if (a.currentTime >= 90) {
+          a.currentTime = 0;
+          a.play().catch(() => {});
+        }
+      });
+      bgmRef.current = a;
+    }
+    const a = bgmRef.current;
+    if (speed === 0) {
+      a.pause();
+    } else {
+      a.playbackRate = speed;
+      a.play().catch(() => {});
+    }
+  }, [speed]);
+
+  useEffect(() => {
+    return () => {
+      const a = bgmRef.current;
+      if (a) {
+        a.pause();
+        bgmRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (speed === 0) return;
