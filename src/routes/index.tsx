@@ -501,6 +501,8 @@ function TheaterStage({
     if (scenes.length < 2 || paused) return;
     // 씬 1은 Scene1Motion이 자체적으로 90초 루프를 가지며 onComplete로 다음 씬을 트리거함
     if (sceneIndex === 0) return;
+    // 씬 2도 자체 90초 루프를 가지므로 자동 전환에서 제외
+    if (sceneIndex === 1) return;
     const interval = playState === "2x" ? 4000 : 8000;
     const t = window.setInterval(() => {
       setSceneIndex((i) => (i + 1) % scenes.length);
