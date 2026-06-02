@@ -125,7 +125,7 @@ export function Scene2Motion({ speed }: { speed: Scene2Speed }) {
           draggable={false}
           className="absolute"
           style={{
-            left: "50%",
+            left: "60%",
             bottom: "15%",
             height: "26%",
             width: "auto",
