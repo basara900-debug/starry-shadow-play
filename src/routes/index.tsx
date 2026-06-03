@@ -7,6 +7,7 @@ import { CASSETTES, type Cassette } from "@/data/cassettes";
 import { supabase } from "@/integrations/supabase/client";
 import { Scene1Motion, type Scene1Speed } from "@/components/Scene1Motion";
 import { Scene2Motion, type Scene2Speed } from "@/components/Scene2Motion";
+import { Scene3Motion, type Scene3Speed } from "@/components/Scene3Motion";
 
 export const Route = createFileRoute("/")({
   component: ShadowTheaterTitle,
@@ -587,6 +588,11 @@ function TheaterStage({
             {sceneIndex === 1 && (
               <Scene2Motion
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene2Speed}
+              />
+            )}
+            {sceneIndex === 2 && (
+              <Scene3Motion
+                speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene3Speed}
               />
             )}
           </div>
