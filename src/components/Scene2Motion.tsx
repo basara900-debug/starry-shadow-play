@@ -46,6 +46,7 @@ export function Scene2Motion({ speed }: { speed: Scene2Speed }) {
   const rafRef = useRef<number | null>(null);
   const lastRef = useRef<number | null>(null);
   const bgmRef = useRef<HTMLAudioElement | null>(null);
+  const sfxRef = useRef<HTMLAudioElement | null>(null);
 
   // BGM — 90초 구간 루프
   useEffect(() => {
@@ -62,12 +63,24 @@ export function Scene2Motion({ speed }: { speed: Scene2Speed }) {
       });
       bgmRef.current = a;
     }
+    // 가을 배경 SFX (공간음) — 자연스러운 루프
+    if (!sfxRef.current) {
+      const s = new Audio("/audio/scene2_sfx.mp3");
+      s.loop = true;
+      s.preload = "auto";
+      s.volume = 0.3;
+      sfxRef.current = s;
+    }
     const a = bgmRef.current;
+    const s = sfxRef.current;
     if (speed === 0) {
       a.pause();
+      s.pause();
     } else {
       a.playbackRate = speed;
       a.play().catch(() => {});
+      s.playbackRate = speed;
+      s.play().catch(() => {});
     }
   }, [speed]);
 
@@ -77,6 +90,11 @@ export function Scene2Motion({ speed }: { speed: Scene2Speed }) {
       if (a) {
         a.pause();
         bgmRef.current = null;
+      }
+      const s = sfxRef.current;
+      if (s) {
+        s.pause();
+        sfxRef.current = null;
       }
     };
   }, []);
