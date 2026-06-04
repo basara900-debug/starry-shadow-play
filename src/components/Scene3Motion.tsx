@@ -136,12 +136,12 @@ export function Scene3Motion({ speed }: { speed: Scene3Speed }) {
   // 시간대별 위치/크기 (자연스러운 이동/스케일)
   // 0–52s: 좌측 25%, 하단 10%, 크기 44%
   // 52–64s: 화면 중앙으로 이동, 크기 22% (50%)
-  // 64–90s: 오두막 앞(우측 72%, 하단 18%)으로 이동, 크기 11% (25%)
+  // 64–90s: 오두막 앞(우측 78%)으로 대각선 아래로 이동, 크기 11% (25%)
   const easeInOut = (x: number) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
   const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
   const A = { left: 25, bottom: 10, height: 44 };
   const B = { left: 50, bottom: 12, height: 22 };
-  const C = { left: 72, bottom: 18, height: 11 };
+  const C = { left: 78, bottom: 4, height: 11 };
   let pos = A;
   if (t >= 44 && t < 56) {
     const k = easeInOut((t - 44) / 12);
