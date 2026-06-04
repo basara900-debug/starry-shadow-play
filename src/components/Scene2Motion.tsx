@@ -41,12 +41,13 @@ function currentLine(t: number): Line | null {
   return LINES.find((l) => t >= l.from && t < l.to) ?? null;
 }
 
-export function Scene2Motion({ speed }: { speed: Scene2Speed }) {
+export function Scene2Motion({ speed, onComplete }: { speed: Scene2Speed; onComplete?: () => void }) {
   const [t, setT] = useState(0);
   const rafRef = useRef<number | null>(null);
   const lastRef = useRef<number | null>(null);
   const bgmRef = useRef<HTMLAudioElement | null>(null);
   const sfxRef = useRef<HTMLAudioElement | null>(null);
+  const doneRef = useRef(false);
 
   // BGM — 90초 구간 루프
   useEffect(() => {
@@ -105,7 +106,14 @@ export function Scene2Motion({ speed }: { speed: Scene2Speed }) {
       if (lastRef.current == null) lastRef.current = now;
       const dt = (now - lastRef.current) / 1000;
       lastRef.current = now;
-      setT((prev) => (prev + dt * speed) % LOOP_SEC);
+      setT((prev) => {
+        const next = prev + dt * speed;
+        if (next >= LOOP_SEC && !doneRef.current) {
+          doneRef.current = true;
+          onComplete?.();
+        }
+        return next % LOOP_SEC;
+      });
       rafRef.current = requestAnimationFrame(step);
     };
     rafRef.current = requestAnimationFrame(step);
@@ -160,7 +168,7 @@ export function Scene2Motion({ speed }: { speed: Scene2Speed }) {
       <div
         className="absolute"
         style={{
-          right: "19%",
+          right: "18%",
           top: "38%",
           height: "30%",
           transform: `translateY(${bob}px) rotate(${sway * 0.4}deg)`,
