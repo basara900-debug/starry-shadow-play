@@ -133,14 +133,36 @@ export function Scene3Motion({ speed }: { speed: Scene3Speed }) {
   const bob = Math.sin(t * 1.6) * 0.6;
   const shiver = idx === 0 ? Math.sin(t * 22) * 0.6 : 0; // 첫 포즈(떠는 베짱이)는 가볍게 진동
 
+  // 시간대별 위치/크기 (자연스러운 이동/스케일)
+  // 0–52s: 좌측 25%, 하단 10%, 크기 44%
+  // 52–64s: 화면 중앙으로 이동, 크기 22% (50%)
+  // 64–90s: 오두막 앞(우측 72%, 하단 18%)으로 이동, 크기 11% (25%)
+  const easeInOut = (x: number) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
+  const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
+  const A = { left: 25, bottom: 10, height: 44 };
+  const B = { left: 50, bottom: 12, height: 22 };
+  const C = { left: 72, bottom: 18, height: 11 };
+  let pos = A;
+  if (t >= 44 && t < 56) {
+    const k = easeInOut((t - 44) / 12);
+    pos = { left: lerp(A.left, B.left, k), bottom: lerp(A.bottom, B.bottom, k), height: lerp(A.height, B.height, k) };
+  } else if (t >= 56 && t < 60) {
+    pos = B;
+  } else if (t >= 60 && t < 72) {
+    const k = easeInOut((t - 60) / 12);
+    pos = { left: lerp(B.left, C.left, k), bottom: lerp(B.bottom, C.bottom, k), height: lerp(B.height, C.height, k) };
+  } else if (t >= 72) {
+    pos = C;
+  }
+
   return (
     <div className="pointer-events-none absolute inset-0 select-none">
       <div
         className="absolute"
         style={{
-          left: "25%",
-          bottom: "10%",
-          height: "44%",
+          left: `${pos.left}%`,
+          bottom: `${pos.bottom}%`,
+          height: `${pos.height}%`,
           transform: `translate(-50%, ${bob}px) translateX(${shiver}px)`,
           transformOrigin: "bottom center",
           filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.35))",
