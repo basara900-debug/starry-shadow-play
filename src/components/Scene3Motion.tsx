@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import gh1 from "@/assets/scene3/gh-1.png";
 import gh2 from "@/assets/scene3/gh-2.png";
 import gh3 from "@/assets/scene3/gh-3.png";
+import bgmAsset from "@/assets/scene3/scene3_bgm.mp3.asset.json";
 
 /**
  * 씬 3 — 겨울 배경 위의 베짱이 캐릭터.
@@ -40,6 +41,38 @@ export function Scene3Motion({ speed }: { speed: Scene3Speed }) {
   const [t, setT] = useState(0);
   const rafRef = useRef<number | null>(null);
   const lastRef = useRef<number | null>(null);
+  const bgmRef = useRef<HTMLAudioElement | null>(null);
+
+  // 씬 3 전용 BGM (슬픈 바이올린). speed=0이면 일시정지, 그 외에는 playbackRate에 맞춰 재생.
+  useEffect(() => {
+    if (!bgmRef.current) {
+      const a = new Audio(bgmAsset.url);
+      a.loop = true;
+      a.preload = "auto";
+      a.volume = 0.55;
+      bgmRef.current = a;
+    }
+    const a = bgmRef.current;
+    a.playbackRate = speed === 0 ? 1 : speed;
+    if (speed === 0) {
+      a.pause();
+    } else {
+      a.play().catch(() => {/* autoplay blocked until user gesture */});
+    }
+    return () => {
+      a.pause();
+    };
+  }, [speed]);
+
+  useEffect(() => {
+    return () => {
+      if (bgmRef.current) {
+        bgmRef.current.pause();
+        bgmRef.current.src = "";
+        bgmRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (speed === 0) return;
