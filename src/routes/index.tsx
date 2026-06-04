@@ -504,6 +504,8 @@ function TheaterStage({
     if (sceneIndex === 0) return;
     // 씬 2도 자체 90초 루프를 가지므로 자동 전환에서 제외
     if (sceneIndex === 1) return;
+    // 씬 3도 자체 90초 루프를 가지므로 자동 전환에서 제외
+    if (sceneIndex === 2) return;
     const interval = playState === "2x" ? 4000 : 8000;
     const t = window.setInterval(() => {
       setSceneIndex((i) => (i + 1) % scenes.length);
