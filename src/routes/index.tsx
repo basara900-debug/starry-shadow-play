@@ -590,6 +590,9 @@ function TheaterStage({
             {sceneIndex === 1 && (
               <Scene2Motion
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene2Speed}
+                onComplete={() => {
+                  setSceneIndex((i) => (i + 1) % Math.max(scenes.length, 3));
+                }}
               />
             )}
             {sceneIndex === 2 && (
