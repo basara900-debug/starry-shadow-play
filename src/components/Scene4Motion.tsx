@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import gh1 from "@/assets/scene3/gh-1.png";
 import gh2 from "@/assets/scene3/gh-2.png";
 import gh3 from "@/assets/scene3/gh-3.png";
-import ant2 from "@/assets/scene2/ant-2.png";
-import ant4 from "@/assets/scene2/ant-4.png";
-import ant6 from "@/assets/scene2/ant-6.png";
+import ant1Asset from "@/assets/scene4/ant1.png.asset.json";
+import ant2Asset from "@/assets/scene4/ant2.png.asset.json";
+import ant3Asset from "@/assets/scene4/ant3.png.asset.json";
+import ant4Asset from "@/assets/scene4/ant4.png.asset.json";
 import bgmAsset from "@/assets/scene4/scene4_bgm.mp3.asset.json";
 import sfxAsset from "@/assets/scene4/scene4_sfx.mp3.asset.json";
 
@@ -15,7 +16,7 @@ import sfxAsset from "@/assets/scene4/scene4_sfx.mp3.asset.json";
 export type Scene4Speed = 1 | 2 | 0;
 
 const GH_POSES = [gh1, gh2, gh3];
-const ANTS = [ant2, ant4, ant6];
+const ANTS = [ant1Asset.url, ant2Asset.url, ant3Asset.url, ant4Asset.url];
 const POSE_INTERVAL = 6; // 초
 const FADE = 0.8;
 const LOOP_SEC = 90;
