@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import gh1 from "@/assets/scene3/gh-1.png";
 import gh2 from "@/assets/scene3/gh-2.png";
 import gh3 from "@/assets/scene3/gh-3.png";
-import ant2 from "@/assets/scene2/ant-2.png";
-import ant4 from "@/assets/scene2/ant-4.png";
-import ant6 from "@/assets/scene2/ant-6.png";
+import ant1Asset from "@/assets/scene4/ant1.png.asset.json";
+import ant2Asset from "@/assets/scene4/ant2.png.asset.json";
+import ant3Asset from "@/assets/scene4/ant3.png.asset.json";
+import ant4Asset from "@/assets/scene4/ant4.png.asset.json";
 import bgmAsset from "@/assets/scene4/scene4_bgm.mp3.asset.json";
 import sfxAsset from "@/assets/scene4/scene4_sfx.mp3.asset.json";
 
@@ -15,7 +16,7 @@ import sfxAsset from "@/assets/scene4/scene4_sfx.mp3.asset.json";
 export type Scene4Speed = 1 | 2 | 0;
 
 const GH_POSES = [gh1, gh2, gh3];
-const ANTS = [ant2, ant4, ant6];
+const ANTS = [ant1Asset.url, ant2Asset.url, ant3Asset.url, ant4Asset.url];
 const POSE_INTERVAL = 6; // 초
 const FADE = 0.8;
 const LOOP_SEC = 90;
@@ -183,52 +184,30 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
         </div>
       </div>
 
-      {/* 개미들 — 우측에 모여 식탁 주변에 있다가 춤춤 */}
-      <img
-        src={ANTS[0]}
-        alt=""
-        draggable={false}
-        className="absolute"
-        style={{
-          left: `${58 + dance * 0.3}%`,
-          bottom: "12%",
-          height: "22%",
-          width: "auto",
-          transform: `scaleX(-1) translateY(${Math.sin(t * 2.6) * 1.5}px)`,
-          transformOrigin: "bottom center",
-          filter: "drop-shadow(0 3px 5px oklch(0 0 0 / 0.4))",
-        }}
-      />
-      <img
-        src={ANTS[1]}
-        alt=""
-        draggable={false}
-        className="absolute"
-        style={{
-          left: `${70 + dance * 0.5}%`,
-          bottom: "10%",
-          height: "24%",
-          width: "auto",
-          transform: `scaleX(-1) translateY(${Math.sin(t * 2.2 + 1) * 1.5}px)`,
-          transformOrigin: "bottom center",
-          filter: "drop-shadow(0 3px 5px oklch(0 0 0 / 0.4))",
-        }}
-      />
-      <img
-        src={ANTS[2]}
-        alt=""
-        draggable={false}
-        className="absolute"
-        style={{
-          left: `${82 + dance * 0.4}%`,
-          bottom: "13%",
-          height: "20%",
-          width: "auto",
-          transform: `scaleX(-1) translateY(${Math.sin(t * 3.1 + 2) * 1.5}px)`,
-          transformOrigin: "bottom center",
-          filter: "drop-shadow(0 3px 5px oklch(0 0 0 / 0.4))",
-        }}
-      />
+      {/* 개미들 — 우측 식탁 주변에 4마리 배치. 54초부터 살짝 춤추듯 흔들림. */}
+      {[
+        { src: ANTS[0], left: 62, bottom: 10, h: 22, flip: false, phase: 0,   amp: 1.5 }, // 쿠키 먹는 개미 (식탁 좌측)
+        { src: ANTS[1], left: 74, bottom: 22, h: 20, flip: true,  phase: 0.8, amp: 1.2 }, // 차 마시는 개미 (식탁 위쪽)
+        { src: ANTS[2], left: 86, bottom: 9,  h: 22, flip: true,  phase: 1.6, amp: 1.5 }, // 친구와 함께 있는 개미 (식탁 우측)
+        { src: ANTS[3], left: 78, bottom: 4,  h: 21, flip: false, phase: 2.4, amp: 1.8 }, // 노래하는 개미 (식탁 앞)
+      ].map((a, i) => (
+        <img
+          key={i}
+          src={a.src}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: `${a.left + dance * (0.3 + i * 0.1)}%`,
+            bottom: `${a.bottom}%`,
+            height: `${a.h}%`,
+            width: "auto",
+            transform: `translate(-50%, ${Math.sin(t * 2.4 + a.phase) * a.amp}px)${a.flip ? " scaleX(-1)" : ""}`,
+            transformOrigin: "bottom center",
+            filter: "drop-shadow(0 3px 5px oklch(0 0 0 / 0.4))",
+          }}
+        />
+      ))}
 
       {/* 인디케이터 */}
       <div
