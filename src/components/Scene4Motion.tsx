@@ -5,6 +5,8 @@ import gh3 from "@/assets/scene3/gh-3.png";
 import ant2 from "@/assets/scene2/ant-2.png";
 import ant4 from "@/assets/scene2/ant-4.png";
 import ant6 from "@/assets/scene2/ant-6.png";
+import bgmAsset from "@/assets/scene4/scene4_bgm.mp3.asset.json";
+import sfxAsset from "@/assets/scene4/scene4_sfx.mp3.asset.json";
 
 /**
  * 씬 4 — 따뜻한 오두막 안. 베짱이와 개미들의 화해와 노래.
@@ -46,6 +48,47 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
   const rafRef = useRef<number | null>(null);
   const lastRef = useRef<number | null>(null);
   const doneRef = useRef(false);
+  const bgmRef = useRef<HTMLAudioElement | null>(null);
+  const sfxRef = useRef<HTMLAudioElement | null>(null);
+
+  // 씬 4 BGM (밝고 행복한 음악). speed=0이면 일시정지.
+  useEffect(() => {
+    if (!bgmRef.current) {
+      const a = new Audio(bgmAsset.url);
+      a.loop = true;
+      a.preload = "auto";
+      a.volume = 0.55;
+      bgmRef.current = a;
+    }
+    const a = bgmRef.current;
+    a.playbackRate = speed === 0 ? 1 : speed;
+    if (speed === 0) a.pause();
+    else a.play().catch(() => {});
+    return () => { a.pause(); };
+  }, [speed]);
+
+  // 씬 4 벽난로 모닥불 SFX. 루프 재생.
+  useEffect(() => {
+    if (!sfxRef.current) {
+      const a = new Audio(sfxAsset.url);
+      a.loop = true;
+      a.preload = "auto";
+      a.volume = 0.4;
+      sfxRef.current = a;
+    }
+    const a = sfxRef.current;
+    a.playbackRate = speed === 0 ? 1 : speed;
+    if (speed === 0) a.pause();
+    else a.play().catch(() => {});
+    return () => { a.pause(); };
+  }, [speed]);
+
+  useEffect(() => {
+    return () => {
+      if (bgmRef.current) { bgmRef.current.pause(); bgmRef.current.src = ""; bgmRef.current = null; }
+      if (sfxRef.current) { sfxRef.current.pause(); sfxRef.current.src = ""; sfxRef.current = null; }
+    };
+  }, []);
 
   useEffect(() => {
     if (speed === 0) return;
