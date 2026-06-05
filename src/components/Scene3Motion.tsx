@@ -38,12 +38,13 @@ function currentLine(t: number): Line | null {
   return LINES.find((l) => t >= l.from && t < l.to) ?? null;
 }
 
-export function Scene3Motion({ speed }: { speed: Scene3Speed }) {
+export function Scene3Motion({ speed, onComplete }: { speed: Scene3Speed; onComplete?: () => void }) {
   const [t, setT] = useState(0);
   const rafRef = useRef<number | null>(null);
   const lastRef = useRef<number | null>(null);
   const bgmRef = useRef<HTMLAudioElement | null>(null);
   const sfxRef = useRef<HTMLAudioElement | null>(null);
+  const doneRef = useRef(false);
 
   // 씬 3 전용 BGM (슬픈 바이올린). speed=0이면 일시정지, 그 외에는 playbackRate에 맞춰 재생.
   useEffect(() => {
@@ -108,7 +109,14 @@ export function Scene3Motion({ speed }: { speed: Scene3Speed }) {
       if (lastRef.current == null) lastRef.current = now;
       const dt = (now - lastRef.current) / 1000;
       lastRef.current = now;
-      setT((prev) => (prev + dt * speed) % LOOP_SEC);
+      setT((prev) => {
+        const next = prev + dt * speed;
+        if (next >= LOOP_SEC && !doneRef.current) {
+          doneRef.current = true;
+          onComplete?.();
+        }
+        return next % LOOP_SEC;
+      });
       rafRef.current = requestAnimationFrame(step);
     };
     rafRef.current = requestAnimationFrame(step);
