@@ -140,56 +140,12 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
         }}
       />
 
-      {/* 베짱이 — 좌측 중앙 */}
-      <div
-        className="absolute"
-        style={{
-          left: "32%",
-          bottom: "14%",
-          height: "38%",
-          transform: `translate(-50%, ${bob}px) rotate(${sway * 0.3}deg)`,
-          transformOrigin: "bottom center",
-          filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.4))",
-        }}
-      >
-        <div style={{ position: "relative", height: "100%" }}>
-          <img
-            src={GH_POSES[idx]}
-            alt=""
-            draggable={false}
-            style={{
-              height: "100%",
-              width: "auto",
-              display: "block",
-              opacity: 1 - fadeIn,
-              transition: "opacity 80ms linear",
-            }}
-          />
-          {fadeIn > 0 && (
-            <img
-              src={GH_POSES[nextIdx]}
-              alt=""
-              draggable={false}
-              style={{
-                position: "absolute",
-                inset: 0,
-                height: "100%",
-                width: "auto",
-                display: "block",
-                opacity: fadeIn,
-                transition: "opacity 80ms linear",
-              }}
-            />
-          )}
-        </div>
-      </div>
-
-      {/* 개미들 — 우측 식탁 주변에 4마리 배치. 54초부터 살짝 춤추듯 흔들림. */}
+      {/* 개미들 — 화면 중앙(50%, 높이 50%) 주변에 4마리 배치. 54초부터 살짝 춤추듯 흔들림. */}
       {[
-        { src: ANTS[0], left: 62, bottom: 10, h: 22, flip: false, phase: 0,   amp: 1.5 }, // 쿠키 먹는 개미 (식탁 좌측)
-        { src: ANTS[1], left: 74, bottom: 22, h: 20, flip: true,  phase: 0.8, amp: 1.2 }, // 차 마시는 개미 (식탁 위쪽)
-        { src: ANTS[2], left: 86, bottom: 9,  h: 22, flip: true,  phase: 1.6, amp: 1.5 }, // 친구와 함께 있는 개미 (식탁 우측)
-        { src: ANTS[3], left: 78, bottom: 4,  h: 21, flip: false, phase: 2.4, amp: 1.8 }, // 노래하는 개미 (식탁 앞)
+        { src: ANTS[0], left: 38, bottom: 50, h: 22, flip: false, phase: 0,   amp: 1.5 },
+        { src: ANTS[1], left: 50, bottom: 56, h: 20, flip: true,  phase: 0.8, amp: 1.2 },
+        { src: ANTS[2], left: 62, bottom: 50, h: 22, flip: true,  phase: 1.6, amp: 1.5 },
+        { src: ANTS[3], left: 50, bottom: 42, h: 21, flip: false, phase: 2.4, amp: 1.8 },
       ].map((a, i) => (
         <img
           key={i}
