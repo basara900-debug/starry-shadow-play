@@ -123,14 +123,8 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
     };
   }, [speed, onComplete]);
 
-  // 베짱이 포즈 전환
-  const cycle = POSE_INTERVAL * GH_POSES.length;
-  const tt = ((t % cycle) + cycle) % cycle;
-  const idx = Math.floor(tt / POSE_INTERVAL);
-  const localT = tt - idx * POSE_INTERVAL;
-  const nextIdx = (idx + 1) % GH_POSES.length;
-  const fadeIn = localT > POSE_INTERVAL - FADE ? (localT - (POSE_INTERVAL - FADE)) / FADE : 0;
-
+  // 베짱이 포즈 — 시간대별로 결정
+  const ghSrc = ghPose(t);
   const bob = Math.sin(t * 2.4) * 2;
   const sway = Math.sin(t * 1.8) * 1.5;
 
@@ -173,6 +167,24 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
           }}
         />
       ))}
+
+      {/* 베짱이 — 좌측 하단. 시간대별 포즈 변경 */}
+      <img
+        src={ghSrc}
+        alt=""
+        draggable={false}
+        className="absolute"
+        style={{
+          left: `${20 + sway * 0.4}%`,
+          bottom: "10%",
+          height: "30%",
+          width: "auto",
+          transform: `translate(-50%, ${bob}px)`,
+          transformOrigin: "bottom center",
+          filter: "drop-shadow(0 4px 8px oklch(0 0 0 / 0.4))",
+          transition: "opacity 200ms linear",
+        }}
+      />
 
       {/* 인디케이터 */}
       <div
