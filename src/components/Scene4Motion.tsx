@@ -175,7 +175,7 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
         draggable={false}
         className="absolute"
         style={{
-          left: `${40 + sway * 0.4}%`,
+          left: `${60 + sway * 0.4}%`,
           bottom: "10%",
           height: "30%",
           width: "auto",
