@@ -491,6 +491,17 @@ function TheaterStage({
     await onRefresh();
   };
 
+  const deleteCurrent = async () => {
+    if (!current) return;
+    if (!confirm(`씬 ${sceneIndex + 1} 배경을 삭제할까요?`)) return;
+    if (current.path) {
+      await supabase.storage.from(SCENES_BUCKET).remove([current.path]);
+    }
+    await supabase.from("scenes").delete().eq("id", current.id);
+    setSceneIndex((i) => Math.max(0, Math.min(i, scenes.length - 2)));
+    await onRefresh();
+  };
+
   const press = async (i: number, fn: () => void) => {
     setPressed(i);
     setTimeout(() => setPressed(null), 160);
@@ -693,6 +704,23 @@ function TheaterStage({
         >
           {uploading ? "업로드 중…" : "+ 씬 추가"}
         </button>
+        {scenes.length > 0 && (
+          <button
+            type="button"
+            onClick={deleteCurrent}
+            disabled={!current}
+            className="cursor-pointer rounded-full border-0 text-[11px] font-semibold"
+            style={{
+              padding: "5px 12px",
+              background: "oklch(0.45 0.14 30 / 0.85)",
+              color: "oklch(0.97 0.04 80)",
+              border: "1px solid oklch(0.85 0.08 75 / 0.3)",
+              opacity: current ? 1 : 0.45,
+            }}
+          >
+            현재 씬 삭제
+          </button>
+        )}
         {scenes.length > 0 && (
           <button
             type="button"
