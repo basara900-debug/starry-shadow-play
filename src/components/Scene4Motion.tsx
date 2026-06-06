@@ -168,14 +168,14 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
         />
       ))}
 
-      {/* 베짱이 — 좌측 하단. 시간대별 포즈 변경 */}
+      {/* 베짱이 — 우측 40%, 아래 10% 위치에서 시간대별 포즈 표현 */}
       <img
         src={ghSrc}
         alt=""
         draggable={false}
         className="absolute"
         style={{
-          left: `${20 + sway * 0.4}%`,
+          left: `${40 + sway * 0.4}%`,
           bottom: "10%",
           height: "30%",
           width: "auto",
