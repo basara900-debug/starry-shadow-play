@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import gh1 from "@/assets/scene3/gh-1.png";
-import gh2 from "@/assets/scene3/gh-2.png";
-import gh3 from "@/assets/scene3/gh-3.png";
+import ghA from "@/assets/scene4/gh_a.png.asset.json";
+import ghB from "@/assets/scene4/gh_b.png.asset.json";
+import ghC from "@/assets/scene4/gh_c.png.asset.json";
+import ghD from "@/assets/scene4/gh_d.png.asset.json";
 import ant1Asset from "@/assets/scene4/ant1.png.asset.json";
 import ant2Asset from "@/assets/scene4/ant2.png.asset.json";
 import ant3Asset from "@/assets/scene4/ant3.png.asset.json";
@@ -15,11 +16,19 @@ import sfxAsset from "@/assets/scene4/scene4_sfx.mp3.asset.json";
  */
 export type Scene4Speed = 1 | 2 | 0;
 
-const GH_POSES = [gh1, gh2, gh3];
 const ANTS = [ant1Asset.url, ant2Asset.url, ant3Asset.url, ant4Asset.url];
-const POSE_INTERVAL = 6; // 초
-const FADE = 0.8;
 const LOOP_SEC = 90;
+
+// 베짱이 포즈 스케줄 (시작초, 이미지)
+const GH_SCHEDULE: { from: number; to: number; src: string }[] = [
+  { from: 0,  to: 30, src: ghA.url }, // 우측 상단 1번 — 들어와서 울먹임
+  { from: 30, to: 42, src: ghB.url }, // 좌측 상단 2번 — 미안/감사
+  { from: 42, to: 78, src: ghC.url }, // 우측 하단 1번 — 즐거움/노래
+  { from: 78, to: 90, src: ghD.url }, // 하단 중앙 — 행복한 마무리
+];
+function ghPose(t: number): string {
+  return (GH_SCHEDULE.find((s) => t >= s.from && t < s.to) ?? GH_SCHEDULE[GH_SCHEDULE.length - 1]).src;
+}
 
 type Line = { from: number; to: number; who: "gh" | "ant" | "ants" | "narration"; text: string };
 const LINES: Line[] = [
@@ -114,14 +123,8 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
     };
   }, [speed, onComplete]);
 
-  // 베짱이 포즈 전환
-  const cycle = POSE_INTERVAL * GH_POSES.length;
-  const tt = ((t % cycle) + cycle) % cycle;
-  const idx = Math.floor(tt / POSE_INTERVAL);
-  const localT = tt - idx * POSE_INTERVAL;
-  const nextIdx = (idx + 1) % GH_POSES.length;
-  const fadeIn = localT > POSE_INTERVAL - FADE ? (localT - (POSE_INTERVAL - FADE)) / FADE : 0;
-
+  // 베짱이 포즈 — 시간대별로 결정
+  const ghSrc = ghPose(t);
   const bob = Math.sin(t * 2.4) * 2;
   const sway = Math.sin(t * 1.8) * 1.5;
 
@@ -164,6 +167,24 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
           }}
         />
       ))}
+
+      {/* 베짱이 — 좌측 하단. 시간대별 포즈 변경 */}
+      <img
+        src={ghSrc}
+        alt=""
+        draggable={false}
+        className="absolute"
+        style={{
+          left: `${20 + sway * 0.4}%`,
+          bottom: "10%",
+          height: "30%",
+          width: "auto",
+          transform: `translate(-50%, ${bob}px)`,
+          transformOrigin: "bottom center",
+          filter: "drop-shadow(0 4px 8px oklch(0 0 0 / 0.4))",
+          transition: "opacity 200ms linear",
+        }}
+      />
 
       {/* 인디케이터 */}
       <div
