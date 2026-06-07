@@ -294,3 +294,101 @@ function Subtitle({ line }: { line: Line | null }) {
     </div>
   );
 }
+
+function Campfire({ t }: { t: number }) {
+  // 깜빡이는 불빛 — 시간 기반 노이즈
+  const flicker = 0.85 + Math.sin(t * 7.3) * 0.08 + Math.sin(t * 13.1) * 0.06;
+  const flameScale = 1 + Math.sin(t * 6.2) * 0.05;
+  const flameScale2 = 1 + Math.sin(t * 8.5 + 1) * 0.07;
+  const emberOffset = (t * 40) % 100;
+  return (
+    <div className="absolute" style={{ left: "50%", bottom: "6%", transform: "translateX(-50%)", width: "22%", height: "26%" }}>
+      {/* 따뜻한 빛 글로우 */}
+      <div
+        className="absolute"
+        style={{
+          left: "50%",
+          bottom: "0%",
+          transform: "translateX(-50%)",
+          width: "320%",
+          height: "260%",
+          background:
+            "radial-gradient(ellipse at 50% 80%, oklch(0.85 0.18 60 / 0.55) 0%, oklch(0.7 0.2 40 / 0.25) 35%, transparent 70%)",
+          opacity: flicker,
+          mixBlendMode: "screen",
+          filter: "blur(6px)",
+          pointerEvents: "none",
+        }}
+      />
+      {/* 장작 */}
+      <div
+        className="absolute"
+        style={{
+          left: "50%",
+          bottom: "0%",
+          transform: "translateX(-50%)",
+          width: "70%",
+          height: "14%",
+          background: "linear-gradient(180deg, oklch(0.35 0.06 40) 0%, oklch(0.2 0.04 30) 100%)",
+          borderRadius: "40% 40% 20% 20%",
+          boxShadow: "0 -4px 10px oklch(0.7 0.18 50 / 0.6)",
+        }}
+      />
+      {/* 외측 불꽃 */}
+      <div
+        className="absolute"
+        style={{
+          left: "50%",
+          bottom: "10%",
+          transform: `translateX(-50%) scale(${flameScale2})`,
+          width: "70%",
+          height: "80%",
+          background:
+            "radial-gradient(ellipse at 50% 100%, oklch(0.85 0.22 55) 0%, oklch(0.75 0.2 40) 40%, transparent 75%)",
+          borderRadius: "50% 50% 30% 30%",
+          opacity: 0.85 * flicker,
+          filter: "blur(2px)",
+          mixBlendMode: "screen",
+        }}
+      />
+      {/* 내측 불꽃 */}
+      <div
+        className="absolute"
+        style={{
+          left: "50%",
+          bottom: "12%",
+          transform: `translateX(-50%) scale(${flameScale})`,
+          width: "40%",
+          height: "60%",
+          background:
+            "radial-gradient(ellipse at 50% 100%, oklch(0.95 0.18 90) 0%, oklch(0.85 0.22 60) 50%, transparent 80%)",
+          borderRadius: "50% 50% 30% 30%",
+          opacity: flicker,
+          mixBlendMode: "screen",
+        }}
+      />
+      {/* 떠오르는 잿불(엠버) */}
+      {[0, 1, 2, 3, 4].map((i) => {
+        const y = (emberOffset + i * 20) % 100;
+        const x = 50 + Math.sin((t + i) * 1.8) * 20;
+        return (
+          <div
+            key={i}
+            className="absolute"
+            style={{
+              left: `${x}%`,
+              bottom: `${y}%`,
+              width: 4,
+              height: 4,
+              borderRadius: "50%",
+              background: "oklch(0.9 0.2 60)",
+              boxShadow: "0 0 6px oklch(0.85 0.22 50)",
+              opacity: 1 - y / 100,
+              transform: "translateX(-50%)",
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
