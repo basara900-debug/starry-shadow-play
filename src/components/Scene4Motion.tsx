@@ -3,10 +3,12 @@ import ghA from "@/assets/scene4/gh_a.png.asset.json";
 import ghB from "@/assets/scene4/gh_b.png.asset.json";
 import ghC from "@/assets/scene4/gh_c.png.asset.json";
 import ghD from "@/assets/scene4/gh_d.png.asset.json";
-import ant1Asset from "@/assets/scene4/ant1.png.asset.json";
-import ant2Asset from "@/assets/scene4/ant2.png.asset.json";
-import ant3Asset from "@/assets/scene4/ant3.png.asset.json";
-import ant4Asset from "@/assets/scene4/ant4.png.asset.json";
+import antA from "@/assets/scene4/ant_a.png.asset.json";
+import antB from "@/assets/scene4/ant_b.png.asset.json";
+import antC from "@/assets/scene4/ant_c.png.asset.json";
+import antD from "@/assets/scene4/ant_d.png.asset.json";
+import antE from "@/assets/scene4/ant_e.png.asset.json";
+import antF from "@/assets/scene4/ant_f.png.asset.json";
 import bgmAsset from "@/assets/scene4/scene4_bgm.mp3.asset.json";
 import sfxAsset from "@/assets/scene4/scene4_sfx.mp3.asset.json";
 
@@ -16,7 +18,6 @@ import sfxAsset from "@/assets/scene4/scene4_sfx.mp3.asset.json";
  */
 export type Scene4Speed = 1 | 2 | 0;
 
-const ANTS = [ant1Asset.url, ant2Asset.url, ant3Asset.url, ant4Asset.url];
 const LOOP_SEC = 90;
 
 // 베짱이 포즈 스케줄 (시작초, 이미지)
@@ -28,6 +29,19 @@ const GH_SCHEDULE: { from: number; to: number; src: string }[] = [
 ];
 function ghPose(t: number): string {
   return (GH_SCHEDULE.find((s) => t >= s.from && t < s.to) ?? GH_SCHEDULE[GH_SCHEDULE.length - 1]).src;
+}
+
+// 개미 포즈 스케줄 (베짱이 좌측 30%에서 시간대별로 표정 변화)
+const ANT_SCHEDULE: { from: number; to: number; src: string }[] = [
+  { from: 0,  to: 6,  src: antA.url },
+  { from: 6,  to: 12, src: antB.url },
+  { from: 12, to: 18, src: antC.url },
+  { from: 18, to: 36, src: antD.url },
+  { from: 36, to: 72, src: antE.url },
+  { from: 72, to: 90, src: antF.url },
+];
+function antPose(t: number): string {
+  return (ANT_SCHEDULE.find((s) => t >= s.from && t < s.to) ?? ANT_SCHEDULE[ANT_SCHEDULE.length - 1]).src;
 }
 
 type Line = { from: number; to: number; who: "gh" | "ant" | "ants" | "narration"; text: string };
@@ -127,9 +141,9 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
   const ghSrc = ghPose(t);
   const bob = Math.sin(t * 2.4) * 2;
   const sway = Math.sin(t * 1.8) * 1.5;
-
-  // 개미들 - 식탁 주변에 모여있다가 60초부터 춤추듯 좌우로 움직임
-  const dance = t >= 54 ? Math.sin(t * 3) * 4 : 0;
+  const antSrc = antPose(t);
+  const antBob = Math.sin(t * 2.4 + 1.2) * 2;
+  const antSway = Math.sin(t * 1.8 + 0.6) * 1.5;
 
   return (
     <div className="pointer-events-none absolute inset-0 select-none">
@@ -143,30 +157,23 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
         }}
       />
 
-      {/* 개미들 — 화면 중앙(50%, 높이 50%) 주변에 4마리 배치. 54초부터 살짝 춤추듯 흔들림. */}
-      {[
-        { src: ANTS[0], left: 38, bottom: 50, h: 22, flip: false, phase: 0,   amp: 1.5 },
-        { src: ANTS[1], left: 50, bottom: 56, h: 20, flip: true,  phase: 0.8, amp: 1.2 },
-        { src: ANTS[2], left: 62, bottom: 50, h: 22, flip: true,  phase: 1.6, amp: 1.5 },
-        { src: ANTS[3], left: 50, bottom: 42, h: 21, flip: false, phase: 2.4, amp: 1.8 },
-      ].map((a, i) => (
-        <img
-          key={i}
-          src={a.src}
-          alt=""
-          draggable={false}
-          className="absolute"
-          style={{
-            left: `${a.left + dance * (0.3 + i * 0.1)}%`,
-            bottom: `${a.bottom}%`,
-            height: `${a.h}%`,
-            width: "auto",
-            transform: `translate(-50%, ${Math.sin(t * 2.4 + a.phase) * a.amp}px)${a.flip ? " scaleX(-1)" : ""}`,
-            transformOrigin: "bottom center",
-            filter: "drop-shadow(0 3px 5px oklch(0 0 0 / 0.4))",
-          }}
-        />
-      ))}
+      {/* 개미 — 베짱이 좌측 30% 지점, 같은 높이/사이즈, 좌우 반전하여 베짱이를 바라봄 */}
+      <img
+        src={antSrc}
+        alt=""
+        draggable={false}
+        className="absolute"
+        style={{
+          left: `${30 + antSway * 0.4}%`,
+          bottom: "10%",
+          height: "30%",
+          width: "auto",
+          transform: `translate(-50%, ${antBob}px) scaleX(-1)`,
+          transformOrigin: "bottom center",
+          filter: "drop-shadow(0 4px 8px oklch(0 0 0 / 0.4))",
+          transition: "opacity 200ms linear",
+        }}
+      />
 
       {/* 베짱이 — 우측 40%, 아래 10% 위치에서 시간대별 포즈 표현 */}
       <img
