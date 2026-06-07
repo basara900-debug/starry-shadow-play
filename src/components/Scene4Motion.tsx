@@ -9,6 +9,10 @@ import antC from "@/assets/scene4/ant_c.png.asset.json";
 import antD from "@/assets/scene4/ant_d.png.asset.json";
 import antE from "@/assets/scene4/ant_e.png.asset.json";
 import antF from "@/assets/scene4/ant_f.png.asset.json";
+import ant1 from "@/assets/scene4/ant1.png.asset.json";
+import ant2 from "@/assets/scene4/ant2.png.asset.json";
+import ant3 from "@/assets/scene4/ant3.png.asset.json";
+import ant4 from "@/assets/scene4/ant4.png.asset.json";
 import bgmAsset from "@/assets/scene4/scene4_bgm.mp3.asset.json";
 import sfxAsset from "@/assets/scene4/scene4_sfx.mp3.asset.json";
 
@@ -43,6 +47,14 @@ const ANT_SCHEDULE: { from: number; to: number; src: string }[] = [
 function antPose(t: number): string {
   return (ANT_SCHEDULE.find((s) => t >= s.from && t < s.to) ?? ANT_SCHEDULE[ANT_SCHEDULE.length - 1]).src;
 }
+
+// 배경 개미들 — 화면 중간 50% 높이, 50% 위치 부근에 배치
+const BG_ANTS: { src: string; left: number; bob: number; sway: number }[] = [
+  { src: ant1.url, left: 42, bob: 0.0, sway: 0.0 },
+  { src: ant2.url, left: 48, bob: 0.7, sway: 0.5 },
+  { src: ant3.url, left: 54, bob: 1.4, sway: 1.0 },
+  { src: ant4.url, left: 60, bob: 2.1, sway: 1.5 },
+];
 
 type Line = { from: number; to: number; who: "gh" | "ant" | "ants" | "narration"; text: string };
 const LINES: Line[] = [
