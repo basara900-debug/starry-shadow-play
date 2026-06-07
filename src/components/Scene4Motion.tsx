@@ -169,9 +169,6 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
         }}
       />
 
-      {/* 모닥불 VFX — 화면 하단 중앙 벽난로의 따뜻한 불빛과 깜빡임 */}
-      <Campfire t={t} />
-
       {/* 화면 중간 50% 높이/50% 위치에 모여있는 개미 친구들 */}
       {BG_ANTS.map((a, i) => {
         const bb = Math.sin(t * 2.2 + a.bob) * 2;
