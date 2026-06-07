@@ -169,6 +169,33 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
         }}
       />
 
+      {/* 모닥불 VFX — 화면 하단 중앙 벽난로의 따뜻한 불빛과 깜빡임 */}
+      <Campfire t={t} />
+
+      {/* 화면 중간 50% 높이/50% 위치에 모여있는 개미 친구들 */}
+      {BG_ANTS.map((a, i) => {
+        const bb = Math.sin(t * 2.2 + a.bob) * 2;
+        const sw = Math.sin(t * 1.6 + a.sway) * 1.2;
+        return (
+          <img
+            key={i}
+            src={a.src}
+            alt=""
+            draggable={false}
+            className="absolute"
+            style={{
+              left: `${a.left + sw * 0.3}%`,
+              top: "50%",
+              height: "18%",
+              width: "auto",
+              transform: `translate(-50%, calc(-50% + ${bb}px))`,
+              transformOrigin: "center",
+              filter: "drop-shadow(0 3px 6px oklch(0 0 0 / 0.45))",
+            }}
+          />
+        );
+      })}
+
       {/* 개미 — 베짱이 좌측 30% 지점, 같은 높이/사이즈, 좌우 반전하여 베짱이를 바라봄 */}
       <img
         src={antSrc}
@@ -176,7 +203,7 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
         draggable={false}
         className="absolute"
         style={{
-          left: `${30 + antSway * 0.4}%`,
+          left: `${40 + antSway * 0.4}%`,
           bottom: "10%",
           height: "30%",
           width: "auto",
