@@ -6,6 +6,7 @@ import gh6 from "@/assets/scene2/gh-6.png";
 import ant2 from "@/assets/scene2/ant-2.png";
 import ant4 from "@/assets/scene2/ant-4.png";
 import ant6 from "@/assets/scene2/ant-6.png";
+import { useSceneAudio } from "@/lib/sceneAudio";
 
 /**
  * 씬 2 모션 — 가을, 베짱이는 우측 중간에서 6초마다 포즈 전환,
@@ -45,60 +46,15 @@ export function Scene2Motion({ speed, onComplete }: { speed: Scene2Speed; onComp
   const [t, setT] = useState(0);
   const rafRef = useRef<number | null>(null);
   const lastRef = useRef<number | null>(null);
-  const bgmRef = useRef<HTMLAudioElement | null>(null);
-  const sfxRef = useRef<HTMLAudioElement | null>(null);
   const doneRef = useRef(false);
 
-  // BGM — 90초 구간 루프
-  useEffect(() => {
-    if (!bgmRef.current) {
-      const a = new Audio("/audio/scene2_bgm.mp3");
-      a.loop = false;
-      a.preload = "auto";
-      a.volume = 0.45;
-      a.addEventListener("timeupdate", () => {
-        if (a.currentTime >= 90) {
-          a.currentTime = 0;
-          a.play().catch(() => {});
-        }
-      });
-      bgmRef.current = a;
-    }
-    // 가을 배경 SFX (공간음) — 자연스러운 루프
-    if (!sfxRef.current) {
-      const s = new Audio("/audio/scene2_sfx.mp3");
-      s.loop = true;
-      s.preload = "auto";
-      s.volume = 0.3;
-      sfxRef.current = s;
-    }
-    const a = bgmRef.current;
-    const s = sfxRef.current;
-    if (speed === 0) {
-      a.pause();
-      s.pause();
-    } else {
-      a.playbackRate = speed;
-      a.play().catch(() => {});
-      s.playbackRate = speed;
-      s.play().catch(() => {});
-    }
-  }, [speed]);
-
-  useEffect(() => {
-    return () => {
-      const a = bgmRef.current;
-      if (a) {
-        a.pause();
-        bgmRef.current = null;
-      }
-      const s = sfxRef.current;
-      if (s) {
-        s.pause();
-        sfxRef.current = null;
-      }
-    };
-  }, []);
+  // 공용 오디오 버스에 BGM/SFX를 등록 — 볼륨/음소거/속도/일시정지는 자동 적용.
+  useSceneAudio({
+    bgm: "/audio/scene2_bgm.mp3",
+    sfx: "/audio/scene2_sfx.mp3",
+    bgmVolume: 0.85,
+    sfxVolume: 0.55,
+  });
 
   useEffect(() => {
     if (speed === 0) return;

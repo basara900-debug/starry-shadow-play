@@ -9,10 +9,23 @@ import { Scene1Motion, type Scene1Speed } from "@/components/Scene1Motion";
 import { Scene2Motion, type Scene2Speed } from "@/components/Scene2Motion";
 import { Scene3Motion, type Scene3Speed } from "@/components/Scene3Motion";
 import { Scene4Motion, type Scene4Speed } from "@/components/Scene4Motion";
+import {
+  SceneAudioProvider,
+  useSceneAudioControls,
+  type SceneSpeed,
+} from "@/lib/sceneAudio";
 
 export const Route = createFileRoute("/")({
-  component: ShadowTheaterTitle,
+  component: ShadowTheaterRoute,
 });
+
+function ShadowTheaterRoute() {
+  return (
+    <SceneAudioProvider>
+      <ShadowTheaterTitle />
+    </SceneAudioProvider>
+  );
+}
 
 type Stage = "idle" | "theater";
 
@@ -236,6 +249,16 @@ function ShadowTheaterTitle() {
   useEffect(() => { setMasterVolume(sfxMuted ? 0 : sfxVol); }, [sfxVol, sfxMuted, setMasterVolume]);
   useEffect(() => { setPlaybackRate(playbackRate); }, [playbackRate, setPlaybackRate]);
 
+  // 모든 씬에 적용되는 공용 오디오 버스에도 동일 값을 흘려보낸다.
+  const bus = useSceneAudioControls();
+  useEffect(() => { bus.setBgm(bgmVol); }, [bgmVol, bus]);
+  useEffect(() => { bus.setBgmMuted(bgmMuted); }, [bgmMuted, bus]);
+  useEffect(() => { bus.setSfx(sfxVol); }, [sfxVol, bus]);
+  useEffect(() => { bus.setSfxMuted(sfxMuted); }, [sfxMuted, bus]);
+  useEffect(() => { bus.setVoice(voiceVol); }, [voiceVol, bus]);
+  useEffect(() => { bus.setVoiceMuted(voiceMuted); }, [voiceMuted, bus]);
+  useEffect(() => { bus.setPlaybackRate(playbackRate); }, [playbackRate, bus]);
+
   // 타이틀 등장과 동시에 BGM 자동 재생. 브라우저 autoplay 차단 시 첫 사용자 제스처에서 재시도.
   useEffect(() => {
     let started = false;
@@ -438,6 +461,13 @@ function TheaterStage({
   const [playState, setPlayState] = useState<"1x" | "2x" | "paused">("1x");
   const [pressed, setPressed] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
+
+  // 공용 오디오 버스에 현재 재생 속도를 반영 (일시정지 시 0).
+  const audioCtl = useSceneAudioControls();
+  useEffect(() => {
+    const s: SceneSpeed = playState === "paused" ? 0 : playState === "2x" ? 2 : 1;
+    audioCtl.setSpeed(s);
+  }, [playState, audioCtl]);
 
   const current = scenes[sceneIndex];
   const paused = playState === "paused";

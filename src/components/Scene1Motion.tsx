@@ -6,6 +6,7 @@ import antLeaf from "@/assets/scene1/ant-leaf.png";
 import ghViolin from "@/assets/scene1/gh-violin.png";
 import ghAsk from "@/assets/scene1/gh-ask.png";
 import ghSing from "@/assets/scene1/gh-sing.png";
+import { useSceneAudio } from "@/lib/sceneAudio";
 
 /**
  * 씬 1 모션 프레임 — 여름날 열심히 일하는 개미와 놀고 있는 베짱이
@@ -44,75 +45,16 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
   const [t, setT] = useState(0);
   const rafRef = useRef<number | null>(null);
   const lastRef = useRef<number | null>(null);
-  const sfxRef = useRef<HTMLAudioElement | null>(null);
-  const bgmRef = useRef<HTMLAudioElement | null>(null);
   const onCompleteRef = useRef<typeof onComplete>(onComplete);
   useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
 
-  // 여름 풀벌레 VFX — 씬1 동안 루프 재생, speed에 맞춰 재생 속도 조절(0이면 일시정지)
-  useEffect(() => {
-    if (!sfxRef.current) {
-      const a = new Audio("/audio/summer_insects_90s_vfx.wav");
-      a.loop = true;
-      a.preload = "auto";
-      a.volume = 0.55;
-      sfxRef.current = a;
-    }
-    const a = sfxRef.current;
-    if (speed === 0) {
-      a.pause();
-    } else {
-      a.playbackRate = speed;
-      a.play().catch(() => { /* autoplay blocked까지 대기 */ });
-    }
-    return () => {
-      // 컴포넌트 언마운트 시 정리
-    };
-  }, [speed]);
-
-  useEffect(() => {
-    return () => {
-      const a = sfxRef.current;
-      if (a) {
-        a.pause();
-        sfxRef.current = null;
-      }
-    };
-  }, []);
-
-  // BGM — 90초 구간만 재생 후 처음으로 되돌아가며 루프
-  useEffect(() => {
-    if (!bgmRef.current) {
-      const a = new Audio("/audio/scene1_bgm.mp3");
-      a.loop = false;
-      a.preload = "auto";
-      a.volume = 0.45;
-      a.addEventListener("timeupdate", () => {
-        if (a.currentTime >= 90) {
-          a.currentTime = 0;
-          a.play().catch(() => {});
-        }
-      });
-      bgmRef.current = a;
-    }
-    const a = bgmRef.current;
-    if (speed === 0) {
-      a.pause();
-    } else {
-      a.playbackRate = speed;
-      a.play().catch(() => {});
-    }
-  }, [speed]);
-
-  useEffect(() => {
-    return () => {
-      const a = bgmRef.current;
-      if (a) {
-        a.pause();
-        bgmRef.current = null;
-      }
-    };
-  }, []);
+  // 공용 오디오 버스에 씬1 BGM/SFX 등록 — 툴바(BGM/SFX/음소거/속도)가 자동 반영된다.
+  useSceneAudio({
+    bgm: "/audio/scene1_bgm.mp3",
+    sfx: "/audio/summer_insects_90s_vfx.wav",
+    bgmVolume: 0.85,
+    sfxVolume: 1.0,
+  });
 
   useEffect(() => {
     if (speed === 0) return;
