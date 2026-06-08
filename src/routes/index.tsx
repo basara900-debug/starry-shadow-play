@@ -462,6 +462,13 @@ function TheaterStage({
   const [pressed, setPressed] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
 
+  // 공용 오디오 버스에 현재 재생 속도를 반영 (일시정지 시 0).
+  const audioCtl = useSceneAudioControls();
+  useEffect(() => {
+    const s: SceneSpeed = playState === "paused" ? 0 : playState === "2x" ? 2 : 1;
+    audioCtl.setSpeed(s);
+  }, [playState, audioCtl]);
+
   const current = scenes[sceneIndex];
   const paused = playState === "paused";
   // 씬 2 배경 이미지가 아직 업로드되지 않아도 가을 톤 폴백으로 모션을 보여줌
