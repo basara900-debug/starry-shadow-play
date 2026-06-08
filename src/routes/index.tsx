@@ -9,10 +9,23 @@ import { Scene1Motion, type Scene1Speed } from "@/components/Scene1Motion";
 import { Scene2Motion, type Scene2Speed } from "@/components/Scene2Motion";
 import { Scene3Motion, type Scene3Speed } from "@/components/Scene3Motion";
 import { Scene4Motion, type Scene4Speed } from "@/components/Scene4Motion";
+import {
+  SceneAudioProvider,
+  useSceneAudioControls,
+  type SceneSpeed,
+} from "@/lib/sceneAudio";
 
 export const Route = createFileRoute("/")({
-  component: ShadowTheaterTitle,
+  component: ShadowTheaterRoute,
 });
+
+function ShadowTheaterRoute() {
+  return (
+    <SceneAudioProvider>
+      <ShadowTheaterTitle />
+    </SceneAudioProvider>
+  );
+}
 
 type Stage = "idle" | "theater";
 
