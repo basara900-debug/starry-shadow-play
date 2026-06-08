@@ -249,6 +249,16 @@ function ShadowTheaterTitle() {
   useEffect(() => { setMasterVolume(sfxMuted ? 0 : sfxVol); }, [sfxVol, sfxMuted, setMasterVolume]);
   useEffect(() => { setPlaybackRate(playbackRate); }, [playbackRate, setPlaybackRate]);
 
+  // 모든 씬에 적용되는 공용 오디오 버스에도 동일 값을 흘려보낸다.
+  const bus = useSceneAudioControls();
+  useEffect(() => { bus.setBgm(bgmVol); }, [bgmVol, bus]);
+  useEffect(() => { bus.setBgmMuted(bgmMuted); }, [bgmMuted, bus]);
+  useEffect(() => { bus.setSfx(sfxVol); }, [sfxVol, bus]);
+  useEffect(() => { bus.setSfxMuted(sfxMuted); }, [sfxMuted, bus]);
+  useEffect(() => { bus.setVoice(voiceVol); }, [voiceVol, bus]);
+  useEffect(() => { bus.setVoiceMuted(voiceMuted); }, [voiceMuted, bus]);
+  useEffect(() => { bus.setPlaybackRate(playbackRate); }, [playbackRate, bus]);
+
   // 타이틀 등장과 동시에 BGM 자동 재생. 브라우저 autoplay 차단 시 첫 사용자 제스처에서 재시도.
   useEffect(() => {
     let started = false;
