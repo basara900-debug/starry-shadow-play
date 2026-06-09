@@ -171,10 +171,10 @@ function Subtitle({ line }: { line: Line | null }) {
   if (!line) return null;
   const palette =
     line.who === "ant"
-      ? { bg: "oklch(0.25 0.05 30 / 0.82)", fg: "oklch(0.97 0.02 80)", label: "개미" }
+      ? { bg: "oklch(0.32 0.08 50 / 0.85)", fg: "oklch(0.97 0.03 80)", border: "oklch(0.55 0.12 50 / 0.55)", label: "개미" }
       : line.who === "gh"
-      ? { bg: "oklch(0.32 0.12 140 / 0.82)", fg: "oklch(0.98 0.04 110)", label: "베짱이" }
-      : { bg: "oklch(0.18 0 0 / 0.78)", fg: "oklch(0.95 0 0)", label: "내레이션" };
+      ? { bg: "oklch(0.36 0.13 145 / 0.85)", fg: "oklch(0.98 0.04 110)", border: "oklch(0.65 0.16 145 / 0.55)", label: "베짱이" }
+      : { bg: "oklch(0.97 0.01 90 / 0.88)", fg: "oklch(0.22 0.02 50)", border: "oklch(0.75 0.02 80 / 0.6)", label: "내레이션" };
   return (
     <div
       className="absolute"
@@ -182,24 +182,26 @@ function Subtitle({ line }: { line: Line | null }) {
         left: "50%",
         top: "4%",
         transform: "translateX(-50%)",
-        maxWidth: "84%",
+        maxWidth: "82%",
         background: palette.bg,
         color: palette.fg,
-        padding: "10px 16px",
+        padding: "6px 14px",
         borderRadius: 12,
-        fontSize: 16,
+        fontSize: "clamp(11px, 1.8vw, 16px)",
+        fontWeight: 600,
         lineHeight: 1.45,
         textAlign: "center",
+        border: `1px solid ${palette.border}`,
         boxShadow: "0 6px 18px oklch(0 0 0 / 0.35)",
         backdropFilter: "blur(4px)",
       }}
     >
       <div
         style={{
-          fontSize: 11,
+          fontSize: "clamp(9px, 1.1vw, 11px)",
           opacity: 0.85,
           letterSpacing: "0.06em",
-          marginBottom: 4,
+          marginBottom: 2,
         }}
       >
         {palette.label}

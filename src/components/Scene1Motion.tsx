@@ -167,24 +167,33 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
 
       {/* 대사 자막 */}
       {beat.text && (
-        <div
-          className="absolute left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl text-center"
-          style={{
-            top: "4%",
-            maxWidth: "82%",
-            background: "oklch(0.18 0.02 50 / 0.78)",
-            color: "oklch(0.97 0.05 85)",
-            border: "1px solid oklch(0.85 0.1 80 / 0.5)",
-            fontSize: "clamp(11px, 1.8vw, 16px)",
-            fontWeight: 600,
-            letterSpacing: "0.01em",
-            boxShadow: "0 6px 18px oklch(0 0 0 / 0.4)",
-            animation: "fade-in 0.4s ease-out",
-          }}
-          key={beat.from}
-        >
-          {beat.text}
-        </div>
+        (() => {
+          const palette = beat.who === "ant"
+            ? { bg: "oklch(0.32 0.08 50 / 0.85)", fg: "oklch(0.97 0.03 80)", border: "oklch(0.55 0.12 50 / 0.55)" }
+            : beat.who === "gh"
+            ? { bg: "oklch(0.36 0.13 145 / 0.85)", fg: "oklch(0.98 0.04 110)", border: "oklch(0.65 0.16 145 / 0.55)" }
+            : { bg: "oklch(0.97 0.01 90 / 0.88)", fg: "oklch(0.22 0.02 50)", border: "oklch(0.75 0.02 80 / 0.6)" };
+          return (
+            <div
+              className="absolute left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl text-center"
+              style={{
+                top: "4%",
+                maxWidth: "82%",
+                background: palette.bg,
+                color: palette.fg,
+                border: `1px solid ${palette.border}`,
+                fontSize: "clamp(11px, 1.8vw, 16px)",
+                fontWeight: 600,
+                letterSpacing: "0.01em",
+                boxShadow: "0 6px 18px oklch(0 0 0 / 0.4)",
+                animation: "fade-in 0.4s ease-out",
+              }}
+              key={beat.from}
+            >
+              {beat.text}
+            </div>
+          );
+        })()
       )}
 
       {/* 좌상단 비트 인디케이터 */}
