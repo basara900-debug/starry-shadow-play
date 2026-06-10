@@ -119,7 +119,7 @@ export function Scene2Motion({ speed, onComplete }: { speed: Scene2Speed; onComp
       <div
         className="absolute"
         style={{
-          right: "18%",
+          right: "8%",
           top: "38%",
           height: "30%",
           transform: `translateY(${bob}px) rotate(${sway * 0.4}deg)`,

@@ -49,12 +49,12 @@ function antPose(t: number): string {
   return (ANT_SCHEDULE.find((s) => t >= s.from && t < s.to) ?? ANT_SCHEDULE[ANT_SCHEDULE.length - 1]).src;
 }
 
-// 배경 개미들 — 화면 중간 50% 높이, 50% 위치 부근에 배치
-const BG_ANTS: { src: string; left: number; bob: number; sway: number }[] = [
-  { src: ant1.url, left: 42, bob: 0.0, sway: 0.0 },
-  { src: ant2.url, left: 48, bob: 0.7, sway: 0.5 },
-  { src: ant3.url, left: 54, bob: 1.4, sway: 1.0 },
-  { src: ant4.url, left: 60, bob: 2.1, sway: 1.5 },
+// 배경 개미들 — 화면 수평 50%, 상단 40% 지점을 중심으로 마름모(다이아) 배치
+const BG_ANTS: { src: string; left: number; top: number; bob: number; sway: number }[] = [
+  { src: ant1.url, left: 50, top: 32, bob: 0.0, sway: 0.0 }, // 위
+  { src: ant2.url, left: 42, top: 40, bob: 0.7, sway: 0.5 }, // 왼쪽
+  { src: ant3.url, left: 58, top: 40, bob: 1.4, sway: 1.0 }, // 오른쪽
+  { src: ant4.url, left: 50, top: 48, bob: 2.1, sway: 1.5 }, // 아래
 ];
 
 type Line = { from: number; to: number; who: "gh" | "ant" | "ants" | "narration"; text: string };
@@ -150,7 +150,7 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
             className="absolute"
             style={{
               left: `${a.left + sw * 0.3}%`,
-              top: "50%",
+              top: `${a.top}%`,
               height: "18%",
               width: "auto",
               transform: `translate(-50%, calc(-50% + ${bb}px))`,
