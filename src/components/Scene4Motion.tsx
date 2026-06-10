@@ -59,21 +59,21 @@ const BG_ANTS: { src: string; left: number; bob: number; sway: number }[] = [
 
 type Line = { from: number; to: number; who: "gh" | "ant" | "ants" | "narration"; text: string };
 const LINES: Line[] = [
-  { from: 0,  to: 6,  who: "narration", text: "너무도 따뜻한 집안으로 들어오자 베짱이는 너무 기뻐 눈물을 흘렸어요." },
-  { from: 6,  to: 12, who: "ant", text: "베짱이야 너무 추웠지? 배고프진 않았니? 며칠동안 아무것도 먹지 못했지!" },
-  { from: 12, to: 18, who: "gh",  text: "개미야 너무 춥고 배고팠어. 진즉에 니 말을 들었으면 좋을 걸 그랬어." },
-  { from: 18, to: 24, who: "ant", text: "아니야, 베짱이 니 덕에 힘든 일을 해도 즐겁고 기운나게 할 수 있었어. 어서 이리로 와 같이 밥 먹자." },
-  { from: 24, to: 30, who: "gh",  text: "흑, 흑, 흑. 고마워 개미야, 이렇게 반갑게 맞아줘서." },
-  { from: 30, to: 36, who: "narration", text: "베짱이는 개미들의 친절에 얼은 몸을 녹이고 맛있는 밥을 배부르게 먹을 수 있었어요." },
-  { from: 36, to: 42, who: "gh",  text: "고마워, 덕분에 지금 너무 행복해. 이럴 때 내 노래와 연주가 빠지면 안되지!" },
-  { from: 42, to: 48, who: "narration", text: "배부르고 따뜻해진 베짱이는 신나게 연주와 노래를 부르기 시작했어요." },
-  { from: 48, to: 54, who: "gh",  text: "나는 나는 베짱이, 이 들판에 제일가는 음악가, 친절한 개미들의 친구, 너무나 행복해!" },
-  { from: 54, to: 60, who: "narration", text: "벽난로에서는 장작이 타닥타닥 타는 소리가 들리고, 베짱이와 개미는 같이 노래를 부르고 춤을 추었습니다." },
-  { from: 60, to: 66, who: "ant", text: "베짱이야, 역시 네 노래는 모두를 즐겁게 하는 힘이 있어. 이번 겨울 우리랑 지내고 내년에도 잘 부탁해!" },
-  { from: 66, to: 72, who: "gh",  text: "그래 개미야, 우린 친한 친구들이야. 나도 다음 해에는 잘 부탁해." },
-  { from: 72, to: 78, who: "ants", text: "자, 이제 또 신나게 놀자구!" },
-  { from: 78, to: 84, who: "gh",  text: "자, 다음 노래를 시작한다. 가자!" },
-  { from: 84, to: 90, who: "narration", text: "추운 겨울이 다가와도 이제 개미와 베짱이는 아무 걱정 없이 사이좋게 행복했답니다." },
+  { from: 0,  to: 6,  who: "narration", text: "너무도 따뜻한 집안으로 들어오자 베짱이는 너무 기뻐 눈물을 흘렸어요" },
+  { from: 6,  to: 12, who: "ant", text: "베짱이야 너무 추웠지, 배고프진 않았니? 며칠동안 아무것도 먹지 못했지!" },
+  { from: 12, to: 18, who: "gh",  text: "개미야 너무 춥고 배고팠어 진즉에 니말을 들었으면 좋을 걸 그랬어" },
+  { from: 18, to: 24, who: "ant", text: "아니야, 베짱이 니 덕에 힘든 일을 해도 즐겁고 기운나게 할 수 있었어, 어서 이리로 와 같이 밥 먹자" },
+  { from: 24, to: 30, who: "gh",  text: "흑, 흑, 흑. 고마워 개미야, 이렇게 반갑게 맞아줘서" },
+  { from: 30, to: 36, who: "narration", text: "베짱이는 개미들의 친절에 얼은 몸을 녹이고 맛있는 밥을 배부르게 먹을 수 있었어요" },
+  { from: 36, to: 42, who: "gh",  text: "고마워 덕분에 지금 너무 행복해 이럴때 내 노래와 연주가 빠지면 안되지" },
+  { from: 42, to: 48, who: "narration", text: "배부르고 따뜻해진 베짱이는 신나게 연주와 노래를 부르기 시작했어요" },
+  { from: 48, to: 54, who: "gh",  text: "나는 나는 베짱이 이 들판에 제일가는 음악가, 친절한 개미들의 친구, 너무나 행복해" },
+  { from: 54, to: 60, who: "narration", text: "벽난로에서는 장작이 타닥타닥 타는 소리가 들리고. 베짱이와 개미는 같이 노래를 부르고 춤을 추었습니다" },
+  { from: 60, to: 66, who: "ant", text: "베짱이야 역시 네 노래는 모두를 즐겁게 하는 일이 있어 요번 겨울 우리랑 지내고 내년에도 잘 부탁해" },
+  { from: 66, to: 72, who: "gh",  text: "그래 개미야 우린 친한 친구들이야, 나도 다음 해에는 잘 부탁해" },
+  { from: 72, to: 78, who: "ants", text: "자 이제 또 신나게 놀자구" },
+  { from: 78, to: 84, who: "gh",  text: "자 다음 노래를 시작한다 가자" },
+  { from: 84, to: 90, who: "narration", text: "추운 겨울이 다가와도 이제 개미와 베짱이는 아무 걱정 없이 사이좋게 행복했답니다" },
 ];
 
 function currentLine(t: number): Line | null {
