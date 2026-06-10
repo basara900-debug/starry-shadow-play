@@ -9,6 +9,7 @@ import { Scene1Motion, type Scene1Speed } from "@/components/Scene1Motion";
 import { Scene2Motion, type Scene2Speed } from "@/components/Scene2Motion";
 import { Scene3Motion, type Scene3Speed } from "@/components/Scene3Motion";
 import { Scene4Motion, type Scene4Speed } from "@/components/Scene4Motion";
+import { Scene5Motion, type Scene5Speed } from "@/components/Scene5Motion";
 import {
   SceneAudioProvider,
   useSceneAudioControls,
@@ -550,6 +551,8 @@ function TheaterStage({
     if (sceneIndex === 2) return;
     // 씬 4도 자체 90초 루프를 가지므로 자동 전환에서 제외
     if (sceneIndex === 3) return;
+    // 씬 5도 자체 90초 루프를 가지므로 자동 전환에서 제외
+    if (sceneIndex === 4) return;
     const interval = playState === "2x" ? 4000 : 8000;
     const t = window.setInterval(() => {
       setSceneIndex((i) => (i + 1) % scenes.length);
@@ -652,6 +655,14 @@ function TheaterStage({
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene4Speed}
                 onComplete={() => {
                   setSceneIndex((i) => (scenes.length > 4 ? 4 : i));
+                }}
+              />
+            )}
+            {sceneIndex === 4 && (
+              <Scene5Motion
+                speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene5Speed}
+                onComplete={() => {
+                  setSceneIndex(0);
                 }}
               />
             )}
