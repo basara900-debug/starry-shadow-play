@@ -124,7 +124,7 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
           draggable={false}
           className="absolute"
           style={{
-            left: "46%",
+            left: "36%",
             bottom: "22%",
             height: "22%",
             width: "auto",
