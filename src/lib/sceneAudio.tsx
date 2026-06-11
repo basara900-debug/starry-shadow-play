@@ -216,10 +216,9 @@ export function useSceneTrack(
 
   useEffect(() => {
     if (!url) return;
-    const a = new Audio(url);
+    const a = ctx.getTrack(url);
     a.loop = loop;
-    a.preload = "auto";
-    a.crossOrigin = "anonymous";
+    a.currentTime = 0;
 
     const apply = (s: SceneAudioState) => {
       const vol = resolveVolume(s, kind) * baseVolume;
@@ -241,11 +240,17 @@ export function useSceneTrack(
       unsub();
       try {
         a.pause();
-        a.removeAttribute("src");
-        a.load();
+        a.currentTime = 0;
       } catch { /* noop */ }
     };
   }, [url, kind, loop, baseVolume, ctx]);
+}
+
+export function usePrimeSceneAudio(urls: Array<string | undefined | null>) {
+  const ctx = useCtx();
+  useEffect(() => {
+    ctx.primeTracks(urls);
+  }, [ctx, urls]);
 }
 
 /**
