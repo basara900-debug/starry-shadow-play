@@ -84,7 +84,10 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
   const [t, setT] = useState(0);
   const rafRef = useRef<number | null>(null);
   const lastRef = useRef<number | null>(null);
+  const timeRef = useRef(0);
   const doneRef = useRef(false);
+  const onCompleteRef = useRef<typeof onComplete>(onComplete);
+  useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
 
   // 공용 오디오 버스에 씬 4 BGM/SFX 등록.
   useSceneAudio({
@@ -100,14 +103,13 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
       if (lastRef.current == null) lastRef.current = now;
       const dt = (now - lastRef.current) / 1000;
       lastRef.current = now;
-      setT((prev) => {
-        const next = prev + dt * speed;
-        if (next >= LOOP_SEC && !doneRef.current) {
-          doneRef.current = true;
-          onComplete?.();
-        }
-        return next % LOOP_SEC;
-      });
+      const next = timeRef.current + dt * speed;
+      if (next >= LOOP_SEC && !doneRef.current) {
+        doneRef.current = true;
+        window.setTimeout(() => onCompleteRef.current?.(), 0);
+      }
+      timeRef.current = next % LOOP_SEC;
+      setT(timeRef.current);
       rafRef.current = requestAnimationFrame(step);
     };
     rafRef.current = requestAnimationFrame(step);
@@ -115,7 +117,7 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       lastRef.current = null;
     };
-  }, [speed, onComplete]);
+  }, [speed]);
 
   // 베짱이 포즈 — 시간대별로 결정
   const ghSrc = ghPose(t);

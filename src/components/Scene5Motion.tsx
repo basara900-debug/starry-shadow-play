@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import mainThemeUrl from "@/assets/main-theme.mp3";
 import { useSceneAudio } from "@/lib/sceneAudio";
 
 /**
@@ -29,11 +30,14 @@ export function Scene5Motion({ speed, onComplete }: { speed: Scene5Speed; onComp
   const [t, setT] = useState(0);
   const rafRef = useRef<number | null>(null);
   const lastRef = useRef<number | null>(null);
+  const timeRef = useRef(0);
   const doneRef = useRef(false);
+  const onCompleteRef = useRef<typeof onComplete>(onComplete);
+  useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
 
   // 공용 오디오 버스 — 별도 사운드 파일이 아직 없어 메인 테마를 차분히 깔아준다.
   useSceneAudio({
-    bgm: "/audio/main-theme.mp3",
+    bgm: mainThemeUrl,
     bgmVolume: 0.55,
     sfxVolume: 0,
   });
@@ -44,14 +48,13 @@ export function Scene5Motion({ speed, onComplete }: { speed: Scene5Speed; onComp
       if (lastRef.current == null) lastRef.current = now;
       const dt = (now - lastRef.current) / 1000;
       lastRef.current = now;
-      setT((prev) => {
-        const next = prev + dt * speed;
-        if (next >= LOOP_SEC && !doneRef.current) {
-          doneRef.current = true;
-          onComplete?.();
-        }
-        return next % LOOP_SEC;
-      });
+      const next = timeRef.current + dt * speed;
+      if (next >= LOOP_SEC && !doneRef.current) {
+        doneRef.current = true;
+        window.setTimeout(() => onCompleteRef.current?.(), 0);
+      }
+      timeRef.current = next % LOOP_SEC;
+      setT(timeRef.current);
       rafRef.current = requestAnimationFrame(step);
     };
     rafRef.current = requestAnimationFrame(step);
@@ -59,7 +62,7 @@ export function Scene5Motion({ speed, onComplete }: { speed: Scene5Speed; onComp
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       lastRef.current = null;
     };
-  }, [speed, onComplete]);
+  }, [speed]);
 
   const line = currentLine(t);
 

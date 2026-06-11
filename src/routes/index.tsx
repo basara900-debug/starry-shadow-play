@@ -3,6 +3,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import cassetteImg from "@/assets/idle-animation.gif";
 import theaterStageImg from "@/assets/theater-stage.jpg";
 import mainThemeUrl from "@/assets/main-theme.mp3";
+import scene3BgmAsset from "@/assets/scene3/scene3_bgm.mp3.asset.json";
+import scene3SfxAsset from "@/assets/scene3/scene3_sfx.mp3.asset.json";
+import scene4BgmAsset from "@/assets/scene4/scene4_bgm.mp3.asset.json";
+import scene4SfxAsset from "@/assets/scene4/scene4_sfx.mp3.asset.json";
 import { CASSETTES, type Cassette } from "@/data/cassettes";
 import { supabase } from "@/integrations/supabase/client";
 import { Scene1Motion, type Scene1Speed } from "@/components/Scene1Motion";
@@ -13,6 +17,7 @@ import { Scene5Motion, type Scene5Speed } from "@/components/Scene5Motion";
 import {
   SceneAudioProvider,
   useSceneAudioControls,
+  usePrimeSceneAudio,
   type SceneSpeed,
 } from "@/lib/sceneAudio";
 
@@ -252,6 +257,21 @@ function ShadowTheaterTitle() {
 
   // 모든 씬에 적용되는 공용 오디오 버스에도 동일 값을 흘려보낸다.
   const bus = useSceneAudioControls();
+  const sceneAudioUrls = useMemo(
+    () => [
+      "/audio/scene1_bgm.mp3",
+      "/audio/summer_insects_90s_vfx.wav",
+      "/audio/scene2_bgm.mp3",
+      "/audio/scene2_sfx.mp3",
+      scene3BgmAsset.url,
+      scene3SfxAsset.url,
+      scene4BgmAsset.url,
+      scene4SfxAsset.url,
+      mainThemeUrl,
+    ],
+    []
+  );
+  usePrimeSceneAudio(sceneAudioUrls);
   useEffect(() => { bus.setBgm(bgmVol); }, [bgmVol, bus]);
   useEffect(() => { bus.setBgmMuted(bgmMuted); }, [bgmMuted, bus]);
   useEffect(() => { bus.setSfx(sfxVol); }, [sfxVol, bus]);
