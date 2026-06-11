@@ -43,6 +43,7 @@ export function Scene3Motion({ speed, onComplete }: { speed: Scene3Speed; onComp
   const [t, setT] = useState(0);
   const rafRef = useRef<number | null>(null);
   const lastRef = useRef<number | null>(null);
+  const timeRef = useRef(0);
   const doneRef = useRef(false);
 
   // 씬 3 BGM/SFX — 공용 오디오 버스가 볼륨/속도/일시정지/언마운트 정리까지 담당.
@@ -59,14 +60,13 @@ export function Scene3Motion({ speed, onComplete }: { speed: Scene3Speed; onComp
       if (lastRef.current == null) lastRef.current = now;
       const dt = (now - lastRef.current) / 1000;
       lastRef.current = now;
-      setT((prev) => {
-        const next = prev + dt * speed;
-        if (next >= LOOP_SEC && !doneRef.current) {
-          doneRef.current = true;
-          onComplete?.();
-        }
-        return next % LOOP_SEC;
-      });
+      const next = timeRef.current + dt * speed;
+      if (next >= LOOP_SEC && !doneRef.current) {
+        doneRef.current = true;
+        window.setTimeout(() => onComplete?.(), 0);
+      }
+      timeRef.current = next % LOOP_SEC;
+      setT(timeRef.current);
       rafRef.current = requestAnimationFrame(step);
     };
     rafRef.current = requestAnimationFrame(step);

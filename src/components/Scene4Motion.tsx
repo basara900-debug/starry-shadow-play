@@ -84,6 +84,7 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
   const [t, setT] = useState(0);
   const rafRef = useRef<number | null>(null);
   const lastRef = useRef<number | null>(null);
+  const timeRef = useRef(0);
   const doneRef = useRef(false);
 
   // 공용 오디오 버스에 씬 4 BGM/SFX 등록.
@@ -100,14 +101,13 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
       if (lastRef.current == null) lastRef.current = now;
       const dt = (now - lastRef.current) / 1000;
       lastRef.current = now;
-      setT((prev) => {
-        const next = prev + dt * speed;
-        if (next >= LOOP_SEC && !doneRef.current) {
-          doneRef.current = true;
-          onComplete?.();
-        }
-        return next % LOOP_SEC;
-      });
+      const next = timeRef.current + dt * speed;
+      if (next >= LOOP_SEC && !doneRef.current) {
+        doneRef.current = true;
+        window.setTimeout(() => onComplete?.(), 0);
+      }
+      timeRef.current = next % LOOP_SEC;
+      setT(timeRef.current);
       rafRef.current = requestAnimationFrame(step);
     };
     rafRef.current = requestAnimationFrame(step);

@@ -45,6 +45,7 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
   const [t, setT] = useState(0);
   const rafRef = useRef<number | null>(null);
   const lastRef = useRef<number | null>(null);
+  const timeRef = useRef(0);
   const onCompleteRef = useRef<typeof onComplete>(onComplete);
   useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
 
@@ -62,14 +63,10 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
       if (lastRef.current == null) lastRef.current = now;
       const dt = (now - lastRef.current) / 1000;
       lastRef.current = now;
-      setT((prev) => {
-        const next = prev + dt * speed;
-        if (next >= LOOP_SEC) {
-          onCompleteRef.current?.();
-          return next % LOOP_SEC;
-        }
-        return next;
-      });
+      const next = timeRef.current + dt * speed;
+      if (next >= LOOP_SEC) window.setTimeout(() => onCompleteRef.current?.(), 0);
+      timeRef.current = next % LOOP_SEC;
+      setT(timeRef.current);
       rafRef.current = requestAnimationFrame(step);
     };
     rafRef.current = requestAnimationFrame(step);

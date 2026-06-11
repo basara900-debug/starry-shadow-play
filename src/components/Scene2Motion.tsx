@@ -46,6 +46,7 @@ export function Scene2Motion({ speed, onComplete }: { speed: Scene2Speed; onComp
   const [t, setT] = useState(0);
   const rafRef = useRef<number | null>(null);
   const lastRef = useRef<number | null>(null);
+  const timeRef = useRef(0);
   const doneRef = useRef(false);
 
   // 공용 오디오 버스에 BGM/SFX를 등록 — 볼륨/음소거/속도/일시정지는 자동 적용.
@@ -62,14 +63,13 @@ export function Scene2Motion({ speed, onComplete }: { speed: Scene2Speed; onComp
       if (lastRef.current == null) lastRef.current = now;
       const dt = (now - lastRef.current) / 1000;
       lastRef.current = now;
-      setT((prev) => {
-        const next = prev + dt * speed;
-        if (next >= LOOP_SEC && !doneRef.current) {
-          doneRef.current = true;
-          onComplete?.();
-        }
-        return next % LOOP_SEC;
-      });
+      const next = timeRef.current + dt * speed;
+      if (next >= LOOP_SEC && !doneRef.current) {
+        doneRef.current = true;
+        window.setTimeout(() => onComplete?.(), 0);
+      }
+      timeRef.current = next % LOOP_SEC;
+      setT(timeRef.current);
       rafRef.current = requestAnimationFrame(step);
     };
     rafRef.current = requestAnimationFrame(step);
