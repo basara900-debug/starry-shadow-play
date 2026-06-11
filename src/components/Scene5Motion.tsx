@@ -11,14 +11,14 @@ const LOOP_SEC = 90;
 
 type Line = { from: number; to: number; who: "narration"; text: string };
 const LINES: Line[] = [
-  { from: 0,  to: 8,  who: "narration", text: "이렇게 개미와 베짱이의 이야기는 끝이 났어요." },
-  { from: 8,  to: 18, who: "narration", text: "여러분은 이 이야기를 보고 어떤 생각이 들었나요?" },
-  { from: 18, to: 30, who: "narration", text: "더운 여름에도 쉬지 않고 일한 개미는 왜 그렇게 열심히 일했을까요?" },
-  { from: 30, to: 42, who: "narration", text: "노래만 부르던 베짱이는 추운 겨울이 되었을 때 어떤 마음이었을까요?" },
-  { from: 42, to: 54, who: "narration", text: "추위에 떨며 찾아온 베짱이를 따뜻하게 맞아준 개미들의 마음은 어땠을까요?" },
-  { from: 54, to: 66, who: "narration", text: "만약 여러분이 개미였다면 베짱이에게 어떻게 했을 것 같나요?" },
-  { from: 66, to: 78, who: "narration", text: "이 이야기가 우리에게 알려주는 교훈은 무엇일까요?" },
-  { from: 78, to: 90, who: "narration", text: "오늘 할 일을 미리 준비하는 마음과, 어려운 친구를 돕는 따뜻한 마음을 함께 기억해요." },
+  { from: 0,  to: 6,  who: "narration", text: "어린이 여러분 이야기는 재미 있었나요?" },
+  { from: 12, to: 18, who: "narration", text: "그럼 우리! 생각을 크게 하는 연습을 해 볼까요?" },
+  { from: 24, to: 30, who: "narration", text: "여러분은 이 이야기를 보고 어떤 생각을 하게 되었나요?" },
+  { from: 36, to: 42, who: "narration", text: "베짱이는 무엇을 잘못했을까요?" },
+  { from: 48, to: 54, who: "narration", text: "베짱이가 정말 잘 못한 것일까요?" },
+  { from: 60, to: 66, who: "narration", text: "개미는 무엇을 잘 했을까요?" },
+  { from: 72, to: 78, who: "narration", text: "모두가 행복해지려면 서로 사이가 어떤게 좋을까요?" },
+  { from: 84, to: 90, who: "narration", text: "엄마, 아빠랑 한번 이거에 대해서 이야기 해 보세요! 생각이 커질 거예요!" },
 ];
 
 function currentLine(t: number): Line | null {

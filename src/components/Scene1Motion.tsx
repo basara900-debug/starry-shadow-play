@@ -22,21 +22,21 @@ import { useSceneAudio } from "@/lib/sceneAudio";
  */
 export type Scene1Speed = 1 | 2 | 0;
 
-const BEATS: { from: number; to: number; who: "gh" | "ant" | "none"; text: string }[] = [
-  { from: 0,  to: 6,  who: "none", text: "" },
-  { from: 6,  to: 12, who: "ant",  text: "영차 영차 열심히 일하자! 오늘 흘린 땀이 내일에는 큰 보답으로 돌아 올거야" },
-  { from: 12, to: 18, who: "ant",  text: "자 이것도 가져가도, 요것도 챙겨가자, 어이 친구 거기 땅좀 파줘" },
-  { from: 18, to: 24, who: "gh",   text: "우와 저 개미때들을 봐! 정말 이 더운 여름에 열심히 일하네 정말 힘들게 사는군" },
-  { from: 24, to: 32, who: "gh",   text: "개미야 개미야 왜 그렇게 열심히 일하니? 힘들지 않아?" },
-  { from: 32, to: 38, who: "none", text: "" },
-  { from: 38, to: 44, who: "ant",  text: "응 베짱아, 앞으로 다가올 추운 겨울을 대비해서 열심히 일해야 해!" },
-  { from: 44, to: 52, who: "gh",   text: "아직 겨울까지는 시간 많아~ 우리 같이 놀자!" },
-  { from: 52, to: 58, who: "none", text: "" },
-  { from: 58, to: 64, who: "ant",  text: "우리는 놀 시간이 없어 미안하지만 계속 일할께" },
-  { from: 64, to: 70, who: "gh",   text: "아이고 딱해라 열심히 일만 하느라고 놀지를 못하네 내가 너희들을 위해 즐거운 노래를 불러줄께" },
-  { from: 70, to: 76, who: "none", text: "" },
-  { from: 76, to: 82, who: "ant",  text: "자 해가 지기 전까지 모든 일들을 끝마쳐야 한다 모두 힘내자" },
-  { from: 82, to: 90, who: "none", text: "" },
+const BEATS: { from: number; to: number; who: "gh" | "ant" | "narration"; text: string }[] = [
+  { from: 0,  to: 6,  who: "narration", text: "어느 무더운 여름! 개미들이 들판에서 열심히 일하고 있었습니다." },
+  { from: 6,  to: 12, who: "ant",  text: "영차 영차 열심히 일하자! 오늘 흘리는 땀이 내일에는 큰 보답으로 돌아 올거야" },
+  { from: 12, to: 18, who: "narration", text: "그때 어디선가 베짱이 하나가 개미들이 일하는 곳에 나타났습니다." },
+  { from: 18, to: 24, who: "gh",   text: "우와 저 개미때들을 봐! 정말 이 더운 여름에 열심히 일하네는군" },
+  { from: 24, to: 32, who: "ant",  text: "자 이것도 가져가고, 요것도 챙겨가자, 어이 친구 거기 땅좀 파줘" },
+  { from: 32, to: 38, who: "narration", text: "개미들이 열심히 일하는게 신기했던 베짱이는 개미들에게 말을 걸었습니다." },
+  { from: 38, to: 44, who: "gh",   text: "개미야 개미야 왜 그렇게 열심히 일하고 있니? 힘들지 않아?" },
+  { from: 44, to: 52, who: "ant",  text: "아~ 베짱이구나, 앞으로 다가올 추운 겨울을 대비해서 열심히 일해놔야 하거든!" },
+  { from: 52, to: 58, who: "gh",   text: "그렇지만, 아직 겨울이 오려면 시간이 많이 남았어, 힘든데 이제 쉬고, 나랑 같이 놀자 개미야!" },
+  { from: 58, to: 64, who: "ant",  text: "미안하지만 우리는 지금 놀 시간이 없어! 그러니 같이 못 놀아, 하지만 너는 재미있게 놀아!" },
+  { from: 64, to: 70, who: "gh",   text: "아이고 딱해라! 열심히 일 하느라고 쉬지를 못하네! 그럼 내가 너희들을 위해 즐거운 노래를 불러줄께" },
+  { from: 70, to: 76, who: "narration", text: "베짱이는 신나게 연주하고 노래를 했고 개미들은 베짱이의 노래를 들으며 열심히 일을 했습니다." },
+  { from: 76, to: 82, who: "ant",  text: "자 이제 해가 지기 전까지 얼마 안 남았어! 모든 일들을 빨리 끝마쳐야 하니 우리 힘내자" },
+  { from: 82, to: 90, who: "narration", text: "어느 무더운 여름날! 개미들은 땀 흘리며 열심히 일하고, 베짱이는 신나게 노래했습니다." },
 ];
 
 const LOOP_SEC = 90;
