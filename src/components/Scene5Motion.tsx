@@ -31,6 +31,8 @@ export function Scene5Motion({ speed, onComplete }: { speed: Scene5Speed; onComp
   const lastRef = useRef<number | null>(null);
   const timeRef = useRef(0);
   const doneRef = useRef(false);
+  const onCompleteRef = useRef<typeof onComplete>(onComplete);
+  useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
 
   // 공용 오디오 버스 — 별도 사운드 파일이 아직 없어 메인 테마를 차분히 깔아준다.
   useSceneAudio({
@@ -48,7 +50,7 @@ export function Scene5Motion({ speed, onComplete }: { speed: Scene5Speed; onComp
       const next = timeRef.current + dt * speed;
       if (next >= LOOP_SEC && !doneRef.current) {
         doneRef.current = true;
-        window.setTimeout(() => onComplete?.(), 0);
+        window.setTimeout(() => onCompleteRef.current?.(), 0);
       }
       timeRef.current = next % LOOP_SEC;
       setT(timeRef.current);
@@ -59,7 +61,7 @@ export function Scene5Motion({ speed, onComplete }: { speed: Scene5Speed; onComp
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       lastRef.current = null;
     };
-  }, [speed, onComplete]);
+  }, [speed]);
 
   const line = currentLine(t);
 

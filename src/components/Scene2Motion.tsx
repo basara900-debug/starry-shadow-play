@@ -48,6 +48,8 @@ export function Scene2Motion({ speed, onComplete }: { speed: Scene2Speed; onComp
   const lastRef = useRef<number | null>(null);
   const timeRef = useRef(0);
   const doneRef = useRef(false);
+  const onCompleteRef = useRef<typeof onComplete>(onComplete);
+  useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
 
   // 공용 오디오 버스에 BGM/SFX를 등록 — 볼륨/음소거/속도/일시정지는 자동 적용.
   useSceneAudio({
@@ -66,7 +68,7 @@ export function Scene2Motion({ speed, onComplete }: { speed: Scene2Speed; onComp
       const next = timeRef.current + dt * speed;
       if (next >= LOOP_SEC && !doneRef.current) {
         doneRef.current = true;
-        window.setTimeout(() => onComplete?.(), 0);
+        window.setTimeout(() => onCompleteRef.current?.(), 0);
       }
       timeRef.current = next % LOOP_SEC;
       setT(timeRef.current);
