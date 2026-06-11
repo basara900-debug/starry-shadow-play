@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import mainThemeUrl from "@/assets/main-theme.mp3";
 import { useSceneAudio } from "@/lib/sceneAudio";
 
 /**
@@ -36,7 +37,7 @@ export function Scene5Motion({ speed, onComplete }: { speed: Scene5Speed; onComp
 
   // 공용 오디오 버스 — 별도 사운드 파일이 아직 없어 메인 테마를 차분히 깔아준다.
   useSceneAudio({
-    bgm: "/audio/main-theme.mp3",
+    bgm: mainThemeUrl,
     bgmVolume: 0.55,
     sfxVolume: 0,
   });
