@@ -59,13 +59,59 @@ type Ctx = {
   /** 값 변경. 즉시 모든 트랙에 통보된다. */
   patch: (p: Partial<SceneAudioState>) => void;
   subscribe: (fn: Listener) => () => void;
+  getTrack: (url: string) => HTMLAudioElement;
+  primeTracks: (urls: Array<string | undefined | null>) => void;
 };
 
 const SceneAudioContext = createContext<Ctx | null>(null);
 
+function createTrack(url: string) {
+  const a = new Audio(url);
+  a.preload = "auto";
+  a.crossOrigin = "anonymous";
+  return a;
+}
+
+function unlockPausedTrack(a: HTMLAudioElement) {
+  if (!a.paused) return;
+  const muted = a.muted;
+  const volume = a.volume;
+  a.muted = true;
+  a.volume = 0;
+  a.play()
+    .then(() => {
+      a.pause();
+      try { a.currentTime = 0; } catch { /* noop */ }
+      a.muted = muted;
+      a.volume = volume;
+    })
+    .catch(() => {
+      a.muted = muted;
+      a.volume = volume;
+    });
+}
+
 export function SceneAudioProvider({ children }: { children: ReactNode }) {
   const stateRef = useRef<SceneAudioState>({ ...DEFAULT_STATE });
   const listenersRef = useRef<Set<Listener>>(new Set());
+  const tracksRef = useRef<Map<string, HTMLAudioElement>>(new Map());
+
+  const getTrack = useCallback((url: string) => {
+    let track = tracksRef.current.get(url);
+    if (!track) {
+      track = createTrack(url);
+      tracksRef.current.set(url, track);
+    }
+    return track;
+  }, []);
+
+  const primeTracks = useCallback((urls: Array<string | undefined | null>) => {
+    for (const url of urls) {
+      if (!url) continue;
+      const track = getTrack(url);
+      if (stateRef.current.unlocked) unlockPausedTrack(track);
+    }
+  }, [getTrack]);
 
   const ctx = useMemo<Ctx>(
     () => ({
@@ -80,8 +126,10 @@ export function SceneAudioProvider({ children }: { children: ReactNode }) {
           listenersRef.current.delete(fn);
         };
       },
+      getTrack,
+      primeTracks,
     }),
-    []
+    [getTrack, primeTracks]
   );
 
   // 첫 사용자 제스처에서 unlocked=true. 이후 트랙이 새로 mount되어도
@@ -90,6 +138,7 @@ export function SceneAudioProvider({ children }: { children: ReactNode }) {
     if (typeof window === "undefined") return;
     const onGesture = () => {
       ctx.patch({ unlocked: true });
+      for (const track of tracksRef.current.values()) unlockPausedTrack(track);
     };
     window.addEventListener("pointerdown", onGesture, { once: true });
     window.addEventListener("keydown", onGesture, { once: true });
