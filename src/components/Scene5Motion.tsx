@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import mainThemeUrl from "@/assets/main-theme.mp3";
 import { useSceneAudio } from "@/lib/sceneAudio";
+import bgmAsset from "@/assets/scene5/scene5_bgm.mp3.asset.json";
 
 /**
  * 씬 5 — 에필로그. 등장인물은 등장하지 않고, 나레이션이 독자(어린이)에게
@@ -37,7 +37,7 @@ export function Scene5Motion({ speed, onComplete }: { speed: Scene5Speed; onComp
 
   // 공용 오디오 버스 — 별도 사운드 파일이 아직 없어 메인 테마를 차분히 깔아준다.
   useSceneAudio({
-    bgm: mainThemeUrl,
+    bgm: bgmAsset.url,
     bgmVolume: 0.55,
     sfxVolume: 0,
   });
