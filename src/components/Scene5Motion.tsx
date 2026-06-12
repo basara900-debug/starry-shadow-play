@@ -113,7 +113,7 @@ export function Scene5Motion({ speed, onComplete }: { speed: Scene5Speed; onComp
           position: "absolute",
           right: "10%",
           bottom: "30%",
-          width: "clamp(110px, 16vw, 220px)",
+          width: "clamp(66px, 9.6vw, 132px)",
           height: "auto",
           transform: "translate(50%, 0)",
           filter: "drop-shadow(0 6px 12px oklch(0 0 0 / 0.45))",
