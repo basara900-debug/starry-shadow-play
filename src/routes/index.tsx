@@ -7,6 +7,7 @@ import scene3BgmAsset from "@/assets/scene3/scene3_bgm.mp3.asset.json";
 import scene3SfxAsset from "@/assets/scene3/scene3_sfx.mp3.asset.json";
 import scene4BgmAsset from "@/assets/scene4/scene4_bgm.mp3.asset.json";
 import scene4SfxAsset from "@/assets/scene4/scene4_sfx.mp3.asset.json";
+import scene5BgmAsset from "@/assets/scene5/scene5_bgm.mp3.asset.json";
 import { CASSETTES, type Cassette } from "@/data/cassettes";
 import { supabase } from "@/integrations/supabase/client";
 import { Scene1Motion, type Scene1Speed } from "@/components/Scene1Motion";
