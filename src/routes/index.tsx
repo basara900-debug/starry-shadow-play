@@ -269,6 +269,7 @@ function ShadowTheaterTitle() {
       scene4BgmAsset.url,
       scene4SfxAsset.url,
       mainThemeUrl,
+      scene5BgmAsset.url,
     ],
     []
   );
