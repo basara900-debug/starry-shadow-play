@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useSceneAudio } from "@/lib/sceneAudio";
 import bgmAsset from "@/assets/scene5/scene5_bgm.mp3.asset.json";
+import ant1Asset from "@/assets/scene5/ant1.png.asset.json";
+import ant2Asset from "@/assets/scene5/ant2.png.asset.json";
+import ant3Asset from "@/assets/scene5/ant3.png.asset.json";
+import ant4Asset from "@/assets/scene5/ant4.png.asset.json";
+import ant5Asset from "@/assets/scene5/ant5.png.asset.json";
+
+const ANT_FRAMES = [ant1Asset.url, ant2Asset.url, ant3Asset.url, ant4Asset.url, ant5Asset.url];
+const FRAME_SEC = 6;
 
 /**
  * 씬 5 — 에필로그. 등장인물은 등장하지 않고, 나레이션이 독자(어린이)에게
@@ -65,6 +73,7 @@ export function Scene5Motion({ speed, onComplete }: { speed: Scene5Speed; onComp
   }, [speed]);
 
   const line = currentLine(t);
+  const antFrame = ANT_FRAMES[Math.floor(t / FRAME_SEC) % ANT_FRAMES.length];
 
   return (
     <div className="pointer-events-none absolute inset-0 select-none">
@@ -95,6 +104,21 @@ export function Scene5Motion({ speed, onComplete }: { speed: Scene5Speed; onComp
       </div>
 
       {line && <Subtitle line={line} />}
+
+      {/* 우측 개미 캐릭터 — 6초 간격 5프레임 루프 */}
+      <img
+        src={antFrame}
+        alt="개미 캐릭터"
+        style={{
+          position: "absolute",
+          right: "10%",
+          bottom: "30%",
+          width: "clamp(110px, 16vw, 220px)",
+          height: "auto",
+          transform: "translate(50%, 0)",
+          filter: "drop-shadow(0 6px 12px oklch(0 0 0 / 0.45))",
+        }}
+      />
     </div>
   );
 }
