@@ -111,8 +111,8 @@ export function Scene5Motion({ speed, onComplete }: { speed: Scene5Speed; onComp
         alt="개미 캐릭터"
         style={{
           position: "absolute",
-          right: "10%",
-          bottom: "30%",
+          right: "20%",
+          bottom: "40%",
           width: "clamp(66px, 9.6vw, 132px)",
           height: "auto",
           transform: "translate(50%, 0)",
