@@ -6,9 +6,14 @@ import ant2Asset from "@/assets/scene5/ant2.png.asset.json";
 import ant3Asset from "@/assets/scene5/ant3.png.asset.json";
 import ant4Asset from "@/assets/scene5/ant4.png.asset.json";
 import ant5Asset from "@/assets/scene5/ant5.png.asset.json";
+import hopper1Asset from "@/assets/scene5/hopper1.png.asset.json";
+import hopper2Asset from "@/assets/scene5/hopper2.png.asset.json";
+import hopper3Asset from "@/assets/scene5/hopper3.png.asset.json";
 
 const ANT_FRAMES = [ant1Asset.url, ant2Asset.url, ant3Asset.url, ant4Asset.url, ant5Asset.url];
 const FRAME_SEC = 6;
+const HOPPER_FRAMES = [hopper1Asset.url, hopper2Asset.url, hopper3Asset.url];
+const HOPPER_FRAME_SEC = 8;
 
 /**
  * 씬 5 — 에필로그. 등장인물은 등장하지 않고, 나레이션이 독자(어린이)에게
@@ -74,6 +79,7 @@ export function Scene5Motion({ speed, onComplete }: { speed: Scene5Speed; onComp
 
   const line = currentLine(t);
   const antFrame = ANT_FRAMES[Math.floor(t / FRAME_SEC) % ANT_FRAMES.length];
+  const hopperFrame = HOPPER_FRAMES[Math.floor(t / HOPPER_FRAME_SEC) % HOPPER_FRAMES.length];
 
   return (
     <div className="pointer-events-none absolute inset-0 select-none">
@@ -116,6 +122,21 @@ export function Scene5Motion({ speed, onComplete }: { speed: Scene5Speed; onComp
           width: "clamp(66px, 9.6vw, 132px)",
           height: "auto",
           transform: "translate(50%, 0)",
+          filter: "drop-shadow(0 6px 12px oklch(0 0 0 / 0.45))",
+        }}
+      />
+
+      {/* 좌측 베짱이 캐릭터 — 8초 간격 3프레임 루프 */}
+      <img
+        src={hopperFrame}
+        alt="베짱이 캐릭터"
+        style={{
+          position: "absolute",
+          left: "20%",
+          top: "40%",
+          width: "clamp(66px, 9.6vw, 132px)",
+          height: "auto",
+          transform: "translate(-50%, 0)",
           filter: "drop-shadow(0 6px 12px oklch(0 0 0 / 0.45))",
         }}
       />
