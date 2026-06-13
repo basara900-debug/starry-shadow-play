@@ -208,17 +208,31 @@ function resolveRate(s: SceneAudioState) {
 export function useSceneTrack(
   url: string | undefined | null,
   kind: TrackKind,
-  opts?: { loop?: boolean; baseVolume?: number }
+  opts?: { loop?: boolean; baseVolume?: number; maxDurationSec?: number }
 ) {
   const ctx = useCtx();
   const loop = opts?.loop ?? true;
   const baseVolume = opts?.baseVolume ?? 1;
+  const maxDurationSec = opts?.maxDurationSec ?? 90;
 
   useEffect(() => {
     if (!url) return;
     const a = ctx.getTrack(url);
     a.loop = loop;
     a.currentTime = 0;
+    let raf: number | null = null;
+
+    const monitorHead = () => {
+      if (maxDurationSec > 0 && a.currentTime >= maxDurationSec) {
+        if (loop) {
+          a.currentTime = 0;
+        } else {
+          a.pause();
+        }
+      }
+      raf = requestAnimationFrame(monitorHead);
+    };
+    raf = requestAnimationFrame(monitorHead);
 
     const apply = (s: SceneAudioState) => {
       const vol = resolveVolume(s, kind) * baseVolume;
@@ -238,12 +252,13 @@ export function useSceneTrack(
 
     return () => {
       unsub();
+      if (raf) cancelAnimationFrame(raf);
       try {
         a.pause();
         a.currentTime = 0;
       } catch { /* noop */ }
     };
-  }, [url, kind, loop, baseVolume, ctx]);
+  }, [url, kind, loop, baseVolume, maxDurationSec, ctx]);
 }
 
 export function usePrimeSceneAudio(urls: Array<string | undefined | null>) {
@@ -261,9 +276,11 @@ export function useSceneAudio(opts: {
   sfx?: string;
   bgmVolume?: number;
   sfxVolume?: number;
+  maxDurationSec?: number;
 }) {
-  useSceneTrack(opts.bgm ?? null, "bgm", { baseVolume: opts.bgmVolume ?? 1 });
-  useSceneTrack(opts.sfx ?? null, "sfx", { baseVolume: opts.sfxVolume ?? 1 });
+  const maxDurationSec = opts.maxDurationSec ?? 90;
+  useSceneTrack(opts.bgm ?? null, "bgm", { baseVolume: opts.bgmVolume ?? 1, maxDurationSec });
+  useSceneTrack(opts.sfx ?? null, "sfx", { baseVolume: opts.sfxVolume ?? 1, maxDurationSec });
 }
 
 /**
