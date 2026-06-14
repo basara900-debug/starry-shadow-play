@@ -32,7 +32,7 @@ const LINES: Line[] = [
   { from: 48, to: 54, who: "narration", text: "베짱이가 정말 잘 못한 것일까요?" },
   { from: 60, to: 66, who: "narration", text: "개미는 무엇을 잘 했을까요?" },
   { from: 72, to: 78, who: "narration", text: "모두가 행복해지려면 서로 사이가 어떤게 좋을까요?" },
-  { from: 84, to: 90, who: "narration", text: "엄마, 아빠랑 한번 이거에 대해서 이야기 해 보세요! 생각이 커질 거예요!" },
+  { from: 84, to: 90, who: "narration", text: "엄마,아빠랑 한번 이야기를 나눠 보세요! 생각이 커질 거예요!" },
 ];
 
 function currentLine(t: number): Line | null {
