@@ -492,6 +492,15 @@ function TheaterStage({
     audioCtl.setSpeed(s);
   }, [playState, audioCtl]);
 
+  // 극장(세컨드 스테이지)에서 잠시 바꾼 재생 속도는 메인 타이틀 UI 설정과 분리한다.
+  // TheaterStage가 언마운트되면 공용 오디오 버스의 speed를 기본값(1x)으로 복구해
+  // 메인 화면 BGM/SFX가 2배속 또는 정지 상태로 남지 않게 한다.
+  useEffect(() => {
+    return () => {
+      audioCtl.setSpeed(1);
+    };
+  }, [audioCtl]);
+
   const current = scenes[sceneIndex];
   const paused = playState === "paused";
   // 씬 2 배경 이미지가 아직 업로드되지 않아도 가을 톤 폴백으로 모션을 보여줌
@@ -685,6 +694,8 @@ function TheaterStage({
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene5Speed}
                 onComplete={() => {
                   setSceneIndex(0);
+                  // 마지막 씬(에필로그)이 끝나면 극장을 빠져나와 메인 타이틀 UI로 복귀.
+                  onExit();
                 }}
               />
             )}
