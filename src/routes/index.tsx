@@ -694,6 +694,8 @@ function TheaterStage({
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene5Speed}
                 onComplete={() => {
                   setSceneIndex(0);
+                  // 마지막 씬(에필로그)이 끝나면 극장을 빠져나와 메인 타이틀 UI로 복귀.
+                  onExit();
                 }}
               />
             )}
