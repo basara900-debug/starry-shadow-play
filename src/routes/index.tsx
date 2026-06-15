@@ -519,6 +519,7 @@ const THEATER_BTN_H = 7.2;
 const THEATER_BTN_X = [29.0, 43.0, 57.0, 68.0];
 
 function TheaterStage({
+  cassetteId,
   scenes,
   onRefresh,
   sceneIndex,
@@ -527,6 +528,7 @@ function TheaterStage({
   onExit,
   onClickSfx,
 }: {
+  cassetteId: string | null;
   scenes: SceneRow[];
   onRefresh: () => Promise<void>;
   sceneIndex: number;
@@ -561,6 +563,10 @@ function TheaterStage({
   const paused = playState === "paused";
   // 씬 2 배경 이미지가 아직 업로드되지 않아도 가을 톤 폴백으로 모션을 보여줌
   const showScene2Fallback = sceneIndex === 1 && !current;
+
+  // 모션 프로그램은 현재 "개미와 베짱이"(little-forest) 카세트에만 구현되어 있다.
+  // 그 외 카세트가 삽입된 경우 스크린에 "준비 중" 안내만 보여주고 씬 모션을 띄우지 않는다.
+  const hasMotionProgram = cassetteId === "little-forest";
 
   const openPicker = () => fileRef.current?.click();
 
@@ -713,7 +719,7 @@ function TheaterStage({
                 }}
               />
             )}
-            {sceneIndex === 0 && (
+            {hasMotionProgram && sceneIndex === 0 && (
               <Scene1Motion
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene1Speed}
                 onComplete={() => {
@@ -721,7 +727,7 @@ function TheaterStage({
                 }}
               />
             )}
-            {sceneIndex === 1 && (
+            {hasMotionProgram && sceneIndex === 1 && (
               <Scene2Motion
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene2Speed}
                 onComplete={() => {
@@ -729,7 +735,7 @@ function TheaterStage({
                 }}
               />
             )}
-            {sceneIndex === 2 && (
+            {hasMotionProgram && sceneIndex === 2 && (
               <Scene3Motion
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene3Speed}
                 onComplete={() => {
@@ -737,7 +743,7 @@ function TheaterStage({
                 }}
               />
             )}
-            {sceneIndex === 3 && (
+            {hasMotionProgram && sceneIndex === 3 && (
               <Scene4Motion
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene4Speed}
                 onComplete={() => {
@@ -745,7 +751,7 @@ function TheaterStage({
                 }}
               />
             )}
-            {sceneIndex === 4 && (
+            {hasMotionProgram && sceneIndex === 4 && (
               <Scene5Motion
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene5Speed}
                 onComplete={() => {
@@ -754,6 +760,29 @@ function TheaterStage({
                   onExit();
                 }}
               />
+            )}
+            {!hasMotionProgram && (
+              <div
+                className="absolute inset-0 grid place-items-center"
+                style={{ background: "oklch(0 0 0 / 0.45)" }}
+              >
+                <div
+                  className="rounded-2xl px-5 py-4 text-center"
+                  style={{
+                    background: "oklch(0.18 0.02 50 / 0.85)",
+                    border: "1px solid oklch(0.85 0.08 75 / 0.3)",
+                    color: "oklch(0.95 0.04 80)",
+                    maxWidth: "78%",
+                  }}
+                >
+                  <div className="text-sm font-semibold">
+                    {CASSETTES.find((c) => c.id === cassetteId)?.title ?? "선택된 카세트"}
+                  </div>
+                  <div className="mt-1 text-[11px]" style={{ color: "oklch(0.75 0.04 75)" }}>
+                    이 카세트의 모션 프로그램은 준비 중입니다.
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         ) : (
