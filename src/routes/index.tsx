@@ -249,6 +249,13 @@ function ShadowTheaterTitle() {
   const [listOpen, setListOpen] = useState(false);
   const [scenes, setScenes] = useState<SceneRow[]>([]);
   const [sceneIndex, setSceneIndex] = useState(0);
+  // 카세트 삽입/이젝트 상태.
+  // - selectedCassetteId: 리스트에서 마지막으로 고른 카세트 (다음 INPUT 시 삽입될 대상)
+  // - loadedCassetteId: 현재 데크에 물리적으로 삽입되어 모션 프로그램에 커넥팅된 카세트 (null = 이젝트 상태)
+  // 처음 의도대로 INPUT/EJECT 버튼이 개미와 베짱이 모션 프로그램과의 연결을 토글한다.
+  const DEFAULT_CASSETTE_ID = "little-forest";
+  const [selectedCassetteId, setSelectedCassetteId] = useState<string>(DEFAULT_CASSETTE_ID);
+  const [loadedCassetteId, setLoadedCassetteId] = useState<string | null>(DEFAULT_CASSETTE_ID);
   const { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted, setMasterVolume, setPlaybackRate, ensure } = useAudio();
 
   useEffect(() => { setBgmVolume(bgmVol); }, [bgmVol, setBgmVolume]);
@@ -306,7 +313,9 @@ function ShadowTheaterTitle() {
     setTimeout(() => setPressed(null), 160);
     await sfx.click();
     if (i === 0) {
-      // PLAY: 12프레임(약 1.2초) 재생 후 BGM 정지 + 그림자 연극(세컨드 스테이지) 전환.
+      // PLAY: 카세트가 삽입(커넥팅) 되어 있을 때만 그림자 연극 스테이지로 전환한다.
+      // 이젝트 상태(loadedCassetteId == null)에서는 무시 — 사용자는 먼저 INPUT 으로 카세트를 끼워야 한다.
+      if (loadedCassetteId == null) return;
       window.setTimeout(() => {
         stopBgm();
         setMusicOn(false);
@@ -316,12 +325,17 @@ function ShadowTheaterTitle() {
       // SETTING opens settings panel
       await ensure();
       setSettingsOpen(true);
+    } else if (i === 2) {
+      // INPUT/EJECT: 현재 선택된 카세트를 데크에 끼우거나 빼낸다.
+      // - 비어 있으면 selectedCassetteId 를 삽입 (모션 프로그램에 커넥팅)
+      // - 이미 끼워져 있으면 이젝트 (모션 프로그램 연결 해제)
+      setLoadedCassetteId((prev) => (prev == null ? selectedCassetteId : null));
     } else if (i === 1) {
       // LIST opens cassette list panel
       await ensure();
       setListOpen(true);
     }
-    // LIST / INPUT-EJECT / STORE: reserved for future cassette swap
+    // STORE (i === 4): reserved for future store flow
   };
 
   const exitTheater = async () => {
@@ -421,6 +435,7 @@ function ShadowTheaterTitle() {
 
         {stage === "theater" && (
           <TheaterStage
+            cassetteId={loadedCassetteId}
             scenes={scenes}
             onRefresh={refreshScenes}
             sceneIndex={sceneIndex}
@@ -445,7 +460,48 @@ function ShadowTheaterTitle() {
           />
         )}
 
-        {listOpen && <ListPanel onClose={() => setListOpen(false)} />}
+        {listOpen && (
+          <ListPanel
+            onClose={() => setListOpen(false)}
+            selectedId={selectedCassetteId}
+            loadedId={loadedCassetteId}
+            onSelect={(id) => {
+              setSelectedCassetteId(id);
+              // 카세트가 이미 끼워져 있던 상태라면, 새로 선택한 카세트로 즉시 교체(swap)하여
+              // 사용자가 메인 UI 로 돌아가 PLAY 만 누르면 새 동화가 바로 구동되도록 한다.
+              setLoadedCassetteId((prev) => (prev == null ? prev : id));
+              setListOpen(false);
+            }}
+          />
+        )}
+
+        {/* 카세트 삽입/이젝트 상태 표시 (메인 타이틀에서만) */}
+        {stage === "idle" && (
+          <div
+            className="pointer-events-none absolute text-[10px] font-semibold"
+            style={{
+              left: "50%",
+              top: "9.2%",
+              transform: "translateX(-50%)",
+              padding: "2px 10px",
+              borderRadius: 999,
+              background: loadedCassetteId
+                ? "oklch(0.35 0.08 145 / 0.85)"
+                : "oklch(0.3 0.02 50 / 0.75)",
+              color: loadedCassetteId
+                ? "oklch(0.95 0.12 145)"
+                : "oklch(0.75 0.04 75)",
+              border: loadedCassetteId
+                ? "1px solid oklch(0.85 0.16 145 / 0.5)"
+                : "1px solid oklch(0.85 0.08 75 / 0.25)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {loadedCassetteId
+              ? `▣ ${CASSETTES.find((c) => c.id === loadedCassetteId)?.title ?? "카세트"} 삽입됨`
+              : "▢ 이젝트됨 — INPUT 으로 카세트 삽입"}
+          </div>
+        )}
       </div>
     </main>
   );
@@ -463,6 +519,7 @@ const THEATER_BTN_H = 7.2;
 const THEATER_BTN_X = [29.0, 43.0, 57.0, 68.0];
 
 function TheaterStage({
+  cassetteId,
   scenes,
   onRefresh,
   sceneIndex,
@@ -471,6 +528,7 @@ function TheaterStage({
   onExit,
   onClickSfx,
 }: {
+  cassetteId: string | null;
   scenes: SceneRow[];
   onRefresh: () => Promise<void>;
   sceneIndex: number;
@@ -505,6 +563,10 @@ function TheaterStage({
   const paused = playState === "paused";
   // 씬 2 배경 이미지가 아직 업로드되지 않아도 가을 톤 폴백으로 모션을 보여줌
   const showScene2Fallback = sceneIndex === 1 && !current;
+
+  // 모션 프로그램은 현재 "개미와 베짱이"(little-forest) 카세트에만 구현되어 있다.
+  // 그 외 카세트가 삽입된 경우 스크린에 "준비 중" 안내만 보여주고 씬 모션을 띄우지 않는다.
+  const hasMotionProgram = cassetteId === "little-forest";
 
   const openPicker = () => fileRef.current?.click();
 
@@ -657,7 +719,7 @@ function TheaterStage({
                 }}
               />
             )}
-            {sceneIndex === 0 && (
+            {hasMotionProgram && sceneIndex === 0 && (
               <Scene1Motion
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene1Speed}
                 onComplete={() => {
@@ -665,7 +727,7 @@ function TheaterStage({
                 }}
               />
             )}
-            {sceneIndex === 1 && (
+            {hasMotionProgram && sceneIndex === 1 && (
               <Scene2Motion
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene2Speed}
                 onComplete={() => {
@@ -673,7 +735,7 @@ function TheaterStage({
                 }}
               />
             )}
-            {sceneIndex === 2 && (
+            {hasMotionProgram && sceneIndex === 2 && (
               <Scene3Motion
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene3Speed}
                 onComplete={() => {
@@ -681,7 +743,7 @@ function TheaterStage({
                 }}
               />
             )}
-            {sceneIndex === 3 && (
+            {hasMotionProgram && sceneIndex === 3 && (
               <Scene4Motion
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene4Speed}
                 onComplete={() => {
@@ -689,7 +751,7 @@ function TheaterStage({
                 }}
               />
             )}
-            {sceneIndex === 4 && (
+            {hasMotionProgram && sceneIndex === 4 && (
               <Scene5Motion
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene5Speed}
                 onComplete={() => {
@@ -698,6 +760,29 @@ function TheaterStage({
                   onExit();
                 }}
               />
+            )}
+            {!hasMotionProgram && (
+              <div
+                className="absolute inset-0 grid place-items-center"
+                style={{ background: "oklch(0 0 0 / 0.45)" }}
+              >
+                <div
+                  className="rounded-2xl px-5 py-4 text-center"
+                  style={{
+                    background: "oklch(0.18 0.02 50 / 0.85)",
+                    border: "1px solid oklch(0.85 0.08 75 / 0.3)",
+                    color: "oklch(0.95 0.04 80)",
+                    maxWidth: "78%",
+                  }}
+                >
+                  <div className="text-sm font-semibold">
+                    {CASSETTES.find((c) => c.id === cassetteId)?.title ?? "선택된 카세트"}
+                  </div>
+                  <div className="mt-1 text-[11px]" style={{ color: "oklch(0.75 0.04 75)" }}>
+                    이 카세트의 모션 프로그램은 준비 중입니다.
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         ) : (
@@ -1270,7 +1355,17 @@ function Keyframes() {
 }
 
 /* ---------- List Panel (cassette tape case collection) ---------- */
-function ListPanel({ onClose }: { onClose: () => void }) {
+function ListPanel({
+  onClose,
+  selectedId,
+  loadedId,
+  onSelect,
+}: {
+  onClose: () => void;
+  selectedId: string;
+  loadedId: string | null;
+  onSelect: (id: string) => void;
+}) {
   const [devMode, setDevMode] = useState(false);
   const items = useMemo<Cassette[]>(
     () =>
@@ -1397,7 +1492,13 @@ function ListPanel({ onClose }: { onClose: () => void }) {
             <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {items.map((c) => (
                 <li key={c.id}>
-                  <CassetteCard cassette={c} showUpdateBadge={devMode} />
+                  <CassetteCard
+                    cassette={c}
+                    showUpdateBadge={devMode}
+                    isSelected={c.id === selectedId}
+                    isLoaded={c.id === loadedId}
+                    onSelect={() => onSelect(c.id)}
+                  />
                 </li>
               ))}
             </ul>
@@ -1411,17 +1512,29 @@ function ListPanel({ onClose }: { onClose: () => void }) {
 function CassetteCard({
   cassette,
   showUpdateBadge,
+  isSelected,
+  isLoaded,
+  onSelect,
 }: {
   cassette: Cassette;
   showUpdateBadge: boolean;
+  isSelected: boolean;
+  isLoaded: boolean;
+  onSelect: () => void;
 }) {
   return (
     <button
       type="button"
+      onClick={onSelect}
       className="group relative flex w-full flex-col gap-1.5 rounded-xl p-2 text-left transition-transform active:scale-[0.97]"
       style={{
         background: "oklch(0.18 0.02 50 / 0.7)",
-        border: "1px solid oklch(0.85 0.08 75 / 0.12)",
+        border: isSelected
+          ? "1px solid oklch(0.85 0.16 80 / 0.85)"
+          : "1px solid oklch(0.85 0.08 75 / 0.12)",
+        boxShadow: isSelected
+          ? "0 0 0 2px oklch(0.85 0.16 80 / 0.55), 0 6px 18px oklch(0 0 0 / 0.4)"
+          : "none",
       }}
     >
       {/* Cassette tape case thumbnail */}
@@ -1460,6 +1573,18 @@ function CassetteCard({
             }}
           >
             NEW
+          </span>
+        )}
+        {isLoaded && (
+          <span
+            className="absolute left-1.5 top-1.5 rounded-full px-1.5 py-0.5 text-[9px] font-bold"
+            style={{
+              background: "oklch(0.35 0.1 145 / 0.95)",
+              color: "oklch(0.95 0.14 145)",
+              border: "1px solid oklch(0.85 0.16 145 / 0.6)",
+            }}
+          >
+            삽입됨
           </span>
         )}
       </div>
