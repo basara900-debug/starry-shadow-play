@@ -255,7 +255,8 @@ function ShadowTheaterTitle() {
   // - selectedCassetteId: 리스트에서 마지막으로 고른 카세트 (다음 INPUT 시 삽입될 대상)
   // - loadedCassetteId: 현재 데크에 물리적으로 삽입되어 모션 프로그램에 커넥팅된 카세트 (null = 이젝트 상태)
   // 처음 의도대로 INPUT/EJECT 버튼이 개미와 베짱이 모션 프로그램과의 연결을 토글한다.
-  const DEFAULT_CASSETTE_ID = "little-forest";
+  // 각 카세트는 자체 완결된 프로그램. 기본 삽입 카세트는 "개미와 베짱이".
+  const DEFAULT_CASSETTE_ID = "ants-grasshopper";
   const [selectedCassetteId, setSelectedCassetteId] = useState<string>(DEFAULT_CASSETTE_ID);
   const [loadedCassetteId, setLoadedCassetteId] = useState<string | null>(DEFAULT_CASSETTE_ID);
   const { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted, setMasterVolume, setPlaybackRate, ensure } = useAudio();
@@ -561,7 +562,15 @@ function TheaterStage({
     };
   }, [audioCtl]);
 
-  const storyProgram = cassetteId === TOWN_COUNTRY_STORY.id ? TOWN_COUNTRY_STORY : null;
+  // 카세트별 프로그램 분리 — 한 카세트가 다른 카세트의 모션/대사/오디오를 절대 침범하지 않는다.
+  // program 값이 그 카세트 안에서 어떤 씬 시스템이 동작할지를 결정한다.
+  const program: "ants-grasshopper" | "town-country" | null =
+    cassetteId === "ants-grasshopper"
+      ? "ants-grasshopper"
+      : cassetteId === TOWN_COUNTRY_STORY.id
+        ? "town-country"
+        : null;
+  const storyProgram = program === "town-country" ? TOWN_COUNTRY_STORY : null;
   const activeScenes = storyProgram
     ? storyProgram.scenes.map((scene) => ({
         id: scene.id,
@@ -573,12 +582,10 @@ function TheaterStage({
   const current = activeScenes[sceneIndex];
   const paused = playState === "paused";
   // 씬 2 배경 이미지가 아직 업로드되지 않아도 가을 톤 폴백으로 모션을 보여줌
-  const showScene2Fallback = !storyProgram && sceneIndex === 1 && !current;
-  const allowSceneUploads = !storyProgram;
-
-  // 모션 프로그램은 현재 "개미와 베짱이"(little-forest) 카세트에만 구현되어 있다.
-  // 그 외 카세트가 삽입된 경우 스크린에 "준비 중" 안내만 보여주고 씬 모션을 띄우지 않는다.
-  const hasMotionProgram = cassetteId === "little-forest" || cassetteId === TOWN_COUNTRY_STORY.id;
+  const showScene2Fallback =
+    program === "ants-grasshopper" && sceneIndex === 1 && !current;
+  // 자유 업로드 워크플로우는 어떤 카세트에도 묶이지 않은 "프로그램 없음" 상태에서만 허용한다.
+  const allowSceneUploads = program === null;
 
   const openPicker = () => fileRef.current?.click();
 
@@ -731,7 +738,7 @@ function TheaterStage({
                 }}
               />
             )}
-            {hasMotionProgram && sceneIndex === 0 && (
+            {program === "ants-grasshopper" && sceneIndex === 0 && (
               <Scene1Motion
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene1Speed}
                 onComplete={() => {
@@ -739,7 +746,7 @@ function TheaterStage({
                 }}
               />
             )}
-            {hasMotionProgram && sceneIndex === 1 && (
+            {program === "ants-grasshopper" && sceneIndex === 1 && (
               <Scene2Motion
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene2Speed}
                 onComplete={() => {
@@ -747,7 +754,7 @@ function TheaterStage({
                 }}
               />
             )}
-            {hasMotionProgram && sceneIndex === 2 && (
+            {program === "ants-grasshopper" && sceneIndex === 2 && (
               <Scene3Motion
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene3Speed}
                 onComplete={() => {
@@ -755,7 +762,7 @@ function TheaterStage({
                 }}
               />
             )}
-            {hasMotionProgram && sceneIndex === 3 && (
+            {program === "ants-grasshopper" && sceneIndex === 3 && (
               <Scene4Motion
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene4Speed}
                 onComplete={() => {
@@ -763,7 +770,7 @@ function TheaterStage({
                 }}
               />
             )}
-            {cassetteId === "little-forest" && sceneIndex === 4 && (
+            {program === "ants-grasshopper" && sceneIndex === 4 && (
               <Scene5Motion
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene5Speed}
                 onComplete={() => {
@@ -773,7 +780,7 @@ function TheaterStage({
                 }}
               />
             )}
-            {storyProgram && sceneIndex >= 0 && sceneIndex < storyProgram.scenes.length && (
+            {program === "town-country" && storyProgram && sceneIndex >= 0 && sceneIndex < storyProgram.scenes.length && (
               <StorySceneMotion
                 scene={storyProgram.scenes[sceneIndex]}
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as StorySceneSpeed}
@@ -787,7 +794,7 @@ function TheaterStage({
                 }}
               />
             )}
-            {!hasMotionProgram && (
+            {program === null && cassetteId !== null && (
               <div
                 className="absolute inset-0 grid place-items-center"
                 style={{ background: "oklch(0 0 0 / 0.45)" }}
