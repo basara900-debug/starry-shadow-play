@@ -1355,7 +1355,17 @@ function Keyframes() {
 }
 
 /* ---------- List Panel (cassette tape case collection) ---------- */
-function ListPanel({ onClose }: { onClose: () => void }) {
+function ListPanel({
+  onClose,
+  selectedId,
+  loadedId,
+  onSelect,
+}: {
+  onClose: () => void;
+  selectedId: string;
+  loadedId: string | null;
+  onSelect: (id: string) => void;
+}) {
   const [devMode, setDevMode] = useState(false);
   const items = useMemo<Cassette[]>(
     () =>
@@ -1482,7 +1492,13 @@ function ListPanel({ onClose }: { onClose: () => void }) {
             <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {items.map((c) => (
                 <li key={c.id}>
-                  <CassetteCard cassette={c} showUpdateBadge={devMode} />
+                  <CassetteCard
+                    cassette={c}
+                    showUpdateBadge={devMode}
+                    isSelected={c.id === selectedId}
+                    isLoaded={c.id === loadedId}
+                    onSelect={() => onSelect(c.id)}
+                  />
                 </li>
               ))}
             </ul>
@@ -1496,17 +1512,29 @@ function ListPanel({ onClose }: { onClose: () => void }) {
 function CassetteCard({
   cassette,
   showUpdateBadge,
+  isSelected,
+  isLoaded,
+  onSelect,
 }: {
   cassette: Cassette;
   showUpdateBadge: boolean;
+  isSelected: boolean;
+  isLoaded: boolean;
+  onSelect: () => void;
 }) {
   return (
     <button
       type="button"
+      onClick={onSelect}
       className="group relative flex w-full flex-col gap-1.5 rounded-xl p-2 text-left transition-transform active:scale-[0.97]"
       style={{
         background: "oklch(0.18 0.02 50 / 0.7)",
-        border: "1px solid oklch(0.85 0.08 75 / 0.12)",
+        border: isSelected
+          ? "1px solid oklch(0.85 0.16 80 / 0.85)"
+          : "1px solid oklch(0.85 0.08 75 / 0.12)",
+        boxShadow: isSelected
+          ? "0 0 0 2px oklch(0.85 0.16 80 / 0.55), 0 6px 18px oklch(0 0 0 / 0.4)"
+          : "none",
       }}
     >
       {/* Cassette tape case thumbnail */}
@@ -1545,6 +1573,18 @@ function CassetteCard({
             }}
           >
             NEW
+          </span>
+        )}
+        {isLoaded && (
+          <span
+            className="absolute left-1.5 top-1.5 rounded-full px-1.5 py-0.5 text-[9px] font-bold"
+            style={{
+              background: "oklch(0.35 0.1 145 / 0.95)",
+              color: "oklch(0.95 0.14 145)",
+              border: "1px solid oklch(0.85 0.16 145 / 0.6)",
+            }}
+          >
+            삽입됨
           </span>
         )}
       </div>
