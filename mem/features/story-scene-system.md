@@ -12,6 +12,14 @@ type: feature
 - 씬 완료 콜백은 90초 도달 시 한 번만 호출한다. 루프나 렌더 재시작으로 중복 전환이 발생하면 안 된다.
 - 이 원칙은 현재 개미와 베짱이뿐 아니라 이후 제작하는 다른 모든 동화에도 기본 규칙으로 적용한다.
 
+## 오디오 버스 구조 (씬 전환 끊김 방지)
+
+- `src/lib/sceneAudio.tsx` 의 SceneAudio 버스가 모든 BGM/SFX HTMLAudioElement를 URL당 1개씩 소유한다. 씬 컴포넌트는 `useSceneAudio` / `useSceneTrack` 으로 URL을 "활성화"만 선언하며, 트랙 자체를 생성·재생·일시정지하지 않는다.
+- 활성화는 refCount 방식이다. 동일 URL을 여러 씬이 acquire 하면 끊지 않고 이어 재생하며, 마지막 release 가 0으로 떨어질 때만 pause + currentTime=0 으로 초기화한다.
+- release 는 setTimeout(0)으로 지연 실행한다. React StrictMode 더블 이펙트, 또는 씬 전환 시 cleanup → 새 mount 직후 같은 URL을 다시 acquire 하면 예약된 release 가 취소되어 오디오가 끊기지 않는다.
+- 상태(BGM/SFX 볼륨, 음소거, playbackRate, speed) 변경은 patch → 모든 트랙 reconcile 로 즉시 일괄 반영된다. 씬 컴포넌트에서 직접 audio.play()/pause() 를 호출하지 않는다.
+- 이 구조는 모든 동화의 씬 오디오에 동일하게 적용한다. 씬 추가 시에도 트랙 라이프사이클을 컴포넌트에서 직접 관리하지 말고 반드시 버스를 통한다.
+
 ## 대사·나레이션 원문 보존 원칙 (필수)
 
 - 사용자가 채팅이나 이미지로 올린 대사·나레이션 텍스트는 **원문 그대로** 코드에 옮긴다. 문장부호, 띄어쓰기, 오탈자, 줄바꿈, 말줄임표까지 임의 수정 금지.
