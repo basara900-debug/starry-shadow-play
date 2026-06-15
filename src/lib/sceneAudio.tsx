@@ -11,14 +11,18 @@ import {
 /**
  * SceneAudio bus — 모든 씬의 BGM/SFX를 한 곳에서 제어한다.
  *
- * - 씬 컴포넌트는 useSceneTrack(url, kind)로 트랙을 "등록"만 한다.
- *   생성/해제/볼륨/음소거/재생속도/일시정지는 전부 버스가 책임진다.
- * - 설정 패널은 useSceneAudioControls()로 값을 즉시 갱신한다.
- * - 값 변경은 pub/sub로 모든 등록 트랙에 즉시 반영되며, 컴포넌트는
- *   다시 렌더링되지 않는다(오디오 요소만 갱신).
- *
- * 씬마다 audio 객체를 새로 만들고 cleanup을 빠뜨리면서 생겼던 트랜지션
- * 랙/잔상/음향 미실행 문제를 구조적으로 차단하는 것이 목적이다.
+ * 핵심 원칙(부 결정성 차단):
+ * - 트랙의 생성/소멸/재생/일시정지/볼륨/속도는 모두 버스가 소유한다.
+ * - 씬 컴포넌트는 "지금 이 URL을 활성화하라" 라고 선언만 한다(refCount).
+ * - 활성 URL은 항상 재생, 비활성 URL은 항상 일시정지 — 매 상태변화·등록·해지
+ *   시점에 모든 트랙을 일괄 재조정(reconcile)한다.
+ * - 씬 전환 시 cleanup → mount 순서로 인한 play()/pause() race(특히 React
+ *   StrictMode의 더블 이펙트)에서도 오디오가 끊기지 않도록, refCount가 0이
+ *   될 때만 일시정지하고, 새 마운트가 같은 URL을 다시 활성화하면 재생을
+ *   유지한다.
+ * - useSceneTrack은 React 렌더링과 무관하게 트랙을 다시 만들지 않는다(트랙은
+ *   URL당 하나만 생성·재사용). 음원 첫 90초를 자르는 maxDurationSec 가드도
+ *   버스가 일괄 관리한다.
  */
 
 export type SceneSpeed = 0 | 1 | 2;
@@ -53,13 +57,28 @@ const DEFAULT_STATE: SceneAudioState = {
 
 type Listener = (s: SceneAudioState) => void;
 
+type TrackEntry = {
+  audio: HTMLAudioElement;
+  kind: TrackKind;
+  loop: boolean;
+  baseVolume: number;
+  maxDurationSec: number;
+  refCount: number;
+  raf: number | null;
+  pendingRelease: number | null;
+};
+
 type Ctx = {
   /** 현재 값을 동기적으로 읽기 위한 ref. 렌더링 외부에서 호출 안전. */
   read: () => SceneAudioState;
   /** 값 변경. 즉시 모든 트랙에 통보된다. */
   patch: (p: Partial<SceneAudioState>) => void;
   subscribe: (fn: Listener) => () => void;
-  getTrack: (url: string) => HTMLAudioElement;
+  acquire: (
+    url: string,
+    kind: TrackKind,
+    opts: { loop: boolean; baseVolume: number; maxDurationSec: number }
+  ) => () => void;
   primeTracks: (urls: Array<string | undefined | null>) => void;
 };
 
@@ -94,24 +113,144 @@ function unlockPausedTrack(a: HTMLAudioElement) {
 export function SceneAudioProvider({ children }: { children: ReactNode }) {
   const stateRef = useRef<SceneAudioState>({ ...DEFAULT_STATE });
   const listenersRef = useRef<Set<Listener>>(new Set());
-  const tracksRef = useRef<Map<string, HTMLAudioElement>>(new Map());
+  const tracksRef = useRef<Map<string, TrackEntry>>(new Map());
 
-  const getTrack = useCallback((url: string) => {
-    let track = tracksRef.current.get(url);
-    if (!track) {
-      track = createTrack(url);
-      tracksRef.current.set(url, track);
+  // 트랙 하나에 현재 상태를 적용한다. 활성(refCount>0)인지에 따라 재생/일시정지를
+  // 결정한다. play() 호출이 중첩되어도 안전하도록 Promise를 swallow한다.
+  const reconcileTrack = useCallback((entry: TrackEntry) => {
+    const s = stateRef.current;
+    const a = entry.audio;
+    a.loop = entry.loop;
+    a.volume = Math.max(0, Math.min(1, resolveVolume(s, entry.kind) * entry.baseVolume));
+    a.playbackRate = resolveRate(s);
+    const shouldPlay = entry.refCount > 0 && s.speed !== 0;
+    if (shouldPlay) {
+      if (a.paused) {
+        const p = a.play();
+        if (p && typeof p.catch === "function") p.catch(() => { /* autoplay 잠금 대기 */ });
+      }
+    } else {
+      if (!a.paused) {
+        try { a.pause(); } catch { /* noop */ }
+      }
     }
-    return track;
   }, []);
 
-  const primeTracks = useCallback((urls: Array<string | undefined | null>) => {
-    for (const url of urls) {
-      if (!url) continue;
-      const track = getTrack(url);
-      if (stateRef.current.unlocked) unlockPausedTrack(track);
+  const reconcileAll = useCallback(() => {
+    for (const entry of tracksRef.current.values()) reconcileTrack(entry);
+  }, [reconcileTrack]);
+
+  const startMonitor = useCallback((entry: TrackEntry) => {
+    if (entry.raf != null) return;
+    const tick = () => {
+      const a = entry.audio;
+      if (entry.maxDurationSec > 0 && a.currentTime >= entry.maxDurationSec) {
+        if (entry.loop) {
+          try { a.currentTime = 0; } catch { /* noop */ }
+        } else {
+          try { a.pause(); } catch { /* noop */ }
+        }
+      }
+      entry.raf = requestAnimationFrame(tick);
+    };
+    entry.raf = requestAnimationFrame(tick);
+  }, []);
+
+  const stopMonitor = useCallback((entry: TrackEntry) => {
+    if (entry.raf != null) {
+      cancelAnimationFrame(entry.raf);
+      entry.raf = null;
     }
-  }, [getTrack]);
+  }, []);
+
+  const ensureEntry = useCallback(
+    (
+      url: string,
+      kind: TrackKind,
+      opts: { loop: boolean; baseVolume: number; maxDurationSec: number }
+    ): TrackEntry => {
+      let entry = tracksRef.current.get(url);
+      if (!entry) {
+        entry = {
+          audio: createTrack(url),
+          kind,
+          loop: opts.loop,
+          baseVolume: opts.baseVolume,
+          maxDurationSec: opts.maxDurationSec,
+          refCount: 0,
+          raf: null,
+          pendingRelease: null,
+        };
+        tracksRef.current.set(url, entry);
+      } else {
+        // 마지막 등록자의 옵션을 따라간다.
+        entry.kind = kind;
+        entry.loop = opts.loop;
+        entry.baseVolume = opts.baseVolume;
+        entry.maxDurationSec = opts.maxDurationSec;
+      }
+      return entry;
+    },
+    []
+  );
+
+  const acquire = useCallback(
+    (
+      url: string,
+      kind: TrackKind,
+      opts: { loop: boolean; baseVolume: number; maxDurationSec: number }
+    ) => {
+      const entry = ensureEntry(url, kind, opts);
+      // StrictMode 더블 이펙트(또는 동일 URL을 잇따라 acquire하는 씬 전환)에서
+      // 직전 release가 예약한 pause를 취소한다 — 재생을 끊지 않는다.
+      if (entry.pendingRelease != null) {
+        clearTimeout(entry.pendingRelease);
+        entry.pendingRelease = null;
+      }
+      entry.refCount += 1;
+      // 처음 활성화될 때만 처음으로 되감는다. 이미 재생 중인 트랙(동일 URL을
+      // 사용하는 다른 씬)이면 끊지 않고 그대로 이어 재생한다.
+      if (entry.refCount === 1 && entry.audio.paused) {
+        try { entry.audio.currentTime = 0; } catch { /* noop */ }
+        startMonitor(entry);
+      } else if (entry.raf == null) {
+        startMonitor(entry);
+      }
+      reconcileTrack(entry);
+      return () => {
+        entry.refCount = Math.max(0, entry.refCount - 1);
+        if (entry.refCount === 0) {
+          // 다음 마이크로 작업에서 재 acquire 되면 cancel 된다.
+          if (entry.pendingRelease != null) clearTimeout(entry.pendingRelease);
+          entry.pendingRelease = window.setTimeout(() => {
+            entry.pendingRelease = null;
+            if (entry.refCount > 0) return;
+            stopMonitor(entry);
+            try {
+              entry.audio.pause();
+              entry.audio.currentTime = 0;
+            } catch { /* noop */ }
+          }, 0);
+        }
+      };
+    },
+    [ensureEntry, reconcileTrack, startMonitor, stopMonitor]
+  );
+
+  const primeTracks = useCallback(
+    (urls: Array<string | undefined | null>) => {
+      for (const url of urls) {
+        if (!url) continue;
+        const entry = ensureEntry(url, "bgm", {
+          loop: true,
+          baseVolume: 1,
+          maxDurationSec: 90,
+        });
+        if (stateRef.current.unlocked) unlockPausedTrack(entry.audio);
+      }
+    },
+    [ensureEntry]
+  );
 
   const ctx = useMemo<Ctx>(
     () => ({
@@ -119,6 +258,7 @@ export function SceneAudioProvider({ children }: { children: ReactNode }) {
       patch: (p) => {
         stateRef.current = { ...stateRef.current, ...p };
         for (const fn of listenersRef.current) fn(stateRef.current);
+        reconcileAll();
       },
       subscribe: (fn) => {
         listenersRef.current.add(fn);
@@ -126,10 +266,10 @@ export function SceneAudioProvider({ children }: { children: ReactNode }) {
           listenersRef.current.delete(fn);
         };
       },
-      getTrack,
+      acquire,
       primeTracks,
     }),
-    [getTrack, primeTracks]
+    [acquire, primeTracks, reconcileAll]
   );
 
   // 첫 사용자 제스처에서 unlocked=true. 이후 트랙이 새로 mount되어도
@@ -138,7 +278,7 @@ export function SceneAudioProvider({ children }: { children: ReactNode }) {
     if (typeof window === "undefined") return;
     const onGesture = () => {
       ctx.patch({ unlocked: true });
-      for (const track of tracksRef.current.values()) unlockPausedTrack(track);
+      for (const entry of tracksRef.current.values()) unlockPausedTrack(entry.audio);
     };
     window.addEventListener("pointerdown", onGesture, { once: true });
     window.addEventListener("keydown", onGesture, { once: true });
@@ -199,11 +339,8 @@ function resolveRate(s: SceneAudioState) {
 }
 
 /**
- * 씬에서 사용. URL 하나당 한 번만 호출하면 된다.
- * - mount: Audio 객체 생성, 현재 설정 적용, play() 시도
- * - 설정 변경: 자동으로 볼륨/속도/일시정지 적용
- * - speed=0: 즉시 pause, speed>0: resume
- * - unmount: pause + src 해제로 트랜지션 잔향 차단
+ * 씬에서 사용. URL 하나당 한 번만 호출하면 된다. 트랙 자체는 버스가 소유하므로
+ * 동일 URL을 여러 곳에서 acquire해도 재생이 끊기지 않고 refCount만 증가한다.
  */
 export function useSceneTrack(
   url: string | undefined | null,
@@ -217,47 +354,8 @@ export function useSceneTrack(
 
   useEffect(() => {
     if (!url) return;
-    const a = ctx.getTrack(url);
-    a.loop = loop;
-    a.currentTime = 0;
-    let raf: number | null = null;
-
-    const monitorHead = () => {
-      if (maxDurationSec > 0 && a.currentTime >= maxDurationSec) {
-        if (loop) {
-          a.currentTime = 0;
-        } else {
-          a.pause();
-        }
-      }
-      raf = requestAnimationFrame(monitorHead);
-    };
-    raf = requestAnimationFrame(monitorHead);
-
-    const apply = (s: SceneAudioState) => {
-      const vol = resolveVolume(s, kind) * baseVolume;
-      a.volume = Math.max(0, Math.min(1, vol));
-      a.playbackRate = resolveRate(s);
-      if (s.speed === 0) {
-        if (!a.paused) a.pause();
-      } else if (a.paused) {
-        a.play().catch(() => { /* autoplay locked까지 대기 */ });
-      }
-    };
-
-    apply(ctx.read());
-    // 첫 play 시도가 autoplay 차단으로 실패해도, 첫 제스처 후 unlocked=true가
-    // 통보되므로 다시 apply()가 호출되어 play()를 재시도한다.
-    const unsub = ctx.subscribe(apply);
-
-    return () => {
-      unsub();
-      if (raf) cancelAnimationFrame(raf);
-      try {
-        a.pause();
-        a.currentTime = 0;
-      } catch { /* noop */ }
-    };
+    const release = ctx.acquire(url, kind, { loop, baseVolume, maxDurationSec });
+    return release;
   }, [url, kind, loop, baseVolume, maxDurationSec, ctx]);
 }
 
