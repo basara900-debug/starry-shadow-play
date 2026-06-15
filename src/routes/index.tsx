@@ -249,6 +249,13 @@ function ShadowTheaterTitle() {
   const [listOpen, setListOpen] = useState(false);
   const [scenes, setScenes] = useState<SceneRow[]>([]);
   const [sceneIndex, setSceneIndex] = useState(0);
+  // 카세트 삽입/이젝트 상태.
+  // - selectedCassetteId: 리스트에서 마지막으로 고른 카세트 (다음 INPUT 시 삽입될 대상)
+  // - loadedCassetteId: 현재 데크에 물리적으로 삽입되어 모션 프로그램에 커넥팅된 카세트 (null = 이젝트 상태)
+  // 처음 의도대로 INPUT/EJECT 버튼이 개미와 베짱이 모션 프로그램과의 연결을 토글한다.
+  const DEFAULT_CASSETTE_ID = "little-forest";
+  const [selectedCassetteId, setSelectedCassetteId] = useState<string>(DEFAULT_CASSETTE_ID);
+  const [loadedCassetteId, setLoadedCassetteId] = useState<string | null>(DEFAULT_CASSETTE_ID);
   const { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted, setMasterVolume, setPlaybackRate, ensure } = useAudio();
 
   useEffect(() => { setBgmVolume(bgmVol); }, [bgmVol, setBgmVolume]);
@@ -306,7 +313,9 @@ function ShadowTheaterTitle() {
     setTimeout(() => setPressed(null), 160);
     await sfx.click();
     if (i === 0) {
-      // PLAY: 12프레임(약 1.2초) 재생 후 BGM 정지 + 그림자 연극(세컨드 스테이지) 전환.
+      // PLAY: 카세트가 삽입(커넥팅) 되어 있을 때만 그림자 연극 스테이지로 전환한다.
+      // 이젝트 상태(loadedCassetteId == null)에서는 무시 — 사용자는 먼저 INPUT 으로 카세트를 끼워야 한다.
+      if (loadedCassetteId == null) return;
       window.setTimeout(() => {
         stopBgm();
         setMusicOn(false);
@@ -316,12 +325,17 @@ function ShadowTheaterTitle() {
       // SETTING opens settings panel
       await ensure();
       setSettingsOpen(true);
+    } else if (i === 2) {
+      // INPUT/EJECT: 현재 선택된 카세트를 데크에 끼우거나 빼낸다.
+      // - 비어 있으면 selectedCassetteId 를 삽입 (모션 프로그램에 커넥팅)
+      // - 이미 끼워져 있으면 이젝트 (모션 프로그램 연결 해제)
+      setLoadedCassetteId((prev) => (prev == null ? selectedCassetteId : null));
     } else if (i === 1) {
       // LIST opens cassette list panel
       await ensure();
       setListOpen(true);
     }
-    // LIST / INPUT-EJECT / STORE: reserved for future cassette swap
+    // STORE (i === 4): reserved for future store flow
   };
 
   const exitTheater = async () => {
@@ -421,6 +435,7 @@ function ShadowTheaterTitle() {
 
         {stage === "theater" && (
           <TheaterStage
+            cassetteId={loadedCassetteId}
             scenes={scenes}
             onRefresh={refreshScenes}
             sceneIndex={sceneIndex}
@@ -445,7 +460,48 @@ function ShadowTheaterTitle() {
           />
         )}
 
-        {listOpen && <ListPanel onClose={() => setListOpen(false)} />}
+        {listOpen && (
+          <ListPanel
+            onClose={() => setListOpen(false)}
+            selectedId={selectedCassetteId}
+            loadedId={loadedCassetteId}
+            onSelect={(id) => {
+              setSelectedCassetteId(id);
+              // 카세트가 이미 끼워져 있던 상태라면, 새로 선택한 카세트로 즉시 교체(swap)하여
+              // 사용자가 메인 UI 로 돌아가 PLAY 만 누르면 새 동화가 바로 구동되도록 한다.
+              setLoadedCassetteId((prev) => (prev == null ? prev : id));
+              setListOpen(false);
+            }}
+          />
+        )}
+
+        {/* 카세트 삽입/이젝트 상태 표시 (메인 타이틀에서만) */}
+        {stage === "idle" && (
+          <div
+            className="pointer-events-none absolute text-[10px] font-semibold"
+            style={{
+              left: "50%",
+              top: "9.2%",
+              transform: "translateX(-50%)",
+              padding: "2px 10px",
+              borderRadius: 999,
+              background: loadedCassetteId
+                ? "oklch(0.35 0.08 145 / 0.85)"
+                : "oklch(0.3 0.02 50 / 0.75)",
+              color: loadedCassetteId
+                ? "oklch(0.95 0.12 145)"
+                : "oklch(0.75 0.04 75)",
+              border: loadedCassetteId
+                ? "1px solid oklch(0.85 0.16 145 / 0.5)"
+                : "1px solid oklch(0.85 0.08 75 / 0.25)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {loadedCassetteId
+              ? `▣ ${CASSETTES.find((c) => c.id === loadedCassetteId)?.title ?? "카세트"} 삽입됨`
+              : "▢ 이젝트됨 — INPUT 으로 카세트 삽입"}
+          </div>
+        )}
       </div>
     </main>
   );
