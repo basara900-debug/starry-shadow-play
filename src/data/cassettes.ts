@@ -25,9 +25,9 @@ export const CASSETTES: Cassette[] = [
     updatedAt: "2026-06-15",
   },
   {
-    id: "little-forest",
-    title: "리틀 포레스트",
-    subtitle: "숲속 친구들의 첫 모험",
+    id: "ants-grasshopper",
+    title: "개미와 베짱이",
+    subtitle: "여름 노래와 겨울 식량의 우화",
     hueA: "oklch(0.78 0.14 145)",
     hueB: "oklch(0.52 0.12 155)",
     purchased: true,

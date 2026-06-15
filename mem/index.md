@@ -8,3 +8,4 @@
 ## Memories
 - [동화 씬 제작 원칙](mem://features/story-scene-system) — 모든 동화에 적용할 90초 씬 구조, 오디오 컷, 전환 안정성 원칙
 - [시골쥐와 서울쥐 그림자 연극 구성](mem://features/town-country-shadow-play) — 5개 씬 순서, 각 90초 구조, 대사/BGM/SFX 준비 슬롯 규칙
+- [카세트 프로그램 격리 규칙](mem://features/cassette-program-isolation) — 카세트별 program 디스크리미네이터, Scene 컴포넌트 게이팅, 오디오 버스 복원 규칙
