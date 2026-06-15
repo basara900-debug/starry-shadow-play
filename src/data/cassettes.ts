@@ -15,6 +15,16 @@ export type Cassette = {
 
 export const CASSETTES: Cassette[] = [
   {
+    id: "town-country",
+    title: "시골쥐와 서울쥐",
+    subtitle: "그림자 연극 5막 구성",
+    hueA: "oklch(0.8 0.1 75)",
+    hueB: "oklch(0.48 0.09 45)",
+    purchased: true,
+    isUpdate: true,
+    updatedAt: "2026-06-15",
+  },
+  {
     id: "little-forest",
     title: "리틀 포레스트",
     subtitle: "숲속 친구들의 첫 모험",

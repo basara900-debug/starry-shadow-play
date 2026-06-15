@@ -8,7 +8,9 @@ import scene3SfxAsset from "@/assets/scene3/scene3_sfx.mp3.asset.json";
 import scene4BgmAsset from "@/assets/scene4/scene4_bgm.mp3.asset.json";
 import scene4SfxAsset from "@/assets/scene4/scene4_sfx.mp3.asset.json";
 import scene5BgmAsset from "@/assets/scene5/scene5_bgm.mp3.asset.json";
+import { StorySceneMotion, type StorySceneSpeed } from "@/components/StorySceneMotion";
 import { CASSETTES, type Cassette } from "@/data/cassettes";
+import { TOWN_COUNTRY_STORY } from "@/data/townCountryStory";
 import { supabase } from "@/integrations/supabase/client";
 import { Scene1Motion, type Scene1Speed } from "@/components/Scene1Motion";
 import { Scene2Motion, type Scene2Speed } from "@/components/Scene2Motion";
@@ -559,14 +561,24 @@ function TheaterStage({
     };
   }, [audioCtl]);
 
-  const current = scenes[sceneIndex];
+  const storyProgram = cassetteId === TOWN_COUNTRY_STORY.id ? TOWN_COUNTRY_STORY : null;
+  const activeScenes = storyProgram
+    ? storyProgram.scenes.map((scene) => ({
+        id: scene.id,
+        url: scene.url,
+        path: scene.id,
+        name: `${scene.title} · ${scene.setting}`,
+      }))
+    : scenes;
+  const current = activeScenes[sceneIndex];
   const paused = playState === "paused";
   // 씬 2 배경 이미지가 아직 업로드되지 않아도 가을 톤 폴백으로 모션을 보여줌
-  const showScene2Fallback = sceneIndex === 1 && !current;
+  const showScene2Fallback = !storyProgram && sceneIndex === 1 && !current;
+  const allowSceneUploads = !storyProgram;
 
   // 모션 프로그램은 현재 "개미와 베짱이"(little-forest) 카세트에만 구현되어 있다.
   // 그 외 카세트가 삽입된 경우 스크린에 "준비 중" 안내만 보여주고 씬 모션을 띄우지 않는다.
-  const hasMotionProgram = cassetteId === "little-forest";
+  const hasMotionProgram = cassetteId === "little-forest" || cassetteId === TOWN_COUNTRY_STORY.id;
 
   const openPicker = () => fileRef.current?.click();
 
@@ -635,7 +647,7 @@ function TheaterStage({
 
   // 자동 씬 전환: 1x = 8s, 2x = 4s, paused = 정지
   useEffect(() => {
-    if (scenes.length < 2 || paused) return;
+    if (activeScenes.length < 2 || paused) return;
     // 씬 1은 Scene1Motion이 자체적으로 90초 루프를 가지며 onComplete로 다음 씬을 트리거함
     if (sceneIndex === 0) return;
     // 씬 2도 자체 90초 루프를 가지므로 자동 전환에서 제외
@@ -648,10 +660,10 @@ function TheaterStage({
     if (sceneIndex === 4) return;
     const interval = playState === "2x" ? 4000 : 8000;
     const t = window.setInterval(() => {
-      setSceneIndex((i) => (i + 1) % scenes.length);
+      setSceneIndex((i) => (i + 1) % activeScenes.length);
     }, interval);
     return () => window.clearInterval(t);
-  }, [playState, paused, scenes.length, sceneIndex, setSceneIndex]);
+  }, [activeScenes.length, playState, paused, sceneIndex, setSceneIndex]);
 
   const actions = [
     {
@@ -662,11 +674,11 @@ function TheaterStage({
     {
       label: "Next scene",
       onClick: () => {
-        if (scenes.length === 0) {
+        if (activeScenes.length === 0) {
           openPicker();
           return;
         }
-        setSceneIndex((i) => (i + 1) % scenes.length);
+        setSceneIndex((i) => (i + 1) % activeScenes.length);
       },
     },
     { label: "Settings", onClick: onOpenSettings },
@@ -751,13 +763,27 @@ function TheaterStage({
                 }}
               />
             )}
-            {hasMotionProgram && sceneIndex === 4 && (
+            {cassetteId === "little-forest" && sceneIndex === 4 && (
               <Scene5Motion
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as Scene5Speed}
                 onComplete={() => {
                   setSceneIndex(0);
                   // 마지막 씬(에필로그)이 끝나면 극장을 빠져나와 메인 타이틀 UI로 복귀.
                   onExit();
+                }}
+              />
+            )}
+            {storyProgram && sceneIndex >= 0 && sceneIndex < storyProgram.scenes.length && (
+              <StorySceneMotion
+                scene={storyProgram.scenes[sceneIndex]}
+                speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as StorySceneSpeed}
+                onComplete={() => {
+                  if (sceneIndex >= storyProgram.scenes.length - 1) {
+                    setSceneIndex(0);
+                    onExit();
+                    return;
+                  }
+                  setSceneIndex((i) => i + 1);
                 }}
               />
             )}
@@ -828,7 +854,7 @@ function TheaterStage({
       </div>
 
       {/* 씬 카운터 */}
-      {scenes.length > 0 && (
+      {activeScenes.length > 0 && (
         <div
           className="pointer-events-none absolute text-[11px] font-semibold"
           style={{
@@ -842,28 +868,30 @@ function TheaterStage({
             border: "1px solid oklch(0.85 0.08 75 / 0.4)",
           }}
         >
-          씬 {sceneIndex + 1} / {scenes.length}
+          씬 {sceneIndex + 1} / {activeScenes.length}
         </div>
       )}
 
       {/* 우상단 - 씬 추가 / 초기화 */}
       <div className="absolute flex gap-2" style={{ right: "2.5%", top: "3.5%" }}>
-        <button
-          type="button"
-          onClick={openPicker}
-          disabled={uploading}
-          className="cursor-pointer rounded-full border-0 text-[11px] font-semibold"
-          style={{
-            padding: "5px 12px",
-            background: "oklch(0.88 0.14 80 / 0.92)",
-            color: "oklch(0.22 0.05 50)",
-            boxShadow: "0 4px 12px oklch(0 0 0 / 0.35)",
-            opacity: uploading ? 0.6 : 1,
-          }}
-        >
-          {uploading ? "업로드 중…" : "+ 씬 추가"}
-        </button>
-        {scenes.length > 0 && (
+        {allowSceneUploads && (
+          <button
+            type="button"
+            onClick={openPicker}
+            disabled={uploading}
+            className="cursor-pointer rounded-full border-0 text-[11px] font-semibold"
+            style={{
+              padding: "5px 12px",
+              background: "oklch(0.88 0.14 80 / 0.92)",
+              color: "oklch(0.22 0.05 50)",
+              boxShadow: "0 4px 12px oklch(0 0 0 / 0.35)",
+              opacity: uploading ? 0.6 : 1,
+            }}
+          >
+            {uploading ? "업로드 중…" : "+ 씬 추가"}
+          </button>
+        )}
+        {allowSceneUploads && scenes.length > 0 && (
           <button
             type="button"
             onClick={deleteCurrent}
@@ -880,7 +908,7 @@ function TheaterStage({
             현재 씬 삭제
           </button>
         )}
-        {scenes.length > 0 && (
+        {allowSceneUploads && scenes.length > 0 && (
           <button
             type="button"
             onClick={clearAll}
@@ -894,6 +922,19 @@ function TheaterStage({
           >
             전체 비우기
           </button>
+        )}
+        {storyProgram && (
+          <div
+            className="pointer-events-none rounded-full text-[11px] font-semibold"
+            style={{
+              padding: "5px 12px",
+              background: "oklch(0.18 0.02 50 / 0.78)",
+              color: "oklch(0.94 0.04 80)",
+              border: "1px solid oklch(0.85 0.08 75 / 0.22)",
+            }}
+          >
+            대사 · BGM · SFX 첨부 준비 완료
+          </div>
         )}
       </div>
 
