@@ -65,6 +65,7 @@ type TrackEntry = {
   maxDurationSec: number;
   refCount: number;
   raf: number | null;
+  pendingRelease: number | null;
 };
 
 type Ctx = {
@@ -178,6 +179,7 @@ export function SceneAudioProvider({ children }: { children: ReactNode }) {
           maxDurationSec: opts.maxDurationSec,
           refCount: 0,
           raf: null,
+          pendingRelease: null,
         };
         tracksRef.current.set(url, entry);
       } else {
@@ -199,22 +201,36 @@ export function SceneAudioProvider({ children }: { children: ReactNode }) {
       opts: { loop: boolean; baseVolume: number; maxDurationSec: number }
     ) => {
       const entry = ensureEntry(url, kind, opts);
+      // StrictMode 더블 이펙트(또는 동일 URL을 잇따라 acquire하는 씬 전환)에서
+      // 직전 release가 예약한 pause를 취소한다 — 재생을 끊지 않는다.
+      if (entry.pendingRelease != null) {
+        clearTimeout(entry.pendingRelease);
+        entry.pendingRelease = null;
+      }
       entry.refCount += 1;
       // 처음 활성화될 때만 처음으로 되감는다. 이미 재생 중인 트랙(동일 URL을
       // 사용하는 다른 씬)이면 끊지 않고 그대로 이어 재생한다.
-      if (entry.refCount === 1) {
+      if (entry.refCount === 1 && entry.audio.paused) {
         try { entry.audio.currentTime = 0; } catch { /* noop */ }
+        startMonitor(entry);
+      } else if (entry.raf == null) {
         startMonitor(entry);
       }
       reconcileTrack(entry);
       return () => {
         entry.refCount = Math.max(0, entry.refCount - 1);
         if (entry.refCount === 0) {
-          stopMonitor(entry);
-          try {
-            entry.audio.pause();
-            entry.audio.currentTime = 0;
-          } catch { /* noop */ }
+          // 다음 마이크로 작업에서 재 acquire 되면 cancel 된다.
+          if (entry.pendingRelease != null) clearTimeout(entry.pendingRelease);
+          entry.pendingRelease = window.setTimeout(() => {
+            entry.pendingRelease = null;
+            if (entry.refCount > 0) return;
+            stopMonitor(entry);
+            try {
+              entry.audio.pause();
+              entry.audio.currentTime = 0;
+            } catch { /* noop */ }
+          }, 0);
         }
       };
     },
