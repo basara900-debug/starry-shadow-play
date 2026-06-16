@@ -73,7 +73,7 @@ export function StorySceneMotion({
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       lastRef.current = null;
     };
-  }, [scene.durationSec, speed]);
+  }, [scene.id, scene.durationSec, speed]);
 
   const pulse = 0.985 + Math.sin(t * 0.55) * 0.015;
   const driftX = Math.sin(t * 0.14) * 1.2;
