@@ -10,7 +10,7 @@ export type StoryCue = {
   note: string;
 };
 
-export type StorySpeaker = "narration" | "country" | "city" | "post" | "grasshopper";
+export type StorySpeaker = "narration" | "country" | "city" | "post";
 
 export type StoryBeat = {
   from: number;
@@ -120,7 +120,7 @@ export const TOWN_COUNTRY_STORY: StoryProgram = {
         { from: 6,  to: 12, who: "country",     text: "너무 어두워서 잘 보이지가 않네, 여기 맛있는 음식이 있는게 맞니?" },
         { from: 12, to: 18, who: "city",        text: "물론이지, 맛있는 냄세가 느껴지지 않니? " },
         { from: 18, to: 24, who: "country",     text: " 응 냄세는 너무 좋아 어디에서 먹으면 될까?" },
-        { from: 24, to: 32, who: "grasshopper", text: "이리와봐 여기 이것 좀 먹어봐, 어때 맛있지? " },
+        { from: 24, to: 32, who: "city",        text: "이리와봐 여기 이것 좀 먹어봐, 어때 맛있지? " },
         { from: 32, to: 38, who: "narration",   text: "서울쥐는 연신 시골쥐에게 음식을 권했고 시골쥐는 처음 먹어본 맛있는 음식에 행복했습니다." },
         { from: 38, to: 44, who: "country",     text: "이야 정말 맛있다. 서울쥐 네 덕에 너무 행복해, 네가 너무 자랑스럽고 부럽다!" },
         { from: 44, to: 52, who: "city",        text: "에헴! 그럼, 이제 이 형님의 위대함을 알게 되었군." },
