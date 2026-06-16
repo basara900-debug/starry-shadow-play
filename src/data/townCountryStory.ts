@@ -10,6 +10,15 @@ export type StoryCue = {
   note: string;
 };
 
+export type StorySpeaker = "narration" | "country" | "city" | "post" | "grasshopper";
+
+export type StoryBeat = {
+  from: number;
+  to: number;
+  who: StorySpeaker;
+  text: string;
+};
+
 export type StorySceneDefinition = {
   id: string;
   title: string;
@@ -20,6 +29,7 @@ export type StorySceneDefinition = {
   sfxUrl?: string;
   dialogueLines: string[];
   cues: StoryCue[];
+  beats: StoryBeat[];
 };
 
 export type StoryProgram = {
