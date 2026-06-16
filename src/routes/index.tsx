@@ -785,12 +785,17 @@ function TheaterStage({
                 scene={storyProgram.scenes[sceneIndex]}
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as StorySceneSpeed}
                 onComplete={() => {
-                  if (sceneIndex >= storyProgram.scenes.length - 1) {
-                    setSceneIndex(0);
-                    onExit();
-                    return;
-                  }
-                  setSceneIndex((i) => i + 1);
+                  // stale closure 회피 — 항상 최신 인덱스 기준으로 분기.
+                  // 마지막 씬이 아니면 다음 씬으로, 마지막이면 메인 타이틀로 복귀.
+                  let exited = false;
+                  setSceneIndex((i) => {
+                    if (i >= storyProgram.scenes.length - 1) {
+                      exited = true;
+                      return 0;
+                    }
+                    return i + 1;
+                  });
+                  if (exited) onExit();
                 }}
               />
             )}
