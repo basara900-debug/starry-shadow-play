@@ -7,7 +7,6 @@ const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   country: "시골쥐",
   city: "서울쥐",
   post: "우편 배달쥐",
-  grasshopper: "베짱이",
 };
 
 const SPEAKER_PALETTE: Record<StorySpeaker, { bg: string; fg: string; border: string }> = {
@@ -15,7 +14,6 @@ const SPEAKER_PALETTE: Record<StorySpeaker, { bg: string; fg: string; border: st
   country:     { bg: "oklch(0.36 0.10 80 / 0.88)", fg: "oklch(0.98 0.04 95)", border: "oklch(0.65 0.13 80 / 0.55)" },
   city:        { bg: "oklch(0.34 0.12 260 / 0.88)", fg: "oklch(0.97 0.04 250)", border: "oklch(0.62 0.15 260 / 0.55)" },
   post:        { bg: "oklch(0.34 0.11 30 / 0.88)", fg: "oklch(0.98 0.04 60)", border: "oklch(0.62 0.15 30 / 0.55)" },
-  grasshopper: { bg: "oklch(0.36 0.13 145 / 0.85)", fg: "oklch(0.98 0.04 110)", border: "oklch(0.65 0.16 145 / 0.55)" },
 };
 
 export type StorySceneSpeed = 1 | 2 | 0;
