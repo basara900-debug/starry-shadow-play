@@ -3,6 +3,7 @@ import scene2Asset from "@/assets/town-country/scene2.png.asset.json";
 import scene3Asset from "@/assets/town-country/scene3.png.asset.json";
 import scene4Asset from "@/assets/town-country/scene4.png.asset.json";
 import scene5Asset from "@/assets/town-country/scene5.png.asset.json";
+import scene1BgmAsset from "@/assets/town-country/scene1_bgm.mp3.asset.json";
 
 export type StoryCue = {
   from: number;
@@ -48,6 +49,7 @@ export const TOWN_COUNTRY_STORY: StoryProgram = {
       setting: "시골 풍경",
       url: scene1Asset.url,
       durationSec: 90,
+      bgmUrl: scene1BgmAsset.url,
       dialogueLines: [],
       cues: [
         { from: 0, to: 18, note: "시골쥐가 들판과 초가집 사이를 천천히 오가며 하루의 평온함을 보여준다." },
