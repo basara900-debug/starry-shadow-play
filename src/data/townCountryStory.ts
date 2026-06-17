@@ -6,6 +6,7 @@ import scene5Asset from "@/assets/town-country/scene5.png.asset.json";
 import scene1BgmAsset from "@/assets/town-country/scene1_bgm.mp3.asset.json";
 import scene2BgmAsset from "@/assets/town-country/scene2_bgm.mp3.asset.json";
 import scene3BgmAsset from "@/assets/town-country/scene3_bgm.mp3.asset.json";
+import scene4BgmAsset from "@/assets/town-country/scene4_bgm.mp3.asset.json";
 
 export type StoryCue = {
   from: number;
@@ -144,6 +145,7 @@ export const TOWN_COUNTRY_STORY: StoryProgram = {
       setting: "복도",
       url: scene4Asset.url,
       durationSec: 90,
+      bgmUrl: scene4BgmAsset.url,
       dialogueLines: [],
       cues: [
         { from: 0, to: 18, note: "문이 줄지어 선 복도에서 도망치는 동선과 긴박한 리듬을 설계한다." },
