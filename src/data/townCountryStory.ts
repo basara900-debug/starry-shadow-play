@@ -5,6 +5,7 @@ import scene4Asset from "@/assets/town-country/scene4.png.asset.json";
 import scene5Asset from "@/assets/town-country/scene5.png.asset.json";
 import scene1BgmAsset from "@/assets/town-country/scene1_bgm.mp3.asset.json";
 import scene2BgmAsset from "@/assets/town-country/scene2_bgm.mp3.asset.json";
+import scene3BgmAsset from "@/assets/town-country/scene3_bgm.mp3.asset.json";
 
 export type StoryCue = {
   from: number;
@@ -112,6 +113,7 @@ export const TOWN_COUNTRY_STORY: StoryProgram = {
       setting: "식당",
       url: scene3Asset.url,
       durationSec: 90,
+      bgmUrl: scene3BgmAsset.url,
       dialogueLines: [],
       cues: [
         { from: 0, to: 24, note: "풍성한 음식 실루엣을 배경으로 서울쥐가 만찬을 자랑하는 흐름을 잡는다." },
