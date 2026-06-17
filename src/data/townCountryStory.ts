@@ -5,6 +5,7 @@ import scene4Asset from "@/assets/town-country/scene4.png.asset.json";
 import scene5Asset from "@/assets/town-country/scene5.png.asset.json";
 import scene1BgmAsset from "@/assets/town-country/scene1_bgm.mp3.asset.json";
 import scene2BgmAsset from "@/assets/town-country/scene2_bgm.mp3.asset.json";
+import scene3BgmAsset from "@/assets/town-country/scene3_bgm.mp3.asset.json";
 
 export type StoryCue = {
   from: number;
