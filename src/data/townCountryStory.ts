@@ -4,6 +4,7 @@ import scene3Asset from "@/assets/town-country/scene3.png.asset.json";
 import scene4Asset from "@/assets/town-country/scene4.png.asset.json";
 import scene5Asset from "@/assets/town-country/scene5.png.asset.json";
 import scene1BgmAsset from "@/assets/town-country/scene1_bgm.mp3.asset.json";
+import scene2BgmAsset from "@/assets/town-country/scene2_bgm.mp3.asset.json";
 
 export type StoryCue = {
   from: number;
@@ -80,6 +81,7 @@ export const TOWN_COUNTRY_STORY: StoryProgram = {
       setting: "서울쥐 집안",
       url: scene2Asset.url,
       durationSec: 90,
+      bgmUrl: scene2BgmAsset.url,
       dialogueLines: [],
       cues: [
         { from: 0, to: 20, note: "서울쥐가 화려한 거실을 자신 있게 소개하고 시골쥐가 넓은 실내를 둘러본다." },
