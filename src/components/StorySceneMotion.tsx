@@ -136,13 +136,12 @@ export function StorySceneMotion({
           className="absolute"
           style={{
             right: "40%",
-            bottom: "10%",
+            bottom: "40%",
             height: "34%",
             width: "auto",
             transform: `translateY(${cmBob}px) rotate(${cmSway}deg)`,
             transformOrigin: "bottom center",
             opacity: cmEntry,
-            mixBlendMode: "multiply",
             filter: "drop-shadow(0 4px 6px oklch(0 0 0 / 0.35))",
             transition: "transform 100ms linear",
           }}
