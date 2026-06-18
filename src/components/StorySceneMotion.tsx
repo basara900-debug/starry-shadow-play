@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useSceneAudio } from "@/lib/sceneAudio";
 import type { StorySceneDefinition, StorySpeaker } from "@/data/townCountryStory";
-import countryMouseAsset from "@/assets/town-country/country_mouse.png.asset.json";
+import countryMouseCutout from "@/assets/town-country/country_mouse_cutout.png";
 
 const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   narration: "나레이션",
@@ -130,7 +130,7 @@ export function StorySceneMotion({
 
       {showCountryMouse && (
         <img
-          src={countryMouseAsset.url}
+          src={countryMouseCutout}
           alt=""
           draggable={false}
           className="absolute"
