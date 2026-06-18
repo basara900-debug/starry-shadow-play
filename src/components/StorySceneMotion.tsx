@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useSceneAudio } from "@/lib/sceneAudio";
 import type { StorySceneDefinition, StorySpeaker } from "@/data/townCountryStory";
+import countryMouseAsset from "@/assets/town-country/country_mouse.png.asset.json";
 
 const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   narration: "나레이션",
@@ -81,6 +82,12 @@ export function StorySceneMotion({
 
   const beat = scene.beats.find((b) => t >= b.from && t < b.to);
 
+  // 씬1 0~32초: 시골쥐 캐릭터를 우측에서 20%, 아래에서 10% 지점에 배치하고 살짝 흔들리는 모션 적용
+  const showCountryMouse = scene.id === "town-country-1" && t < 32;
+  const cmBob = Math.sin(t * 2.2) * 1.8;
+  const cmSway = Math.sin(t * 1.4) * 2.5;
+  const cmEntry = Math.min(1, t / 0.8);
+
   return (
     <div className="pointer-events-none absolute inset-0 select-none overflow-hidden">
       <div
@@ -120,6 +127,27 @@ export function StorySceneMotion({
           </div>
         );
       })()}
+
+      {showCountryMouse && (
+        <img
+          src={countryMouseAsset.url}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            right: "20%",
+            bottom: "10%",
+            height: "34%",
+            width: "auto",
+            transform: `translateY(${cmBob}px) rotate(${cmSway}deg)`,
+            transformOrigin: "bottom center",
+            opacity: cmEntry,
+            mixBlendMode: "multiply",
+            filter: "drop-shadow(0 4px 6px oklch(0 0 0 / 0.35))",
+            transition: "transform 100ms linear",
+          }}
+        />
+      )}
 
       <div
         className="absolute"
