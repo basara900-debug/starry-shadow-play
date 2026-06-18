@@ -135,7 +135,7 @@ export function StorySceneMotion({
           draggable={false}
           className="absolute"
           style={{
-            right: "20%",
+            right: "40%",
             bottom: "10%",
             height: "34%",
             width: "auto",
