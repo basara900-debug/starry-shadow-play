@@ -94,8 +94,7 @@ export function StorySceneMotion({
         className="absolute inset-[-2.5%]"
         style={{
           background:
-            "radial-gradient(circle at 50% 42%, oklch(1 0 0 / 0.04) 0%, oklch(0 0 0 / 0.18) 70%, oklch(0 0 0 / 0.34) 100%)",
-          mixBlendMode: "multiply",
+            "radial-gradient(circle at 50% 42%, oklch(1 0 0 / 0.01) 0%, oklch(0 0 0 / 0.06) 70%, oklch(0 0 0 / 0.12) 100%)",
           transform: `translate(${driftX}px, ${driftY}px) scale(${pulse})`,
           transition: "transform 120ms linear",
         }}
@@ -141,8 +140,8 @@ export function StorySceneMotion({
             width: "auto",
             transform: `translateY(${cmBob}px) rotate(${cmSway}deg)`,
             transformOrigin: "bottom center",
-            opacity: cmEntry,
-            filter: "drop-shadow(0 4px 6px oklch(0 0 0 / 0.35))",
+            opacity: Math.max(0.85, cmEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
             transition: "transform 100ms linear",
           }}
         />
