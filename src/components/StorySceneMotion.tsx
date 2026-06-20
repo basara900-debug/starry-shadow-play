@@ -111,7 +111,7 @@ export function StorySceneMotion({
   // 시트1: 82~86s → left 60%에서 70%, 시트2: 86~90s → left 60%에서 80%
   const exitSegments: Array<{ from: number; to: number; rightFrom: number; rightTo: number; src: string }> = [
     { from: 82, to: 86, rightFrom: 40, rightTo: 30, src: exitSheet1Asset.url },
-    { from: 86, to: 90, rightFrom: 40, rightTo: 20, src: exitSheet2Asset.url },
+    { from: 86, to: 90, rightFrom: 30, rightTo: 20, src: exitSheet2Asset.url },
   ];
   const activeExit = scene.id === "town-country-1"
     ? exitSegments.find((s) => t >= s.from && t < s.to)
