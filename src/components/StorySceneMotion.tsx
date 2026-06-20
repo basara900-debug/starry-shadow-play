@@ -178,7 +178,7 @@ export function StorySceneMotion({
           className="absolute"
           style={{
             left: `${postLeftPct}%`,
-            bottom: "15%",
+            bottom: "10%",
             height: "22%",
             width: "auto",
             transform: `translateY(${postBob}px)`,
