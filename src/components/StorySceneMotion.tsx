@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { useSceneAudio } from "@/lib/sceneAudio";
 import type { StorySceneDefinition, StorySpeaker } from "@/data/townCountryStory";
 import countryMouseCutout from "@/assets/town-country/country_mouse_cutout.png";
-import postMouse1Asset from "@/assets/town-country/post_mouse_1.jpg.asset.json";
-import postMouse2Asset from "@/assets/town-country/post_mouse_2.jpg.asset.json";
-import postMouse3Asset from "@/assets/town-country/post_mouse_3.jpg.asset.json";
+import postMouse1Asset from "@/assets/town-country/post_mouse_1.png.asset.json";
+import postMouse2Asset from "@/assets/town-country/post_mouse_2.png.asset.json";
+import postMouse3Asset from "@/assets/town-country/post_mouse_3.png.asset.json";
 
 const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   narration: "나레이션",
@@ -91,12 +91,12 @@ export function StorySceneMotion({
   const cmSway = Math.sin(t * 1.4) * 2.5;
   const cmEntry = Math.min(1, t / 0.8);
 
-  // 씬1 32~52초: 우편 배달쥐 세 시트를 좌측 0%에서 50%지점까지 이동시키며 순차 노출
-  // 시트1: 32~38, 시트2: 38~46, 시트3: 46~52
-  const postSegments: Array<{ from: number; to: number; src: string }> = [
-    { from: 32, to: 38, src: postMouse1Asset.url },
-    { from: 38, to: 46, src: postMouse2Asset.url },
-    { from: 46, to: 52, src: postMouse3Asset.url },
+  // 씬1 32~48초: 우편 배달쥐 세 시트를 하단 15% 위치에서 순차 좌→우 이동
+  // 시트1: 32~38s (좌 0%→20%), 시트2: 38~42s (20%→40%), 시트3: 42~48s (40%→60%)
+  const postSegments: Array<{ from: number; to: number; src: string; leftFrom: number; leftTo: number }> = [
+    { from: 32, to: 38, src: postMouse1Asset.url, leftFrom: 0, leftTo: 20 },
+    { from: 38, to: 42, src: postMouse2Asset.url, leftFrom: 20, leftTo: 40 },
+    { from: 42, to: 48, src: postMouse3Asset.url, leftFrom: 40, leftTo: 60 },
   ];
   const activePost = scene.id === "town-country-1"
     ? postSegments.find((s) => t >= s.from && t < s.to)
@@ -104,7 +104,9 @@ export function StorySceneMotion({
   const postProgress = activePost
     ? (t - activePost.from) / (activePost.to - activePost.from)
     : 0;
-  const postLeftPct = postProgress * 50; // 0% -> 50%
+  const postLeftPct = activePost
+    ? activePost.leftFrom + (activePost.leftTo - activePost.leftFrom) * postProgress
+    : 0;
   const postBob = Math.sin(t * 3.0) * 2.2;
   const postEntry = activePost ? Math.min(1, (t - activePost.from) / 0.5) : 0;
 
@@ -176,7 +178,7 @@ export function StorySceneMotion({
           className="absolute"
           style={{
             left: `${postLeftPct}%`,
-            bottom: "25%",
+            bottom: "15%",
             height: "22%",
             width: "auto",
             transform: `translateY(${postBob}px)`,
