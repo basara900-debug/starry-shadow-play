@@ -6,6 +6,8 @@ import sheet1Asset from "@/assets/town-country/country_sheet_1.png.asset.json";
 import sheet2Asset from "@/assets/town-country/country_sheet_2.png.asset.json";
 import sheet3Asset from "@/assets/town-country/country_sheet_3.png.asset.json";
 import sheet4Asset from "@/assets/town-country/country_sheet_4.png.asset.json";
+import exitSheet1Asset from "@/assets/town-country/exit_sheet_1.png.asset.json";
+import exitSheet2Asset from "@/assets/town-country/exit_sheet_2.png.asset.json";
 
 const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   narration: "나레이션",
@@ -105,6 +107,21 @@ export function StorySceneMotion({
     : undefined;
   const sheetEntry = activeSheet ? Math.min(1, (t - activeSheet.from) / 0.5) : 0;
 
+  // 씬1 82~90초: 시골쥐가 현재 위치(right 40%)에서 우측 70%/80% 지점까지 이동하며 퇴장
+  // 시트1: 82~86s → left 60%에서 70%, 시트2: 86~90s → left 60%에서 80%
+  const exitSegments: Array<{ from: number; to: number; rightFrom: number; rightTo: number; src: string }> = [
+    { from: 82, to: 86, rightFrom: 40, rightTo: 30, src: exitSheet1Asset.url },
+    { from: 86, to: 90, rightFrom: 40, rightTo: 20, src: exitSheet2Asset.url },
+  ];
+  const activeExit = scene.id === "town-country-1"
+    ? exitSegments.find((s) => t >= s.from && t < s.to)
+    : undefined;
+  const exitProgress = activeExit ? (t - activeExit.from) / (activeExit.to - activeExit.from) : 0;
+  const exitRightPct = activeExit
+    ? activeExit.rightFrom + (activeExit.rightTo - activeExit.rightFrom) * exitProgress
+    : 40;
+  const exitEntry = activeExit ? Math.min(1, (t - activeExit.from) / 0.4) : 0;
+
   return (
     <div className="pointer-events-none absolute inset-0 select-none overflow-hidden">
       <div
@@ -181,6 +198,27 @@ export function StorySceneMotion({
             opacity: Math.max(0.85, sheetEntry),
             filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
             transition: "transform 100ms linear",
+          }}
+        />
+      )}
+
+      {activeExit && (
+        <img
+          key={`exit-${activeExit.from}`}
+          src={activeExit.src}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            right: `${exitRightPct}%`,
+            bottom: "15%",
+            height: "20%",
+            width: "auto",
+            transform: `translateY(${cmBob}px) rotate(${cmSway}deg)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.85, exitEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear, right 120ms linear",
           }}
         />
       )}
