@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { useSceneAudio } from "@/lib/sceneAudio";
 import type { StorySceneDefinition, StorySpeaker } from "@/data/townCountryStory";
 import countryMouseCutout from "@/assets/town-country/country_mouse_cutout.png";
-import postMouse1Asset from "@/assets/town-country/post_mouse_1.png.asset.json";
-import postMouse2Asset from "@/assets/town-country/post_mouse_2.png.asset.json";
-import postMouse3Asset from "@/assets/town-country/post_mouse_3.png.asset.json";
+import sheet1Asset from "@/assets/town-country/country_sheet_1.png.asset.json";
+import sheet2Asset from "@/assets/town-country/country_sheet_2.png.asset.json";
+import sheet3Asset from "@/assets/town-country/country_sheet_3.png.asset.json";
+import sheet4Asset from "@/assets/town-country/country_sheet_4.png.asset.json";
 
 const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   narration: "나레이션",
@@ -91,24 +92,18 @@ export function StorySceneMotion({
   const cmSway = Math.sin(t * 1.4) * 2.5;
   const cmEntry = Math.min(1, t / 0.8);
 
-  // 씬1 32~48초: 우편 배달쥐 세 시트를 하단 10% 위치에서 순차 좌→우 이동
-  // 시트1: 32~38s (좌 10%→20%), 시트2: 38~42s (20%→30%), 시트3: 42~48s (30%→40%)
-  const postSegments: Array<{ from: number; to: number; src: string; leftFrom: number; leftTo: number }> = [
-    { from: 32, to: 38, src: postMouse1Asset.url, leftFrom: 10, leftTo: 20 },
-    { from: 38, to: 42, src: postMouse2Asset.url, leftFrom: 20, leftTo: 30 },
-    { from: 42, to: 48, src: postMouse3Asset.url, leftFrom: 30, leftTo: 40 },
+  // 씬1 32~82초: 시골쥐 네 시트를 32초 이전 시골쥐와 동일한 위치/크기로 순차 노출
+  // 시트1: 32~52s, 시트2: 52~70s, 시트3: 70~76s, 시트4: 76~82s
+  const sheetSegments: Array<{ from: number; to: number; src: string }> = [
+    { from: 32, to: 52, src: sheet1Asset.url },
+    { from: 52, to: 70, src: sheet2Asset.url },
+    { from: 70, to: 76, src: sheet3Asset.url },
+    { from: 76, to: 82, src: sheet4Asset.url },
   ];
-  const activePost = scene.id === "town-country-1"
-    ? postSegments.find((s) => t >= s.from && t < s.to)
+  const activeSheet = scene.id === "town-country-1"
+    ? sheetSegments.find((s) => t >= s.from && t < s.to)
     : undefined;
-  const postProgress = activePost
-    ? (t - activePost.from) / (activePost.to - activePost.from)
-    : 0;
-  const postLeftPct = activePost
-    ? activePost.leftFrom + (activePost.leftTo - activePost.leftFrom) * postProgress
-    : 0;
-  const postBob = Math.sin(t * 3.0) * 2.2;
-  const postEntry = activePost ? Math.min(1, (t - activePost.from) / 0.5) : 0;
+  const sheetEntry = activeSheet ? Math.min(1, (t - activeSheet.from) / 0.5) : 0;
 
   return (
     <div className="pointer-events-none absolute inset-0 select-none overflow-hidden">
@@ -169,23 +164,23 @@ export function StorySceneMotion({
         />
       )}
 
-      {activePost && (
+      {activeSheet && (
         <img
-          key={`post-${activePost.from}`}
-          src={activePost.src}
+          key={`sheet-${activeSheet.from}`}
+          src={activeSheet.src}
           alt=""
           draggable={false}
           className="absolute"
           style={{
-            left: `${postLeftPct}%`,
-            bottom: "10%",
-            height: "22%",
+            right: "40%",
+            bottom: "15%",
+            height: "20%",
             width: "auto",
-            transform: `translateY(${postBob}px)`,
+            transform: `translateY(${cmBob}px) rotate(${cmSway}deg)`,
             transformOrigin: "bottom center",
-            opacity: postEntry,
-            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.1)",
-            transition: "left 120ms linear, transform 100ms linear",
+            opacity: Math.max(0.85, sheetEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear",
           }}
         />
       )}
