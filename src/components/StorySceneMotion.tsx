@@ -145,10 +145,10 @@ export function StorySceneMotion({
   const postSegments: PostSeg[] = [
     { key: "p1",  from: 32, to: 38, leftFrom: 15, leftTo: 30, src: postSheet1Asset.url, heightPct: 24.4, bottomPct: 12.2 },
     { key: "p2",  from: 38, to: 44, leftFrom: 30, leftTo: 45, src: postSheet2Asset.url, heightPct: 24.4, bottomPct: 12.2 },
-    // 3번 시트: 좌측 45% 고정
-    { key: "p3",  from: 44, to: 52, leftFrom: 45, leftTo: 45, src: postSheet3Asset.url, heightPct: 25.1, bottomPct: 11.7 },
-    // 4번 시트: 좌측 50% 고정, 44~52초 노출 후 사라짐 (5/6번과 겹치지 않도록)
-    { key: "p4",  from: 44, to: 52, leftFrom: 50, leftTo: 50, src: postSheet4Asset.url, heightPct: 20.0, bottomPct: 13.9 },
+    // 3번 시트: 44~47s, 좌측 45% 고정
+    { key: "p3",  from: 44, to: 47, leftFrom: 45, leftTo: 45, src: postSheet3Asset.url, heightPct: 25.1, bottomPct: 11.7 },
+    // 4번 시트: 47~52s, 좌측 45% 고정, 52초가 지나면 사라짐 (5번과 겹치지 않도록)
+    { key: "p4",  from: 47, to: 52, leftFrom: 45, leftTo: 45, src: postSheet4Asset.url, heightPct: 20.0, bottomPct: 13.9 },
     // 5번 시트: 우측 35% → 25% (= left 65% → 75%)
     { key: "p5",  from: 52, to: 58, leftFrom: 65, leftTo: 75, src: postSheet5Asset.url, heightPct: 24.4, bottomPct: 11.7 },
   ];
