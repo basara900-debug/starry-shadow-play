@@ -8,6 +8,11 @@ import sheet3Asset from "@/assets/town-country/country_sheet_3.png.asset.json";
 import sheet4Asset from "@/assets/town-country/country_sheet_4.png.asset.json";
 import exitSheet1Asset from "@/assets/town-country/exit_sheet_1.png.asset.json";
 import exitSheet2Asset from "@/assets/town-country/exit_sheet_2.png.asset.json";
+import postSheet1Asset from "@/assets/town-country/post_sheet_1.png.asset.json";
+import postSheet2Asset from "@/assets/town-country/post_sheet_2.png.asset.json";
+import postSheet3Asset from "@/assets/town-country/post_sheet_3.png.asset.json";
+import postSheet4Asset from "@/assets/town-country/post_sheet_4.png.asset.json";
+import postSheet5Asset from "@/assets/town-country/post_sheet_5.png.asset.json";
 
 const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   narration: "나레이션",
@@ -122,6 +127,32 @@ export function StorySceneMotion({
     : 40;
   const exitEntry = activeExit ? Math.min(1, (t - activeExit.from) / 0.4) : 0;
 
+  // 씬1 32~64초: 우편 배달부 쥐 다섯 시트가 순차 등장/이동
+  // - 좌표는 `left` 기준(우측 N% → left (100-N)%); `bottom: 10%`, 크기는 시골쥐와 동일
+  type PostSeg = {
+    from: number;
+    to: number;
+    leftFrom: number;
+    leftTo: number;
+    src: string;
+    shake?: boolean;
+    key: string;
+  };
+  const postSegments: PostSeg[] = [
+    { key: "p1", from: 32, to: 38, leftFrom: 15, leftTo: 30, src: postSheet1Asset.url },
+    { key: "p2", from: 38, to: 44, leftFrom: 30, leftTo: 45, src: postSheet2Asset.url },
+    { key: "p3", from: 44, to: 52, leftFrom: 45, leftTo: 50, src: postSheet3Asset.url },
+    // 4번 시트: 좌측 55% 고정 (시간 명시 없음 → 대화 구간 동안 노출)
+    { key: "p4", from: 52, to: 64, leftFrom: 55, leftTo: 55, src: postSheet4Asset.url },
+    // 5번 시트: 우측 30% → 20% (= left 70% → 80%)
+    { key: "p5", from: 52, to: 58, leftFrom: 70, leftTo: 80, src: postSheet5Asset.url },
+    // 2번 시트 재등장: 우측 20% → 10% (= left 80% → 90%) + 흔들림
+    { key: "p2b", from: 58, to: 64, leftFrom: 80, leftTo: 90, src: postSheet2Asset.url, shake: true },
+  ];
+  const activePosts = scene.id === "town-country-1"
+    ? postSegments.filter((s) => t >= s.from && t < s.to)
+    : [];
+
   return (
     <div className="pointer-events-none absolute inset-0 select-none overflow-hidden">
       <div
@@ -222,6 +253,35 @@ export function StorySceneMotion({
           }}
         />
       )}
+
+      {activePosts.map((seg) => {
+        const dur = seg.to - seg.from;
+        const progress = dur > 0 ? (t - seg.from) / dur : 1;
+        const leftPct = seg.leftFrom + (seg.leftTo - seg.leftFrom) * progress;
+        const entry = Math.min(1, (t - seg.from) / 0.4);
+        const shakeX = seg.shake ? Math.sin(t * 18) * 3 : 0;
+        const shakeR = seg.shake ? Math.sin(t * 22) * 4 : 0;
+        return (
+          <img
+            key={`post-${seg.key}`}
+            src={seg.src}
+            alt=""
+            draggable={false}
+            className="absolute"
+            style={{
+              left: `${leftPct}%`,
+              bottom: "10%",
+              height: "20%",
+              width: "auto",
+              transform: `translate(${shakeX}px, ${cmBob}px) rotate(${cmSway + shakeR}deg)`,
+              transformOrigin: "bottom center",
+              opacity: Math.max(0.85, entry),
+              filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+              transition: "transform 80ms linear, left 120ms linear",
+            }}
+          />
+        );
+      })}
 
       <div
         className="absolute"
