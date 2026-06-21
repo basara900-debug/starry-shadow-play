@@ -283,6 +283,123 @@ export function StorySceneMotion({
         );
       })}
 
+      {scene.id === "town-country-1" && (() => {
+        const tlFrom = 32;
+        const tlTo = 64;
+        const tlDur = tlTo - tlFrom;
+        const rows: Array<{ key: string; label: string; from: number; to: number; color: string; shake?: boolean }> = [
+          { key: "p1",  label: "시트1", from: 32, to: 38, color: "oklch(0.72 0.15 30)" },
+          { key: "p2",  label: "시트2", from: 38, to: 44, color: "oklch(0.72 0.15 60)" },
+          { key: "p3",  label: "시트3", from: 44, to: 52, color: "oklch(0.72 0.15 110)" },
+          { key: "p4",  label: "시트4", from: 52, to: 64, color: "oklch(0.70 0.14 170)" },
+          { key: "p5",  label: "시트5", from: 52, to: 58, color: "oklch(0.70 0.16 260)" },
+          { key: "p2b", label: "시트2↺", from: 58, to: 64, color: "oklch(0.70 0.18 320)", shake: true },
+        ];
+        const playheadPct = Math.max(0, Math.min(1, (t - tlFrom) / tlDur)) * 100;
+        const inRange = t >= tlFrom && t <= tlTo;
+        // 흔들림 하이라이트 구간: 58~64s
+        const shakeStartPct = ((58 - tlFrom) / tlDur) * 100;
+        const shakeWidthPct = ((64 - 58) / tlDur) * 100;
+        return (
+          <div
+            className="absolute"
+            style={{
+              left: "4%",
+              right: "4%",
+              bottom: "2%",
+              padding: "8px 10px 10px",
+              background: "oklch(0 0 0 / 0.5)",
+              border: "1px solid oklch(0.85 0.08 75 / 0.25)",
+              borderRadius: 10,
+              fontSize: 10,
+              color: "oklch(0.95 0.04 80)",
+              backdropFilter: "blur(4px)",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, opacity: 0.9 }}>
+              <span>우편 배달쥐 시트 타임라인 (32–64s)</span>
+              <span style={{ opacity: 0.75 }}>
+                {inRange ? `${t.toFixed(1)}s` : t < tlFrom ? "대기" : "종료"}
+              </span>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "44px 1fr", rowGap: 3, columnGap: 8, alignItems: "center" }}>
+              {rows.map((r) => {
+                const startPct = ((r.from - tlFrom) / tlDur) * 100;
+                const widthPct = ((r.to - r.from) / tlDur) * 100;
+                const active = t >= r.from && t < r.to;
+                return (
+                  <>
+                    <div key={`${r.key}-l`} style={{ fontSize: 9, opacity: active ? 1 : 0.65, textAlign: "right" }}>
+                      {r.label}
+                    </div>
+                    <div key={`${r.key}-t`} style={{ position: "relative", height: 10, background: "oklch(1 0 0 / 0.06)", borderRadius: 4 }}>
+                      <div
+                        style={{
+                          position: "absolute",
+                          left: `${startPct}%`,
+                          width: `${widthPct}%`,
+                          top: 0,
+                          bottom: 0,
+                          background: r.color,
+                          opacity: active ? 0.95 : 0.55,
+                          borderRadius: 4,
+                          boxShadow: active ? `0 0 8px ${r.color}` : "none",
+                          backgroundImage: r.shake
+                            ? "repeating-linear-gradient(45deg, oklch(1 0 0 / 0.25) 0 4px, oklch(0 0 0 / 0) 4px 8px)"
+                            : undefined,
+                          transition: "opacity 120ms linear, box-shadow 120ms linear",
+                        }}
+                      />
+                    </div>
+                  </>
+                );
+              })}
+            </div>
+            <div style={{ position: "relative", marginTop: 8, height: 14 }}>
+              {/* 눈금 */}
+              <div style={{ position: "absolute", inset: 0, display: "flex", justifyContent: "space-between", fontSize: 8, opacity: 0.7 }}>
+                {[32, 38, 44, 52, 58, 64].map((s) => (
+                  <span key={s} style={{ transform: "translateX(-50%)", position: "absolute", left: `${((s - tlFrom) / tlDur) * 100}%` }}>{s}s</span>
+                ))}
+              </div>
+              {/* 흔들림 구간 하이라이트 */}
+              <div
+                style={{
+                  position: "absolute",
+                  left: `${shakeStartPct}%`,
+                  width: `${shakeWidthPct}%`,
+                  top: 10,
+                  height: 4,
+                  background: "oklch(0.75 0.2 30 / 0.85)",
+                  borderRadius: 2,
+                  boxShadow: "0 0 6px oklch(0.75 0.2 30 / 0.9)",
+                }}
+                title="흔들림 구간"
+              />
+              {/* 플레이헤드 */}
+              {inRange && (
+                <div
+                  style={{
+                    position: "absolute",
+                    left: `${playheadPct}%`,
+                    top: -2,
+                    bottom: -2,
+                    width: 2,
+                    background: "oklch(0.98 0.05 80)",
+                    boxShadow: "0 0 6px oklch(0.98 0.05 80 / 0.9)",
+                    transform: "translateX(-1px)",
+                  }}
+                />
+              )}
+            </div>
+            <div style={{ marginTop: 4, display: "flex", gap: 10, fontSize: 9, opacity: 0.8 }}>
+              <span><span style={{ display: "inline-block", width: 10, height: 6, background: "oklch(0.75 0.2 30 / 0.85)", marginRight: 4, verticalAlign: "middle", borderRadius: 1 }} />흔들림 구간 (58–64s)</span>
+              <span><span style={{ display: "inline-block", width: 10, height: 6, backgroundImage: "repeating-linear-gradient(45deg, oklch(1 0 0 / 0.4) 0 3px, oklch(0 0 0 / 0) 3px 6px)", background: "oklch(0.55 0.05 80)", marginRight: 4, verticalAlign: "middle", borderRadius: 1 }} />흔들림 적용 시트</span>
+            </div>
+          </div>
+        );
+      })()}
+
       <div
         className="absolute"
         style={{
