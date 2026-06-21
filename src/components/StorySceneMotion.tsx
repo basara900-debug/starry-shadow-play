@@ -275,8 +275,8 @@ export function StorySceneMotion({
             className="absolute"
             style={{
               left: `${leftPct}%`,
-              bottom: "10%",
-              height: "20%",
+              bottom: `${seg.bottomPct}%`,
+              height: `${seg.heightPct}%`,
               width: "auto",
               transform: `translate(${shakeX}px, ${cmBob}px) rotate(${cmSway + shakeR}deg)`,
               transformOrigin: "bottom center",
