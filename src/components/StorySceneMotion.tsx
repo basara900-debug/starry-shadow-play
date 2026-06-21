@@ -108,10 +108,10 @@ export function StorySceneMotion({
   const sheetEntry = activeSheet ? Math.min(1, (t - activeSheet.from) / 0.5) : 0;
 
   // 씬1 82~90초: 시골쥐가 현재 위치에서 우측으로 수평 이동하며 퇴장
-  // 시트1: 82~86s → left 60%에서 75%, 시트2: 86~90s → left 75%에서 95%
+  // 시트1: 82~86s → left 60%에서 75%, 시트2: 86~90s → left 75%에서 85%
   const exitSegments: Array<{ from: number; to: number; rightFrom: number; rightTo: number; src: string }> = [
     { from: 82, to: 86, rightFrom: 40, rightTo: 25, src: exitSheet1Asset.url },
-    { from: 86, to: 90, rightFrom: 25, rightTo: 5, src: exitSheet2Asset.url },
+    { from: 86, to: 90, rightFrom: 25, rightTo: 15, src: exitSheet2Asset.url },
   ];
   const activeExit = scene.id === "town-country-1"
     ? exitSegments.find((s) => t >= s.from && t < s.to)
