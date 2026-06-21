@@ -151,8 +151,6 @@ export function StorySceneMotion({
     { key: "p4",  from: 44, to: 52, leftFrom: 50, leftTo: 50, src: postSheet4Asset.url, heightPct: 20.0, bottomPct: 13.9 },
     // 5번 시트: 우측 35% → 25% (= left 65% → 75%)
     { key: "p5",  from: 52, to: 58, leftFrom: 65, leftTo: 75, src: postSheet5Asset.url, heightPct: 24.4, bottomPct: 11.7 },
-    // 2번 시트 재등장: 우측 20% → 10% (= left 80% → 90%) + 흔들림
-    { key: "p2b", from: 58, to: 64, leftFrom: 80, leftTo: 90, src: postSheet2Asset.url, shake: true, heightPct: 24.4, bottomPct: 12.2 },
   ];
   const activePosts = scene.id === "town-country-1"
     ? postSegments.filter((s) => t >= s.from && t < s.to)
