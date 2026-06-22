@@ -6,6 +6,9 @@ import sheet1Asset from "@/assets/town-country/country_sheet_1.png.asset.json";
 import sheet2Asset from "@/assets/town-country/country_sheet_2.png.asset.json";
 import sheet3Asset from "@/assets/town-country/country_sheet_3.png.asset.json";
 import sheet4Asset from "@/assets/town-country/country_sheet_4.png.asset.json";
+import countryUniform1 from "@/assets/town-country/country_uniform_1.png.asset.json";
+import countryUniform2 from "@/assets/town-country/country_uniform_2.png.asset.json";
+import countryUniform3 from "@/assets/town-country/country_uniform_3.png.asset.json";
 import exitSheet1Asset from "@/assets/town-country/exit_sheet_1.png.asset.json";
 import exitSheet2Asset from "@/assets/town-country/exit_sheet_2.png.asset.json";
 import postSheet1Asset from "@/assets/town-country/post_sheet_1.png.asset.json";
@@ -93,24 +96,16 @@ export function StorySceneMotion({
 
   const beat = scene.beats.find((b) => t >= b.from && t < b.to);
 
-  // 씬1 0~32초: 시골쥐 캐릭터를 우측에서 20%, 아래에서 10% 지점에 배치하고 살짝 흔들리는 모션 적용
-  const showCountryMouse = scene.id === "town-country-1" && t < 32;
   const cmBob = Math.sin(t * 2.2) * 1.8;
   const cmSway = Math.sin(t * 1.4) * 2.5;
-  const cmEntry = Math.min(1, t / 0.8);
 
-  // 씬1 32~82초: 시골쥐 네 시트를 32초 이전 시골쥐와 동일한 위치/크기로 순차 노출
-  // 시트1: 32~52s, 시트2: 52~70s, 시트3: 70~76s, 시트4: 76~82s
-  const sheetSegments: Array<{ from: number; to: number; src: string }> = [
-    { from: 32, to: 52, src: sheet1Asset.url },
-    { from: 52, to: 70, src: sheet2Asset.url },
-    { from: 70, to: 76, src: sheet3Asset.url },
-    { from: 76, to: 82, src: sheet4Asset.url },
-  ];
-  const activeSheet = scene.id === "town-country-1"
-    ? sheetSegments.find((s) => t >= s.from && t < s.to)
-    : undefined;
-  const sheetEntry = activeSheet ? Math.min(1, (t - activeSheet.from) / 0.5) : 0;
+  // 씬1 0~70초: 시골쥐 캐릭터(크기 통일된 3장)를 좌측 25%, 하단 15% 위치에 순환 표시
+  const countryFrames = [countryUniform1.url, countryUniform2.url, countryUniform3.url];
+  const COUNTRY_FRAME_DUR = 1.4; // seconds per frame
+  const showCountryCycle = scene.id === "town-country-1" && t < 70;
+  const countryFrameIdx = Math.floor(t / COUNTRY_FRAME_DUR) % countryFrames.length;
+  const countrySrc = countryFrames[countryFrameIdx];
+  const countryEntry = Math.min(1, t / 0.6);
 
   // 씬1 82~90초: 시골쥐가 현재 위치에서 우측으로 수평 이동하며 퇴장
   // 시트1: 82~86s → left 60%에서 75%, 시트2: 86~90s → left 75%에서 85%
@@ -195,41 +190,21 @@ export function StorySceneMotion({
         );
       })()}
 
-      {showCountryMouse && (
+      {showCountryCycle && (
         <img
-          src={countryMouseCutout}
+          key={`country-cycle-${countryFrameIdx}`}
+          src={countrySrc}
           alt=""
           draggable={false}
           className="absolute"
           style={{
-            right: "40%",
+            left: "25%",
             bottom: "15%",
             height: "20%",
             width: "auto",
-            transform: `translateY(${cmBob}px) rotate(${cmSway}deg)`,
+            transform: `translate(-50%, ${cmBob}px) rotate(${cmSway}deg)`,
             transformOrigin: "bottom center",
-            opacity: Math.max(0.85, cmEntry),
-            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
-            transition: "transform 100ms linear",
-          }}
-        />
-      )}
-
-      {activeSheet && (
-        <img
-          key={`sheet-${activeSheet.from}`}
-          src={activeSheet.src}
-          alt=""
-          draggable={false}
-          className="absolute"
-          style={{
-            right: "40%",
-            bottom: "15%",
-            height: "20%",
-            width: "auto",
-            transform: `translateY(${cmBob}px) rotate(${cmSway}deg)`,
-            transformOrigin: "bottom center",
-            opacity: Math.max(0.85, sheetEntry),
+            opacity: Math.max(0.85, countryEntry),
             filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
             transition: "transform 100ms linear",
           }}
