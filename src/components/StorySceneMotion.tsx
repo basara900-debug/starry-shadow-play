@@ -6,9 +6,9 @@ import sheet1Asset from "@/assets/town-country/country_sheet_1.png.asset.json";
 import sheet2Asset from "@/assets/town-country/country_sheet_2.png.asset.json";
 import sheet3Asset from "@/assets/town-country/country_sheet_3.png.asset.json";
 import sheet4Asset from "@/assets/town-country/country_sheet_4.png.asset.json";
-import countryUniform1 from "@/assets/town-country/country_uniform_1.png.asset.json";
-import countryUniform2 from "@/assets/town-country/country_uniform_2.png.asset.json";
-import countryUniform3 from "@/assets/town-country/country_uniform_3.png.asset.json";
+import cityUniform1 from "@/assets/town-country/country_uniform_1.png.asset.json";
+import cityUniform2 from "@/assets/town-country/country_uniform_2.png.asset.json";
+import cityUniform3 from "@/assets/town-country/country_uniform_3.png.asset.json";
 import exitSheet1Asset from "@/assets/town-country/exit_sheet_1.png.asset.json";
 import exitSheet2Asset from "@/assets/town-country/exit_sheet_2.png.asset.json";
 import postSheet1Asset from "@/assets/town-country/post_sheet_1.png.asset.json";
@@ -99,13 +99,29 @@ export function StorySceneMotion({
   const cmBob = Math.sin(t * 2.2) * 1.8;
   const cmSway = Math.sin(t * 1.4) * 2.5;
 
-  // 씬1 0~70초: 시골쥐 캐릭터(크기 통일된 3장)를 좌측 25%, 하단 15% 위치에 순환 표시
-  const countryFrames = [countryUniform1.url, countryUniform2.url, countryUniform3.url];
-  const COUNTRY_FRAME_DUR = 1.4; // seconds per frame
-  const showCountryCycle = scene.id === "town-country-1" && t < 70;
-  const countryFrameIdx = Math.floor(t / COUNTRY_FRAME_DUR) % countryFrames.length;
-  const countrySrc = countryFrames[countryFrameIdx];
-  const countryEntry = Math.min(1, t / 0.6);
+  // 씬1 0~32초: 시골쥐 캐릭터를 우측에서 40%, 아래에서 15% 지점에 배치하고 살짝 흔들리는 모션 적용
+  const showCountryMouse = scene.id === "town-country-1" && t < 32;
+  const cmEntry = Math.min(1, t / 0.8);
+
+  // 씬1 32~82초: 시골쥐 네 시트를 32초 이전 시골쥐와 동일한 위치/크기로 순차 노출
+  const sheetSegments: Array<{ from: number; to: number; src: string }> = [
+    { from: 32, to: 52, src: sheet1Asset.url },
+    { from: 52, to: 70, src: sheet2Asset.url },
+    { from: 70, to: 76, src: sheet3Asset.url },
+    { from: 76, to: 82, src: sheet4Asset.url },
+  ];
+  const activeSheet = scene.id === "town-country-1"
+    ? sheetSegments.find((s) => t >= s.from && t < s.to)
+    : undefined;
+  const sheetEntry = activeSheet ? Math.min(1, (t - activeSheet.from) / 0.5) : 0;
+
+  // 씬2 0~70초: 서울쥐 캐릭터(크기 통일된 3장)를 좌측 25%, 하단 15% 위치에 순환 표시
+  const cityFrames = [cityUniform1.url, cityUniform2.url, cityUniform3.url];
+  const CITY_FRAME_DUR = 1.4;
+  const showCityCycle = scene.id === "town-country-2" && t < 70;
+  const cityFrameIdx = Math.floor(t / CITY_FRAME_DUR) % cityFrames.length;
+  const citySrc = cityFrames[cityFrameIdx];
+  const cityEntry = Math.min(1, t / 0.6);
 
   // 씬1 82~90초: 시골쥐가 현재 위치에서 우측으로 수평 이동하며 퇴장
   // 시트1: 82~86s → left 60%에서 75%, 시트2: 86~90s → left 75%에서 85%
@@ -190,10 +206,51 @@ export function StorySceneMotion({
         );
       })()}
 
-      {showCountryCycle && (
+      {showCountryMouse && (
         <img
-          key={`country-cycle-${countryFrameIdx}`}
-          src={countrySrc}
+          src={countryMouseCutout}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            right: "40%",
+            bottom: "15%",
+            height: "20%",
+            width: "auto",
+            transform: `translateY(${cmBob}px) rotate(${cmSway}deg)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.85, cmEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear",
+          }}
+        />
+      )}
+
+      {activeSheet && (
+        <img
+          key={`sheet-${activeSheet.from}`}
+          src={activeSheet.src}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            right: "40%",
+            bottom: "15%",
+            height: "20%",
+            width: "auto",
+            transform: `translateY(${cmBob}px) rotate(${cmSway}deg)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.85, sheetEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear",
+          }}
+        />
+      )}
+
+      {showCityCycle && (
+        <img
+          key={`city-cycle-${cityFrameIdx}`}
+          src={citySrc}
           alt=""
           draggable={false}
           className="absolute"
@@ -204,7 +261,7 @@ export function StorySceneMotion({
             width: "auto",
             transform: `translate(-50%, ${cmBob}px) rotate(${cmSway}deg)`,
             transformOrigin: "bottom center",
-            opacity: Math.max(0.85, countryEntry),
+            opacity: Math.max(0.85, cityEntry),
             filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
             transition: "transform 100ms linear",
           }}
