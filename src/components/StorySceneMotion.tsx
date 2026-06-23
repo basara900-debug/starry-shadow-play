@@ -120,7 +120,7 @@ export function StorySceneMotion({
   // 씬2 0~70초: 서울쥐 캐릭터(크기 통일된 3장)를 좌측 25%, 하단 15% 위치에 순환 표시
   const cityFrames = [cityUniform1.url, cityUniform2.url, cityUniform3.url];
   const CITY_FRAME_DUR = 1.4;
-  const showCityCycle = scene.id === "town-country-2" && t < 70;
+  const showCityCycle = scene.id === "town-country-2" && t < 70 && !(t >= 12 && t < 24);
   const cityFrameIdx = Math.floor(t / CITY_FRAME_DUR) % cityFrames.length;
   const citySrc = cityFrames[cityFrameIdx];
   const cityEntry = Math.min(1, t / 0.6);
