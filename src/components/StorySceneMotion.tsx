@@ -125,6 +125,16 @@ export function StorySceneMotion({
   const citySrc = cityFrames[cityFrameIdx];
   const cityEntry = Math.min(1, t / 0.6);
 
+  // 씬2 0~12초: 시골쥐 캐릭터 시트 2장을 좌우 반전하여 우측 40%, 하단 15%에 배치
+  const countryFlipSegments: Array<{ from: number; to: number; src: string }> = [
+    { from: 0, to: 6, src: countryFlip1.url },
+    { from: 6, to: 12, src: countryFlip2.url },
+  ];
+  const activeCountryFlip = scene.id === "town-country-2"
+    ? countryFlipSegments.find((s) => t >= s.from && t < s.to)
+    : undefined;
+  const countryFlipEntry = activeCountryFlip ? Math.min(1, (t - activeCountryFlip.from) / 0.4) : 0;
+
   // 씬1 82~90초: 시골쥐가 현재 위치에서 우측으로 수평 이동하며 퇴장
   // 시트1: 82~86s → left 60%에서 75%, 시트2: 86~90s → left 75%에서 85%
   const exitSegments: Array<{ from: number; to: number; rightFrom: number; rightTo: number; src: string }> = [
