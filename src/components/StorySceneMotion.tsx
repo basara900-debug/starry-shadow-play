@@ -9,6 +9,8 @@ import sheet4Asset from "@/assets/town-country/country_sheet_4.png.asset.json";
 import cityUniform1 from "@/assets/town-country/country_uniform_1.png.asset.json";
 import cityUniform2 from "@/assets/town-country/country_uniform_2.png.asset.json";
 import cityUniform3 from "@/assets/town-country/country_uniform_3.png.asset.json";
+import countryFlip1 from "@/assets/town-country/country_flip_1.png.asset.json";
+import countryFlip2 from "@/assets/town-country/country_flip_2.png.asset.json";
 import exitSheet1Asset from "@/assets/town-country/exit_sheet_1.png.asset.json";
 import exitSheet2Asset from "@/assets/town-country/exit_sheet_2.png.asset.json";
 import postSheet1Asset from "@/assets/town-country/post_sheet_1.png.asset.json";
@@ -122,6 +124,16 @@ export function StorySceneMotion({
   const cityFrameIdx = Math.floor(t / CITY_FRAME_DUR) % cityFrames.length;
   const citySrc = cityFrames[cityFrameIdx];
   const cityEntry = Math.min(1, t / 0.6);
+
+  // 씬2 0~12초: 시골쥐 캐릭터 시트 2장을 좌우 반전하여 우측 40%, 하단 15%에 배치
+  const countryFlipSegments: Array<{ from: number; to: number; src: string }> = [
+    { from: 0, to: 6, src: countryFlip1.url },
+    { from: 6, to: 12, src: countryFlip2.url },
+  ];
+  const activeCountryFlip = scene.id === "town-country-2"
+    ? countryFlipSegments.find((s) => t >= s.from && t < s.to)
+    : undefined;
+  const countryFlipEntry = activeCountryFlip ? Math.min(1, (t - activeCountryFlip.from) / 0.4) : 0;
 
   // 씬1 82~90초: 시골쥐가 현재 위치에서 우측으로 수평 이동하며 퇴장
   // 시트1: 82~86s → left 60%에서 75%, 시트2: 86~90s → left 75%에서 85%
@@ -262,6 +274,27 @@ export function StorySceneMotion({
             transform: `translate(-50%, ${cmBob}px) rotate(${cmSway}deg)`,
             transformOrigin: "bottom center",
             opacity: Math.max(0.85, cityEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear",
+          }}
+        />
+      )}
+
+      {activeCountryFlip && (
+        <img
+          key={`country-flip-${activeCountryFlip.from}`}
+          src={activeCountryFlip.src}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            right: "40%",
+            bottom: "15%",
+            height: "20%",
+            width: "auto",
+            transform: `translateY(${cmBob}px) rotate(${cmSway}deg)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.85, countryFlipEntry),
             filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
             transition: "transform 100ms linear",
           }}
