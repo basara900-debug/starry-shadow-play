@@ -138,6 +138,12 @@ export function StorySceneMotion({
     : undefined;
   const countryFlipEntry = activeCountryFlip ? Math.min(1, (t - activeCountryFlip.from) / 0.4) : 0;
 
+  const pairFrames = [pair1.url, pair2.url, pair3.url];
+  const showPairCycle = scene.id === "town-country-2" && t >= 12 && t < 24;
+  const pairFrameIdx = showPairCycle ? Math.floor((t - 12) / 2) % pairFrames.length : 0;
+  const pairSrc = pairFrames[pairFrameIdx];
+  const pairEntry = showPairCycle ? Math.min(1, ((t - 12) % 2) / 0.3) : 0;
+
   // 씬1 82~90초: 시골쥐가 현재 위치에서 우측으로 수평 이동하며 퇴장
   // 시트1: 82~86s → left 60%에서 75%, 시트2: 86~90s → left 75%에서 85%
   const exitSegments: Array<{ from: number; to: number; rightFrom: number; rightTo: number; src: string }> = [
