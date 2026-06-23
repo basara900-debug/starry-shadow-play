@@ -11,9 +11,9 @@ import cityUniform2 from "@/assets/town-country/country_uniform_2.png.asset.json
 import cityUniform3 from "@/assets/town-country/country_uniform_3.png.asset.json";
 import countryFlip1 from "@/assets/town-country/country_flip_1.png.asset.json";
 import countryFlip2 from "@/assets/town-country/country_flip_2.png.asset.json";
-import pair1 from "@/assets/town-country/pair_1.jpg.asset.json";
-import pair2 from "@/assets/town-country/pair_2.png.asset.json";
-import pair3 from "@/assets/town-country/pair_3.jpg.asset.json";
+import pair1 from "@/assets/town-country/pair_clean_1.png.asset.json";
+import pair2 from "@/assets/town-country/pair_clean_2.png.asset.json";
+import pair3 from "@/assets/town-country/pair_clean_3.png.asset.json";
 import exitSheet1Asset from "@/assets/town-country/exit_sheet_1.png.asset.json";
 import exitSheet2Asset from "@/assets/town-country/exit_sheet_2.png.asset.json";
 import postSheet1Asset from "@/assets/town-country/post_sheet_1.png.asset.json";
