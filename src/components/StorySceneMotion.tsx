@@ -280,6 +280,27 @@ export function StorySceneMotion({
         />
       )}
 
+      {activeCountryFlip && (
+        <img
+          key={`country-flip-${activeCountryFlip.from}`}
+          src={activeCountryFlip.src}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            right: "40%",
+            bottom: "15%",
+            height: "20%",
+            width: "auto",
+            transform: `translateY(${cmBob}px) rotate(${cmSway}deg)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.85, countryFlipEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear",
+          }}
+        />
+      )}
+
       {activeExit && (
         <img
           key={`exit-${activeExit.from}`}
