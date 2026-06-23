@@ -310,6 +310,27 @@ export function StorySceneMotion({
         />
       )}
 
+      {showPairCycle && (
+        <img
+          key={`pair-cycle-${pairFrameIdx}`}
+          src={pairSrc}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: "45%",
+            bottom: "15%",
+            height: "20%",
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px) rotate(${cmSway}deg)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.85, pairEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear",
+          }}
+        />
+      )}
+
       {activeExit && (
         <img
           key={`exit-${activeExit.from}`}
