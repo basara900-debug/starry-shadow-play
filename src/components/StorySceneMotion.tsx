@@ -11,6 +11,9 @@ import cityUniform2 from "@/assets/town-country/country_uniform_2.png.asset.json
 import cityUniform3 from "@/assets/town-country/country_uniform_3.png.asset.json";
 import countryFlip1 from "@/assets/town-country/country_flip_1.png.asset.json";
 import countryFlip2 from "@/assets/town-country/country_flip_2.png.asset.json";
+import pair1 from "@/assets/town-country/pair_1.jpg.asset.json";
+import pair2 from "@/assets/town-country/pair_2.png.asset.json";
+import pair3 from "@/assets/town-country/pair_3.jpg.asset.json";
 import exitSheet1Asset from "@/assets/town-country/exit_sheet_1.png.asset.json";
 import exitSheet2Asset from "@/assets/town-country/exit_sheet_2.png.asset.json";
 import postSheet1Asset from "@/assets/town-country/post_sheet_1.png.asset.json";
@@ -134,6 +137,12 @@ export function StorySceneMotion({
     ? countryFlipSegments.find((s) => t >= s.from && t < s.to)
     : undefined;
   const countryFlipEntry = activeCountryFlip ? Math.min(1, (t - activeCountryFlip.from) / 0.4) : 0;
+
+  const pairFrames = [pair1.url, pair2.url, pair3.url];
+  const showPairCycle = scene.id === "town-country-2" && t >= 12 && t < 24;
+  const pairFrameIdx = showPairCycle ? Math.floor((t - 12) / 2) % pairFrames.length : 0;
+  const pairSrc = pairFrames[pairFrameIdx];
+  const pairEntry = showPairCycle ? Math.min(1, ((t - 12) % 2) / 0.3) : 0;
 
   // 씬1 82~90초: 시골쥐가 현재 위치에서 우측으로 수평 이동하며 퇴장
   // 시트1: 82~86s → left 60%에서 75%, 시트2: 86~90s → left 75%에서 85%
@@ -295,6 +304,27 @@ export function StorySceneMotion({
             transform: `translateY(${cmBob}px) rotate(${cmSway}deg)`,
             transformOrigin: "bottom center",
             opacity: Math.max(0.85, countryFlipEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear",
+          }}
+        />
+      )}
+
+      {showPairCycle && (
+        <img
+          key={`pair-cycle-${pairFrameIdx}`}
+          src={pairSrc}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: "45%",
+            bottom: "15%",
+            height: "20%",
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px) rotate(${cmSway}deg)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.85, pairEntry),
             filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
             transition: "transform 100ms linear",
           }}
