@@ -382,6 +382,27 @@ export function StorySceneMotion({
         />
       )}
 
+      {showCountryCycle && (
+        <img
+          key={`country-cycle-${countryCycleIdx}`}
+          src={countryCycleSrc}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            right: "30%",
+            bottom: "15%",
+            height: "20%",
+            width: "auto",
+            transform: `translateX(50%) scaleX(-1) translateY(${cmBob}px) rotate(${cmSway}deg)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.85, countryCycleEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear",
+          }}
+        />
+      )}
+
       {activeExit && (
         <img
           key={`exit-${activeExit.from}`}
