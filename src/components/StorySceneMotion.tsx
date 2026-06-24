@@ -14,6 +14,8 @@ import countryFlip2 from "@/assets/town-country/country_flip_2.png.asset.json";
 import pair1 from "@/assets/town-country/pair_clean_1.png.asset.json";
 import pair2 from "@/assets/town-country/pair_clean_2.png.asset.json";
 import pair3 from "@/assets/town-country/pair_clean_3.png.asset.json";
+import walkClean1 from "@/assets/town-country/walk_clean_1.png.asset.json";
+import walkClean2 from "@/assets/town-country/walk_clean_2.png.asset.json";
 import exitSheet1Asset from "@/assets/town-country/exit_sheet_1.png.asset.json";
 import exitSheet2Asset from "@/assets/town-country/exit_sheet_2.png.asset.json";
 import postSheet1Asset from "@/assets/town-country/post_sheet_1.png.asset.json";
@@ -123,7 +125,7 @@ export function StorySceneMotion({
   // 씬2 0~70초: 서울쥐 캐릭터(크기 통일된 3장)를 좌측 25%, 하단 15% 위치에 순환 표시
   const cityFrames = [cityUniform1.url, cityUniform2.url, cityUniform3.url];
   const CITY_FRAME_DUR = 1.4;
-  const showCityCycle = scene.id === "town-country-2" && t < 70 && !(t >= 12 && t < 24);
+  const showCityCycle = scene.id === "town-country-2" && t < 70 && !(t >= 12 && t < 24) && !(t >= 67 && t < 70);
   const cityFrameIdx = Math.floor(t / CITY_FRAME_DUR) % cityFrames.length;
   const citySrc = cityFrames[cityFrameIdx];
   const cityEntry = Math.min(1, t / 0.6);
@@ -143,6 +145,20 @@ export function StorySceneMotion({
   const pairFrameIdx = showPairCycle ? Math.floor((t - 12) / 2) % pairFrames.length : 0;
   const pairSrc = pairFrames[pairFrameIdx];
   const pairEntry = showPairCycle ? Math.min(1, ((t - 12) % 2) / 0.3) : 0;
+
+  // 씬2 67~70초 & 73~76초: 서울쥐 워크 시트 2장이 좌측 수평 이동
+  const walkSegments: Array<{ from: number; to: number; leftFrom: number; leftTo: number; src: string }> = [
+    { from: 67, to: 70, leftFrom: 35, leftTo: 15, src: walkClean1.url },
+    { from: 73, to: 76, leftFrom: 15, leftTo: 35, src: walkClean2.url },
+  ];
+  const activeWalk = scene.id === "town-country-2"
+    ? walkSegments.find((s) => t >= s.from && t < s.to)
+    : undefined;
+  const walkProgress = activeWalk ? (t - activeWalk.from) / (activeWalk.to - activeWalk.from) : 0;
+  const walkLeftPct = activeWalk
+    ? activeWalk.leftFrom + (activeWalk.leftTo - activeWalk.leftFrom) * walkProgress
+    : 35;
+  const walkEntry = activeWalk ? Math.min(1, (t - activeWalk.from) / 0.3) : 0;
 
   // 씬1 82~90초: 시골쥐가 현재 위치에서 우측으로 수평 이동하며 퇴장
   // 시트1: 82~86s → left 60%에서 75%, 시트2: 86~90s → left 75%에서 85%
@@ -327,6 +343,27 @@ export function StorySceneMotion({
             opacity: Math.max(0.85, pairEntry),
             filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
             transition: "transform 100ms linear",
+          }}
+        />
+      )}
+
+      {activeWalk && (
+        <img
+          key={`walk-${activeWalk.from}`}
+          src={activeWalk.src}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: `${walkLeftPct}%`,
+            bottom: "15%",
+            height: "20%",
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px) rotate(${cmSway}deg)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.85, walkEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear, left 120ms linear",
           }}
         />
       )}
