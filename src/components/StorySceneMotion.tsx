@@ -16,6 +16,10 @@ import pair2 from "@/assets/town-country/pair_clean_2.png.asset.json";
 import pair3 from "@/assets/town-country/pair_clean_3.png.asset.json";
 import walkClean1 from "@/assets/town-country/walk_clean_1.png.asset.json";
 import walkClean2 from "@/assets/town-country/walk_clean_2.png.asset.json";
+import countryCycle1 from "@/assets/town-country/country_cycle_1.png.asset.json";
+import countryCycle2 from "@/assets/town-country/country_cycle_2.png.asset.json";
+import countryCycle3 from "@/assets/town-country/country_cycle_3.png.asset.json";
+import countryCycle4 from "@/assets/town-country/country_cycle_4.png.asset.json";
 import exitSheet1Asset from "@/assets/town-country/exit_sheet_1.png.asset.json";
 import exitSheet2Asset from "@/assets/town-country/exit_sheet_2.png.asset.json";
 import postSheet1Asset from "@/assets/town-country/post_sheet_1.png.asset.json";
@@ -159,6 +163,16 @@ export function StorySceneMotion({
     ? activeWalk.leftFrom + (activeWalk.leftTo - activeWalk.leftFrom) * walkProgress
     : 35;
   const walkEntry = activeWalk ? Math.min(1, (t - activeWalk.from) / 0.3) : 0;
+
+  // 씬2 24~76초: 시골쥐 캐릭터 4장을 좌우 반전하여 우측 30%에서 순환
+  const countryCycleFrames = [countryCycle1.url, countryCycle2.url, countryCycle3.url, countryCycle4.url];
+  const COUNTRY_CYCLE_DUR = 1.4;
+  const showCountryCycle = scene.id === "town-country-2" && t >= 24 && t < 76;
+  const countryCycleIdx = showCountryCycle
+    ? Math.floor((t - 24) / COUNTRY_CYCLE_DUR) % countryCycleFrames.length
+    : 0;
+  const countryCycleSrc = countryCycleFrames[countryCycleIdx];
+  const countryCycleEntry = showCountryCycle ? Math.min(1, (t - 24) / 0.4) : 0;
 
   // 씬1 82~90초: 시골쥐가 현재 위치에서 우측으로 수평 이동하며 퇴장
   // 시트1: 82~86s → left 60%에서 75%, 시트2: 86~90s → left 75%에서 85%
@@ -364,6 +378,27 @@ export function StorySceneMotion({
             opacity: Math.max(0.85, walkEntry),
             filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
             transition: "transform 100ms linear, left 120ms linear",
+          }}
+        />
+      )}
+
+      {showCountryCycle && (
+        <img
+          key={`country-cycle-${countryCycleIdx}`}
+          src={countryCycleSrc}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            right: "30%",
+            bottom: "15%",
+            height: "20%",
+            width: "auto",
+            transform: `translateX(50%) scaleX(-1) translateY(${cmBob}px) rotate(${cmSway}deg)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.85, countryCycleEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear",
           }}
         />
       )}
