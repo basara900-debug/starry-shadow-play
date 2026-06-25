@@ -202,7 +202,8 @@ export function SceneAudioProvider({ children }: { children: ReactNode }) {
         tracksRef.current.set(url, entry);
         // 이미 사용자 제스처를 받은 상태에서 생성된 트랙도 즉시 잠금 해제해
         // 자동 씬 전환 시 첫 play() 가 무음 실패하지 않도록 한다(Safari/iOS 요소별 unlock 대응).
-        if (stateRef.current.unlocked) unlockPausedTrack(entry.audio, () => entry.refCount === 0);
+        const createdEntry = entry;
+        if (stateRef.current.unlocked) unlockPausedTrack(createdEntry.audio, () => createdEntry.refCount === 0);
       } else {
         // 마지막 등록자의 옵션을 따라간다.
         entry.kind = kind;
