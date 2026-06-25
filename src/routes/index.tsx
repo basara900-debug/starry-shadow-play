@@ -295,6 +295,10 @@ function ShadowTheaterTitle() {
       scene4SfxAsset.url,
       mainThemeUrl,
       scene5BgmAsset.url,
+      // 다른 카세트(스토리 프로그램)들의 모든 씬 오디오도 함께 프라임한다.
+      // 첫 사용자 제스처에서 모든 Audio 요소가 잠금 해제되어야 자동 씬 전환 시
+      // 새 씬의 BGM/SFX가 끊김 없이 재생된다(Safari/iOS는 요소별 unlock 필요).
+      ...TOWN_COUNTRY_STORY.scenes.flatMap((s) => [s.bgmUrl, s.sfxUrl]).filter((u): u is string => Boolean(u)),
     ],
     []
   );
