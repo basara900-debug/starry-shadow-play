@@ -113,42 +113,69 @@ export function useSceneVoice(beats: VoiceBeat[], currentTime: number) {
     if (list.length === 0) return;
     const s = controls.read();
     const vol = s.voiceMuted ? 0 : s.voiceVol;
-    const rate = s.speed === 0 ? 1 : s.speed * s.playbackRate;
+    const sceneRate = s.speed === 0 ? 0 : s.speed * s.playbackRate;
 
     // 활성 beat 찾기
     let idx = -1;
     for (let i = 0; i < beats.length; i++) {
       const b = beats[i];
-      if (currentTime >= b.from && currentTime < b.to) {
-        idx = i;
-        break;
-      }
+      if (currentTime >= b.from && currentTime < b.to) { idx = i; break; }
     }
 
-    // 이전 활성 정리
+    // beat 가 바뀌었다면 이전 오디오 정지
     if (activeRef.current !== idx && activeRef.current >= 0) {
       const prev = list[activeRef.current];
       if (prev) {
         try { prev.pause(); } catch { /* noop */ }
         try { prev.currentTime = 0; } catch { /* noop */ }
       }
+      activeRef.current = -1;
     }
 
-    if (idx < 0 || s.speed === 0) {
-      activeRef.current = idx;
+    // 일시정지(speed=0): 현재 재생중인 오디오만 일시정지하고 active 유지(다시 재생 시 이어서)
+    if (sceneRate === 0) {
+      if (idx >= 0) {
+        const a = list[idx];
+        if (a && !a.paused) { try { a.pause(); } catch { /* noop */ } }
+      }
       return;
     }
 
+    if (idx < 0) return;
+
     const a = list[idx];
-    if (!a) return;
+    // 아직 mp3 가 도착하지 않았다면 active 를 잠그지 말고 다음 tick 에 재시도하게 둔다.
+    if (!a || !a.src) return;
+
+    const beat = beats[idx];
+    const windowSec = Math.max(0.5, beat.to - beat.from);
+    const dur = Number.isFinite(a.duration) ? a.duration : 0;
+
+    // 대사 윈도우보다 음성이 길면 윈도우에 맞춰 빨리 재생, 짧으면 그대로 재생(여유는 무음).
+    const fitRate = dur > 0 && dur > windowSec ? dur / windowSec : 1;
+    const finalRate = Math.max(0.5, Math.min(4, fitRate * sceneRate));
+
     a.volume = vol;
-    a.playbackRate = rate;
+    a.playbackRate = finalRate;
 
     if (activeRef.current !== idx) {
       activeRef.current = idx;
-      try { a.currentTime = 0; } catch { /* noop */ }
+      // 비트 진입 시점이 windowSec 의 몇 % 인지 → 동일 비율로 음성 위치 설정.
+      // (씬을 2x 로 보다가 비트 중간부터 들어와도 대사가 같은 위치에서 시작)
+      const into = Math.max(0, currentTime - beat.from);
+      const pos = dur > 0 ? Math.min(dur - 0.05, (into / windowSec) * dur) : 0;
+      try { a.currentTime = pos; } catch { /* noop */ }
       const p = a.play();
-      if (p && typeof p.catch === "function") p.catch(() => { /* autoplay 거부 시 다음 제스처 후 재시도 */ });
+      if (p && typeof p.catch === "function") {
+        p.catch(() => {
+          // 재생 거부 — active 를 풀어 다음 tick 에 다시 시도.
+          if (activeRef.current === idx) activeRef.current = -1;
+        });
+      }
+    } else if (a.paused && a.readyState >= 2) {
+      // 같은 비트이지만 어떤 이유로 멈춰 있으면(예: 직전에 거부) 다시 시도.
+      const p = a.play();
+      if (p && typeof p.catch === "function") p.catch(() => { /* noop */ });
     }
   }, [currentTime, controls, beats]);
 }
