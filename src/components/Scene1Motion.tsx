@@ -26,7 +26,7 @@ const BEATS: { from: number; to: number; who: "gh" | "ant" | "narration"; text: 
   { from: 0,  to: 6,  who: "narration", text: "어느 무더운 여름! 개미들이 들판에서 열심히 일하고 있었습니다." },
   { from: 6,  to: 12, who: "ant",  text: "영차 영차 열심히 일하자! 오늘 흘리는 땀이 내일에는 큰 보답으로 돌아 올거야" },
   { from: 12, to: 18, who: "narration", text: "그때 어디선가 베짱이 하나가 개미들이 일하는 곳에 나타났습니다." },
-  { from: 18, to: 24, who: "gh",   text: "우와 저 개미때들을 봐! 정말 이 더운 여름에 열심히 일하네는군" },
+  { from: 18, to: 24, who: "gh",   text: "우와 저 개미때들을 봐! 정말 이 더운 여름에 열심히 일하네" },
   { from: 24, to: 32, who: "ant",  text: "자 이것도 가져가고, 요것도 챙겨가자, 어이 친구 거기 땅좀 파줘" },
   { from: 32, to: 38, who: "narration", text: "개미들이 열심히 일하는게 신기했던 베짱이는 개미들에게 말을 걸었습니다." },
   { from: 38, to: 44, who: "gh",   text: "개미야 개미야 왜 그렇게 열심히 일하고 있니? 힘들지 않아?" },
