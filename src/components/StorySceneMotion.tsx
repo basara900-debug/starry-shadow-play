@@ -358,7 +358,7 @@ export function StorySceneMotion({
           style={{
             left: "45%",
             bottom: "15%",
-            height: "20%",
+            height: "26%",
             width: "auto",
             transform: `translate(-50%, ${cmBob}px) rotate(${cmSway}deg)`,
             transformOrigin: "bottom center",
