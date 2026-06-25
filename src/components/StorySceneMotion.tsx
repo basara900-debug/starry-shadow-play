@@ -420,7 +420,7 @@ export function StorySceneMotion({
           style={{
             left: `${pairWalkLeftPct}%`,
             bottom: "15%",
-            height: "20%",
+            height: "26%",
             width: "auto",
             transform: `translate(-50%, ${cmBob}px) rotate(${cmSway}deg)`,
             transformOrigin: "bottom center",
