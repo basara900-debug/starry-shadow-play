@@ -412,6 +412,28 @@ export function StorySceneMotion({
       )}
 
       {activeExit && (
+        <></>
+      )}
+      {showPairWalk && (
+        <img
+          src={pairWalkAsset.url}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: `${pairWalkLeftPct}%`,
+            bottom: "15%",
+            height: "20%",
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px) rotate(${cmSway}deg)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.85, pairWalkEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear, left 120ms linear",
+          }}
+        />
+      )}
+      {activeExit && (
         <img
           key={`exit-${activeExit.from}`}
           src={activeExit.src}
