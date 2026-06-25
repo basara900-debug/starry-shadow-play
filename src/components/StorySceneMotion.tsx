@@ -411,9 +411,6 @@ export function StorySceneMotion({
         />
       )}
 
-      {activeExit && (
-        <></>
-      )}
       {showPairWalk && (
         <img
           src={pairWalkAsset.url}
