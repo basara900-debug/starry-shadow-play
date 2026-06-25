@@ -175,6 +175,13 @@ export function StorySceneMotion({
   const countryCycleSrc = countryCycleFrames[countryCycleIdx];
   const countryCycleEntry = showCountryCycle ? Math.min(1, (t - 24) / 0.4) : 0;
 
+  // 씬2 76~90초: 한 쌍 캐릭터가 우측 40%지점에서 좌측 15%지점까지 이동
+  const showPairWalk = scene.id === "town-country-2" && t >= 76 && t < 90;
+  const pairWalkProgress = showPairWalk ? (t - 76) / (90 - 76) : 0;
+  // 우측 40% = left 60%, 좌측 15% = left 15%
+  const pairWalkLeftPct = 60 + (15 - 60) * pairWalkProgress;
+  const pairWalkEntry = showPairWalk ? Math.min(1, (t - 76) / 0.4) : 0;
+
   // 씬1 82~90초: 시골쥐가 현재 위치에서 우측으로 수평 이동하며 퇴장
   // 시트1: 82~86s → left 60%에서 75%, 시트2: 86~90s → left 75%에서 85%
   const exitSegments: Array<{ from: number; to: number; rightFrom: number; rightTo: number; src: string }> = [
