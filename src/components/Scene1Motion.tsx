@@ -7,6 +7,7 @@ import ghViolin from "@/assets/scene1/gh-violin.png";
 import ghAsk from "@/assets/scene1/gh-ask.png";
 import ghSing from "@/assets/scene1/gh-sing.png";
 import { useSceneAudio } from "@/lib/sceneAudio";
+import { useSceneVoice } from "@/lib/sceneVoice";
 
 /**
  * 씬 1 모션 프레임 — 여름날 열심히 일하는 개미와 놀고 있는 베짱이
@@ -57,6 +58,9 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
     bgmVolume: 0.85,
     sfxVolume: 1.0,
   });
+
+  // 씬1 대사 TTS — BEATS 의 who/text 기반으로 자동 재생.
+  useSceneVoice(BEATS, t);
 
   useEffect(() => {
     if (speed === 0) return;
