@@ -257,8 +257,23 @@ function ShadowTheaterTitle() {
   // 처음 의도대로 INPUT/EJECT 버튼이 개미와 베짱이 모션 프로그램과의 연결을 토글한다.
   // 각 카세트는 자체 완결된 프로그램. 기본 삽입 카세트는 "개미와 베짱이".
   const DEFAULT_CASSETTE_ID = "ants-grasshopper";
-  const [selectedCassetteId, setSelectedCassetteId] = useState<string>(DEFAULT_CASSETTE_ID);
-  const [loadedCassetteId, setLoadedCassetteId] = useState<string | null>(DEFAULT_CASSETTE_ID);
+  // 마지막으로 작업/재생하던 카세트를 기억해 새로고침(커밋) 후에도 동일한 카세트가 데크에 삽입돼 있도록 한다.
+  const LAST_CASSETTE_KEY = "shadow-theater:last-cassette";
+  const initialCassetteId = (() => {
+    if (typeof window === "undefined") return DEFAULT_CASSETTE_ID;
+    try {
+      const stored = window.localStorage.getItem(LAST_CASSETTE_KEY);
+      if (stored && CASSETTES.some((c) => c.id === stored)) return stored;
+    } catch { /* noop */ }
+    return DEFAULT_CASSETTE_ID;
+  })();
+  const [selectedCassetteId, setSelectedCassetteId] = useState<string>(initialCassetteId);
+  const [loadedCassetteId, setLoadedCassetteId] = useState<string | null>(initialCassetteId);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!loadedCassetteId) return;
+    try { window.localStorage.setItem(LAST_CASSETTE_KEY, loadedCassetteId); } catch { /* noop */ }
+  }, [loadedCassetteId]);
   const { startBgm, stopBgm, sfx, setBgmVolume, setBgmMuted, setMasterVolume, setPlaybackRate, ensure } = useAudio();
 
   useEffect(() => { setBgmVolume(bgmVol); }, [bgmVol, setBgmVolume]);
