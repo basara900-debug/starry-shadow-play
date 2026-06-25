@@ -231,8 +231,9 @@ const L = { cx: 28.2, cy: 47.5, r: 18.6 };
 const R = { cx: 70.2, cy: 47.5, r: 18.6 };
 // Buttons row (5 buttons)
 const BTN_Y = 85.5;
-const BTN_W = 7.2;
-const BTN_H = 11.5;
+// 모바일 터치 정확도 확보를 위해 핫스팟을 시각 버튼보다 살짝 크게 잡는다.
+const BTN_W = 9.4;
+const BTN_H = 14.0;
 const BTN_X = [30.2, 40.1, 50.0, 59.9, 69.8];
 
 /* ---------- Main component ---------- */
@@ -431,8 +432,10 @@ function ShadowTheaterTitle() {
               transform: pressed === i ? "translateY(2%) scale(0.96)" : "none",
               boxShadow:
                 pressed === i
-                  ? "inset 0 4px 8px oklch(0 0 0 / 0.35)"
+                  ? "inset 0 4px 8px oklch(0 0 0 / 0.45), 0 0 14px 4px oklch(0.85 0.18 80 / 0.7)"
                   : "0 0 0 transparent",
+              // 핫스팟이 시각 버튼보다 크지만, 시각적으로는 보이지 않는다.
+              // 터치 중일 때만 살짝 노란 글로우로 어디를 눌렀는지 알려준다.
             }}
           />
             ))}
