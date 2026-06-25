@@ -256,7 +256,10 @@ function ShadowTheaterTitle() {
   // - loadedCassetteId: 현재 데크에 물리적으로 삽입되어 모션 프로그램에 커넥팅된 카세트 (null = 이젝트 상태)
   // 처음 의도대로 INPUT/EJECT 버튼이 개미와 베짱이 모션 프로그램과의 연결을 토글한다.
   // 각 카세트는 자체 완결된 프로그램. 기본 삽입 카세트는 "개미와 베짱이".
-  const DEFAULT_CASSETTE_ID = "ants-grasshopper";
+  // 가장 최근 updatedAt 카세트를 기본값으로 사용한다.
+  const DEFAULT_CASSETTE_ID = [...CASSETTES].sort((a, b) =>
+    b.updatedAt.localeCompare(a.updatedAt)
+  )[0]?.id ?? CASSETTES[0].id;
   // 마지막으로 작업/재생하던 카세트를 기억해 새로고침(커밋) 후에도 동일한 카세트가 데크에 삽입돼 있도록 한다.
   const LAST_CASSETTE_KEY = "shadow-theater:last-cassette";
   const initialCassetteId = (() => {
