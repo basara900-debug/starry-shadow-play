@@ -66,6 +66,7 @@ type TrackEntry = {
   refCount: number;
   raf: number | null;
   pendingRelease: number | null;
+  pendingPlay: number | null;
 };
 
 type Ctx = {
@@ -91,7 +92,7 @@ function createTrack(url: string) {
   return a;
 }
 
-function unlockPausedTrack(a: HTMLAudioElement) {
+function unlockPausedTrack(a: HTMLAudioElement, shouldPauseAfterUnlock: () => boolean = () => true) {
   if (!a.paused) return;
   const muted = a.muted;
   const volume = a.volume;
@@ -99,8 +100,10 @@ function unlockPausedTrack(a: HTMLAudioElement) {
   a.volume = 0;
   a.play()
     .then(() => {
-      a.pause();
-      try { a.currentTime = 0; } catch { /* noop */ }
+      if (shouldPauseAfterUnlock()) {
+        a.pause();
+        try { a.currentTime = 0; } catch { /* noop */ }
+      }
       a.muted = muted;
       a.volume = volume;
     })
@@ -127,9 +130,23 @@ export function SceneAudioProvider({ children }: { children: ReactNode }) {
     if (shouldPlay) {
       if (a.paused) {
         const p = a.play();
-        if (p && typeof p.catch === "function") p.catch(() => { /* autoplay 잠금 대기 */ });
+        if (p && typeof p.catch === "function") {
+          p.catch(() => {
+            // 자동 씬 전환 직후 브라우저가 일시적으로 play()를 거절하면
+            // 다음 설정 토글을 기다리지 않고 활성 트랙을 짧게 재시도한다.
+            if (entry.pendingPlay != null || !stateRef.current.unlocked) return;
+            entry.pendingPlay = window.setTimeout(() => {
+              entry.pendingPlay = null;
+              if (entry.refCount > 0) reconcileTrack(entry);
+            }, 160);
+          });
+        }
       }
     } else {
+      if (entry.pendingPlay != null) {
+        clearTimeout(entry.pendingPlay);
+        entry.pendingPlay = null;
+      }
       if (!a.paused) {
         try { a.pause(); } catch { /* noop */ }
       }
@@ -180,11 +197,12 @@ export function SceneAudioProvider({ children }: { children: ReactNode }) {
           refCount: 0,
           raf: null,
           pendingRelease: null,
+          pendingPlay: null,
         };
         tracksRef.current.set(url, entry);
         // 이미 사용자 제스처를 받은 상태에서 생성된 트랙도 즉시 잠금 해제해
         // 자동 씬 전환 시 첫 play() 가 무음 실패하지 않도록 한다(Safari/iOS 요소별 unlock 대응).
-        if (stateRef.current.unlocked) unlockPausedTrack(entry.audio);
+        if (stateRef.current.unlocked) unlockPausedTrack(entry.audio, () => entry.refCount === 0);
       } else {
         // 마지막 등록자의 옵션을 따라간다.
         entry.kind = kind;
@@ -249,7 +267,7 @@ export function SceneAudioProvider({ children }: { children: ReactNode }) {
           baseVolume: 1,
           maxDurationSec: 90,
         });
-        if (stateRef.current.unlocked) unlockPausedTrack(entry.audio);
+        if (stateRef.current.unlocked) unlockPausedTrack(entry.audio, () => entry.refCount === 0);
       }
     },
     [ensureEntry]
@@ -281,7 +299,7 @@ export function SceneAudioProvider({ children }: { children: ReactNode }) {
     if (typeof window === "undefined") return;
     const onGesture = () => {
       ctx.patch({ unlocked: true });
-      for (const entry of tracksRef.current.values()) unlockPausedTrack(entry.audio);
+      for (const entry of tracksRef.current.values()) unlockPausedTrack(entry.audio, () => entry.refCount === 0);
     };
     window.addEventListener("pointerdown", onGesture, { once: true });
     window.addEventListener("keydown", onGesture, { once: true });
