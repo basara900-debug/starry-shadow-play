@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSceneAudioControls } from "@/lib/sceneAudio";
 
 /**
@@ -22,6 +22,26 @@ export type VoiceBeat = {
   to: number;
   who: VoiceRole;
   text: string;
+};
+
+export type VoiceBeatInfo = {
+  index: number;
+  from: number;
+  to: number;
+  who: VoiceRole;
+  text: string;
+  /** 대사 윈도우 길이(초) */
+  windowSec: number;
+  /** TTS 오디오 실제 길이(초). 아직 로드 안 됐으면 0. */
+  audioSec: number;
+  ready: boolean;
+};
+
+export type SceneVoiceHandle = {
+  items: VoiceBeatInfo[];
+  /** 해당 비트만 단독 재생 (타임라인 자동재생도 일시 중단) */
+  playOnly: (index: number) => void;
+  stopAll: () => void;
 };
 
 const VOICE_PROFILES: Record<VoiceRole, { voice: string; instructions: string }> = {
@@ -58,7 +78,7 @@ async function fetchVoice(text: string, role: VoiceRole): Promise<string> {
   return URL.createObjectURL(blob);
 }
 
-export function useSceneVoice(beats: VoiceBeat[], currentTime: number) {
+export function useSceneVoice(beats: VoiceBeat[], currentTime: number): SceneVoiceHandle {
   const controls = useSceneAudioControls();
 
   // 안정적인 key — beats 배열 참조가 매 렌더 바뀌어도 같은 대사면 같은 key.
@@ -69,6 +89,28 @@ export function useSceneVoice(beats: VoiceBeat[], currentTime: number) {
 
   const audiosRef = useRef<HTMLAudioElement[]>([]);
   const activeRef = useRef<number>(-1);
+  // 수동 단독 재생 중인 비트 index. 0 이상이면 타임라인 자동재생을 멈춘다.
+  const soloRef = useRef<number>(-1);
+  const [items, setItems] = useState<VoiceBeatInfo[]>([]);
+
+  const refreshItems = (list: HTMLAudioElement[]) => {
+    setItems(
+      beats.map((b, i) => {
+        const a = list[i];
+        const dur = a && Number.isFinite(a.duration) ? a.duration : 0;
+        return {
+          index: i,
+          from: b.from,
+          to: b.to,
+          who: b.who,
+          text: b.text,
+          windowSec: Math.max(0, b.to - b.from),
+          audioSec: dur,
+          ready: !!(a && a.src),
+        };
+      })
+    );
+  };
 
   // 프리로드 + Audio 인스턴스 생성
   useEffect(() => {
@@ -76,6 +118,19 @@ export function useSceneVoice(beats: VoiceBeat[], currentTime: number) {
     const list: HTMLAudioElement[] = beats.map(() => new Audio());
     audiosRef.current = list;
     activeRef.current = -1;
+    soloRef.current = -1;
+    refreshItems(list);
+
+    list.forEach((a, i) => {
+      a.addEventListener("loadedmetadata", () => {
+        if (!cancelled) refreshItems(audiosRef.current);
+      });
+      a.addEventListener("ended", () => {
+        if (soloRef.current === i) {
+          soloRef.current = -1;
+        }
+      });
+    });
 
     Promise.all(
       beats.map(async (b, i) => {
@@ -87,6 +142,7 @@ export function useSceneVoice(beats: VoiceBeat[], currentTime: number) {
           }
           list[i].src = url;
           list[i].preload = "auto";
+          refreshItems(audiosRef.current);
         } catch (e) {
           console.warn("[sceneVoice] preload failed", b.text, e);
         }
@@ -111,6 +167,8 @@ export function useSceneVoice(beats: VoiceBeat[], currentTime: number) {
   useEffect(() => {
     const list = audiosRef.current;
     if (list.length === 0) return;
+    // 수동 단독 재생 중이면 타임라인 자동재생/볼륨 동기화를 건너뛴다.
+    if (soloRef.current >= 0) return;
     const s = controls.read();
     const vol = s.voiceMuted ? 0 : s.voiceVol;
     const sceneRate = s.speed === 0 ? 0 : s.speed * s.playbackRate;
@@ -178,4 +236,37 @@ export function useSceneVoice(beats: VoiceBeat[], currentTime: number) {
       if (p && typeof p.catch === "function") p.catch(() => { /* noop */ });
     }
   }, [currentTime, controls, beats]);
+
+  const stopAll = () => {
+    const list = audiosRef.current;
+    for (const a of list) {
+      try { a.pause(); } catch { /* noop */ }
+      try { a.currentTime = 0; } catch { /* noop */ }
+    }
+    activeRef.current = -1;
+    soloRef.current = -1;
+  };
+
+  const playOnly = (index: number) => {
+    const list = audiosRef.current;
+    const a = list[index];
+    if (!a || !a.src) return;
+    // 다른 모든 오디오 정지
+    list.forEach((other, i) => {
+      if (i === index) return;
+      try { other.pause(); } catch { /* noop */ }
+      try { other.currentTime = 0; } catch { /* noop */ }
+    });
+    activeRef.current = -1;
+    soloRef.current = index;
+    try { a.currentTime = 0; } catch { /* noop */ }
+    a.volume = 1;
+    a.playbackRate = 1;
+    const p = a.play();
+    if (p && typeof p.catch === "function") {
+      p.catch(() => { soloRef.current = -1; });
+    }
+  };
+
+  return { items, playOnly, stopAll };
 }
