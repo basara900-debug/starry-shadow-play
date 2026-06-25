@@ -20,6 +20,7 @@ import countryCycle1 from "@/assets/town-country/country_cycle_1.png.asset.json"
 import countryCycle2 from "@/assets/town-country/country_cycle_2.png.asset.json";
 import countryCycle3 from "@/assets/town-country/country_cycle_3.png.asset.json";
 import countryCycle4 from "@/assets/town-country/country_cycle_4.png.asset.json";
+import pairWalkAsset from "@/assets/town-country/pair_walk.png.asset.json";
 import exitSheet1Asset from "@/assets/town-country/exit_sheet_1.png.asset.json";
 import exitSheet2Asset from "@/assets/town-country/exit_sheet_2.png.asset.json";
 import postSheet1Asset from "@/assets/town-country/post_sheet_1.png.asset.json";
@@ -173,6 +174,13 @@ export function StorySceneMotion({
     : 0;
   const countryCycleSrc = countryCycleFrames[countryCycleIdx];
   const countryCycleEntry = showCountryCycle ? Math.min(1, (t - 24) / 0.4) : 0;
+
+  // 씬2 76~90초: 한 쌍 캐릭터가 우측 40%지점에서 좌측 15%지점까지 이동
+  const showPairWalk = scene.id === "town-country-2" && t >= 76 && t < 90;
+  const pairWalkProgress = showPairWalk ? (t - 76) / (90 - 76) : 0;
+  // 우측 40% = left 60%, 좌측 15% = left 15%
+  const pairWalkLeftPct = 60 + (15 - 60) * pairWalkProgress;
+  const pairWalkEntry = showPairWalk ? Math.min(1, (t - 76) / 0.4) : 0;
 
   // 씬1 82~90초: 시골쥐가 현재 위치에서 우측으로 수평 이동하며 퇴장
   // 시트1: 82~86s → left 60%에서 75%, 시트2: 86~90s → left 75%에서 85%
@@ -403,6 +411,25 @@ export function StorySceneMotion({
         />
       )}
 
+      {showPairWalk && (
+        <img
+          src={pairWalkAsset.url}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: `${pairWalkLeftPct}%`,
+            bottom: "15%",
+            height: "20%",
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px) rotate(${cmSway}deg)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.85, pairWalkEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear, left 120ms linear",
+          }}
+        />
+      )}
       {activeExit && (
         <img
           key={`exit-${activeExit.from}`}
