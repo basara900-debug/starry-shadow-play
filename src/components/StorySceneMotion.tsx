@@ -20,6 +20,7 @@ import countryCycle1 from "@/assets/town-country/country_cycle_1.png.asset.json"
 import countryCycle2 from "@/assets/town-country/country_cycle_2.png.asset.json";
 import countryCycle3 from "@/assets/town-country/country_cycle_3.png.asset.json";
 import countryCycle4 from "@/assets/town-country/country_cycle_4.png.asset.json";
+import pairWalkAsset from "@/assets/town-country/pair_walk.png.asset.json";
 import exitSheet1Asset from "@/assets/town-country/exit_sheet_1.png.asset.json";
 import exitSheet2Asset from "@/assets/town-country/exit_sheet_2.png.asset.json";
 import postSheet1Asset from "@/assets/town-country/post_sheet_1.png.asset.json";
