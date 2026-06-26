@@ -1,0 +1,107 @@
+[
+  {
+    "i": 0,
+    "who": "narration",
+    "text": "너무나도 따뜻한 집안으로 들어오자 베짱이는 기뻐서 눈물을 흘렸어요.",
+    "file": "/audio/scene4/tts/00_narration.mp3",
+    "dur": 6.12
+  },
+  {
+    "i": 1,
+    "who": "ant",
+    "text": "베짱이야 너무 춥고 배고프진 않았니? 그 동안 어떻게 지냈어?",
+    "file": "/audio/scene4/tts/01_ant.mp3",
+    "dur": 5.52
+  },
+  {
+    "i": 2,
+    "who": "gh",
+    "text": "고마워 개미야! 춥고 배고파서 무섭고 힘들었어! 진즉에 너의 말을 들었으면 좋을 걸 그랬어!",
+    "file": "/audio/scene4/tts/02_gh.mp3",
+    "dur": 8.448
+  },
+  {
+    "i": 3,
+    "who": "ant",
+    "text": "아니야, 베짱이야! 니 덕에 힘든 일을 해도 즐겁게 할 수 있었어, 이리로 와서 같이 밥 먹자!",
+    "file": "/audio/scene4/tts/03_ant.mp3",
+    "dur": 7.704
+  },
+  {
+    "i": 4,
+    "who": "gh",
+    "text": "고마워 개미야, 아 너무 맛있다! 우걱우걱, 이것도 맛있고, 저것도 맛있다!",
+    "file": "/audio/scene4/tts/04_gh.mp3",
+    "dur": 6.768
+  },
+  {
+    "i": 5,
+    "who": "narration",
+    "text": "베짱이는 개미들의 친절에 추운 몸을 녹이고 맛있는 밥을 배부르게 먹을 수 있게 되었어요.",
+    "file": "/audio/scene4/tts/05_narration.mp3",
+    "dur": 6.312
+  },
+  {
+    "i": 6,
+    "who": "gh",
+    "text": "고마워 덕분에 지금 너무 행복해, 이럴 때에는 신나는 노래가 빠지면 안되지",
+    "file": "/audio/scene4/tts/06_gh.mp3",
+    "dur": 6.912
+  },
+  {
+    "i": 7,
+    "who": "narration",
+    "text": "이제 배부르고 따뜻해진 베짱이가 행복해져서 신나게 노래를 부르기 시작했어요",
+    "file": "/audio/scene4/tts/07_narration.mp3",
+    "dur": 5.952
+  },
+  {
+    "i": 8,
+    "who": "gh",
+    "text": "나는 나는 베짱이! 이 들판에서 제일가는 음악가, 친절한 개미들은 나의 친구, 우리는 너무나 행복해",
+    "file": "/audio/scene4/tts/08_gh.mp3",
+    "dur": 9.6
+  },
+  {
+    "i": 9,
+    "who": "narration",
+    "text": "벽난로에서는 장작이 타닥타닥 타는 소리가 들렸고. 베짱이와 개미는 같이 노래를 부르고 춤을 추었습니다",
+    "file": "/audio/scene4/tts/09_narration.mp3",
+    "dur": 9.12
+  },
+  {
+    "i": 10,
+    "who": "ant",
+    "text": "베짱이야 역시 네 노래는 모두를 즐겁게 하는 힘이 있어! 이번겨울 동안은 우리랑 같이 지내자!",
+    "file": "/audio/scene4/tts/10_ant.mp3",
+    "dur": 7.968
+  },
+  {
+    "i": 11,
+    "who": "gh",
+    "text": "정말 고마워, 개미야! 너희는 좋은 친구들이야, 정말로 잘 부탁해!",
+    "file": "/audio/scene4/tts/11_gh.mp3",
+    "dur": 5.712
+  },
+  {
+    "i": 12,
+    "who": "ants",
+    "text": "그래 그럼 이제 또 신나게 춤추고 놀고 난 뒤에 배부르게 먹자구!",
+    "file": "/audio/scene4/tts/12_ants.mp3",
+    "dur": 5.352
+  },
+  {
+    "i": 13,
+    "who": "gh",
+    "text": "자! 이제 다음 노래를 시작합니다! 원, 투, 쓰리, 가자!",
+    "file": "/audio/scene4/tts/13_gh.mp3",
+    "dur": 5.568
+  },
+  {
+    "i": 14,
+    "who": "narration",
+    "text": "추운 겨울이지만, 개미와 베짱이는 아무 걱정 없이 사이좋게 행복했답니다",
+    "file": "/audio/scene4/tts/14_narration.mp3",
+    "dur": 6.6
+  }
+]

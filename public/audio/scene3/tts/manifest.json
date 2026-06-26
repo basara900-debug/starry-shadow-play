@@ -1,0 +1,100 @@
+[
+  {
+    "i": 0,
+    "who": "narration",
+    "text": "시간이 지나 겨울이 찾아 왔어요! 날씨는 추워지고 눈이 내리고 찬 바람이 불고 있네요.",
+    "file": "/audio/scene3/tts/00_narration.mp3",
+    "dur": 6.912
+  },
+  {
+    "i": 1,
+    "who": "gh",
+    "text": "어 추워! 팔,다리가 얼어버릴 것 같아, 배고파 며칠 동안 아무것도 먹지 못했어",
+    "file": "/audio/scene3/tts/01_gh.mp3",
+    "dur": 7.56
+  },
+  {
+    "i": 2,
+    "who": "gh",
+    "text": "들판에 그렇게 많았던 맛있는 풀들이, 열매가, 꽃들은 다 어디로 가고 없어 졌을까?",
+    "file": "/audio/scene3/tts/02_gh.mp3",
+    "dur": 7.752
+  },
+  {
+    "i": 3,
+    "who": "gh",
+    "text": "춥고 배고프고 힘들어! 흑흑 친구들아! 나랑 재미있게 놀던 친구들아! 다 어디로 갔니?",
+    "file": "/audio/scene3/tts/03_gh.mp3",
+    "dur": 7.752
+  },
+  {
+    "i": 4,
+    "who": "gh",
+    "text": "이제 곧 밤이 오겠지! 그러면 나도 더 이상 버틸 수는 없을꺼 같아! 이제 마지막인가?",
+    "file": "/audio/scene3/tts/04_gh.mp3",
+    "dur": 5.712
+  },
+  {
+    "i": 5,
+    "who": "narration",
+    "text": "배고픔과 추위에 떨던 베짱이는 어두워지는 하늘을 보고 지난 날을 후회했습니다.",
+    "file": "/audio/scene3/tts/05_narration.mp3",
+    "dur": 6.912
+  },
+  {
+    "i": 6,
+    "who": "gh",
+    "text": "추운 겨울을 대비해서 열심히 일해야 한다는 개미들의 말을 들을껄!",
+    "file": "/audio/scene3/tts/06_gh.mp3",
+    "dur": 5.4
+  },
+  {
+    "i": 7,
+    "who": "gh",
+    "text": "지금쯤 개미들은 어떻게 지내고 있을까?",
+    "file": "/audio/scene3/tts/07_gh.mp3",
+    "dur": 4.056
+  },
+  {
+    "i": 8,
+    "who": "narration",
+    "text": "그때 저 멀리 베짱이의 시야에 불이 환하게 켜진 오두막 집이 보였습니다. 베짱이는 오두막쪽으로 걸어 갔습니다.",
+    "file": "/audio/scene3/tts/08_narration.mp3",
+    "dur": 9.216
+  },
+  {
+    "i": 9,
+    "who": "narration",
+    "text": "오두막의 굴뚝에서는 모락모락 연기도 나고, 도란도란 소리도 들렸습니다. 베짱이는 창문으로 오두막 안을 보았습니다.",
+    "file": "/audio/scene3/tts/09_narration.mp3",
+    "dur": 9.216
+  },
+  {
+    "i": 10,
+    "who": "narration",
+    "text": "따뜻한 오두막 안에서는 개미들이 오손도손 모여서 맛있는 음식과 따뜻한 음료를 즐기고 있었습니다.",
+    "file": "/audio/scene3/tts/10_narration.mp3",
+    "dur": 8.064
+  },
+  {
+    "i": 11,
+    "who": "gh",
+    "text": "아 개미들의 집이잖아! 따뜻한 보금자리와 맛있는 음식을 많이 가지고 있다니, 부럽다!",
+    "file": "/audio/scene3/tts/11_gh.mp3",
+    "dur": 8.256
+  },
+  {
+    "i": 12,
+    "who": "gh",
+    "text": "너무 춥고 배고파서 더 이상은 버틸 수 없을 것 같아! 개미들아, 개미들아 나 좀 살려줘!",
+    "file": "/audio/scene3/tts/12_gh.mp3",
+    "dur": 7.968
+  },
+  {
+    "i": 13,
+    "who": "narration",
+    "text": "그때 오두막 문이 벌컥 열리고 베짱이는 개미들의 집으로 들어 가게 되었습니다.",
+    "file": "/audio/scene3/tts/13_narration.mp3",
+    "dur": 6.552
+  }
+]

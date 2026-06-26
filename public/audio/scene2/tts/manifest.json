@@ -1,0 +1,100 @@
+[
+  {
+    "i": 0,
+    "who": "narration",
+    "text": "더운 여름이 가고 이제 가을이 왔지만 개미들은 여전히 땀을 흘리며 열심히 일하고 있었습니다.",
+    "file": "/audio/scene2/tts/00_narration.mp3",
+    "dur": 7.92
+  },
+  {
+    "i": 1,
+    "who": "ant",
+    "text": "영차 영차! 이제 곧 겨울이 올거야! 더 추워지기 전에 만반의 대비를 마치자",
+    "file": "/audio/scene2/tts/01_ant.mp3",
+    "dur": 6.6
+  },
+  {
+    "i": 2,
+    "who": "ant",
+    "text": "자 이것도 가져가고, 요것도 챙겨가자, 어이 친구 거기 있는 재료 좀 챙겨줘!",
+    "file": "/audio/scene2/tts/02_ant.mp3",
+    "dur": 6.552
+  },
+  {
+    "i": 3,
+    "who": "gh",
+    "text": "아직도 열심히 일하고 있네! 개미야 겨울은 아직 멀었다구! 나랑 같이 노래 부르면 좋을텐데",
+    "file": "/audio/scene2/tts/03_gh.mp3",
+    "dur": 7.056
+  },
+  {
+    "i": 4,
+    "who": "gh",
+    "text": "개미야 왜 그렇게 열심히 일하니? 쉬고 싶지 않아? 놀고 싶지 않아?",
+    "file": "/audio/scene2/tts/04_gh.mp3",
+    "dur": 4.8
+  },
+  {
+    "i": 5,
+    "who": "narration",
+    "text": "베짱이가 개미에게 말을 거니 개미 하나가 베짱이를 보고 대답을 했습니다.",
+    "file": "/audio/scene2/tts/05_narration.mp3",
+    "dur": 6.264
+  },
+  {
+    "i": 6,
+    "who": "ant",
+    "text": "베짱이야, 추운 겨울이 얼마 안 남았어 그때를 대비해서 열심히 일해야 돼!",
+    "file": "/audio/scene2/tts/06_ant.mp3",
+    "dur": 7.2
+  },
+  {
+    "i": 7,
+    "who": "gh",
+    "text": "하지만 개미야 지금까지 일을 많이 했잖아, 이제 좀 쉬고 나랑 같이 놀자!",
+    "file": "/audio/scene2/tts/07_gh.mp3",
+    "dur": 7.056
+  },
+  {
+    "i": 8,
+    "who": "narration",
+    "text": "베짱이는 춤추고 노래를 부르며 개미에게 말했지만, 개미는 쉬지 않고 계속 일했습니다.",
+    "file": "/audio/scene2/tts/08_narration.mp3",
+    "dur": 6.648
+  },
+  {
+    "i": 9,
+    "who": "ant",
+    "text": "미안해 베짱이야! 하지만 우린 아직 해야 할 게 많아서 계속 일할께",
+    "file": "/audio/scene2/tts/09_ant.mp3",
+    "dur": 5.952
+  },
+  {
+    "i": 10,
+    "who": "gh",
+    "text": "아이고 딱해라 열심히 일만 하느라 놀지를 못하네! 그럼 내가 또 너희들을 위해 노래를 불러줄께",
+    "file": "/audio/scene2/tts/10_gh.mp3",
+    "dur": 7.368
+  },
+  {
+    "i": 11,
+    "who": "narration",
+    "text": "베짱이는 신나게 연주하면서 노래를 불렀고, 개미들은 베짱이의 노래를 들으며 열심히 일했습니다.",
+    "file": "/audio/scene2/tts/11_narration.mp3",
+    "dur": 7.704
+  },
+  {
+    "i": 12,
+    "who": "ant",
+    "text": "자 더 추워지기 전까지 모든 준비를 끝마쳐야 한다! 모두 힘내자!",
+    "file": "/audio/scene2/tts/12_ant.mp3",
+    "dur": 6.264
+  },
+  {
+    "i": 13,
+    "who": "narration",
+    "text": "어느덧 하늘은 붉게 물들고 바람은 차가워 지기 시작했습니다.",
+    "file": "/audio/scene2/tts/13_narration.mp3",
+    "dur": 5.16
+  }
+]

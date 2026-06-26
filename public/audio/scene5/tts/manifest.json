@@ -1,0 +1,58 @@
+[
+  {
+    "i": 0,
+    "who": "narration",
+    "text": "어린이 여러분 이야기는 재미 있었나요?",
+    "file": "/audio/scene5/tts/00_narration.mp3",
+    "dur": 4.056
+  },
+  {
+    "i": 1,
+    "who": "narration",
+    "text": "그럼 우리! 생각을 크게 하는 연습을 해 볼까요?",
+    "file": "/audio/scene5/tts/01_narration.mp3",
+    "dur": 4.008
+  },
+  {
+    "i": 2,
+    "who": "narration",
+    "text": "여러분은 이 이야기를 보고 어떤 생각을 하게 되었나요?",
+    "file": "/audio/scene5/tts/02_narration.mp3",
+    "dur": 4.368
+  },
+  {
+    "i": 3,
+    "who": "narration",
+    "text": "베짱이는 무엇을 잘못했을까요?",
+    "file": "/audio/scene5/tts/03_narration.mp3",
+    "dur": 2.76
+  },
+  {
+    "i": 4,
+    "who": "narration",
+    "text": "베짱이가 정말 잘 못한 것일까요?",
+    "file": "/audio/scene5/tts/04_narration.mp3",
+    "dur": 2.952
+  },
+  {
+    "i": 5,
+    "who": "narration",
+    "text": "개미는 무엇을 잘 했을까요?",
+    "file": "/audio/scene5/tts/05_narration.mp3",
+    "dur": 3.456
+  },
+  {
+    "i": 6,
+    "who": "narration",
+    "text": "모두가 행복해지려면 서로 사이가 어떤게 좋을까요?",
+    "file": "/audio/scene5/tts/06_narration.mp3",
+    "dur": 4.968
+  },
+  {
+    "i": 7,
+    "who": "narration",
+    "text": "엄마,아빠랑 한번 이야기를 나눠 보세요! 생각이 커질 거예요!",
+    "file": "/audio/scene5/tts/07_narration.mp3",
+    "dur": 4.848
+  }
+]

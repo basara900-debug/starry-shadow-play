@@ -15,7 +15,9 @@ import ant3 from "@/assets/scene4/ant3.png.asset.json";
 import ant4 from "@/assets/scene4/ant4.png.asset.json";
 import bgmAsset from "@/assets/scene4/scene4_bgm.mp3.asset.json";
 import sfxAsset from "@/assets/scene4/scene4_sfx.mp3.asset.json";
-import { useSceneAudio } from "@/lib/sceneAudio";
+import { useSceneAudio, useSceneAudioState } from "@/lib/sceneAudio";
+import beatsData from "@/assets/scene4-beats.json";
+import { useSceneBeatPlayback, type SceneBeat } from "@/lib/sceneTts";
 
 /**
  * 씬 4 — 따뜻한 오두막 안. 베짱이와 개미들의 화해와 노래.
@@ -23,30 +25,32 @@ import { useSceneAudio } from "@/lib/sceneAudio";
  */
 export type Scene4Speed = 1 | 2 | 0;
 
-const LOOP_SEC = 90;
+const BEATS = beatsData as SceneBeat[];
+const LAST_END = BEATS[BEATS.length - 1].to;
+const LOOP_SEC = Math.ceil(LAST_END + 1.5);
 
-// 베짱이 포즈 스케줄 (시작초, 이미지)
-const GH_SCHEDULE: { from: number; to: number; src: string }[] = [
-  { from: 0,  to: 30, src: ghA.url }, // 우측 상단 1번 — 들어와서 울먹임
-  { from: 30, to: 42, src: ghB.url }, // 좌측 상단 2번 — 미안/감사
-  { from: 42, to: 78, src: ghC.url }, // 우측 하단 1번 — 즐거움/노래
-  { from: 78, to: 90, src: ghD.url }, // 하단 중앙 — 행복한 마무리
-];
+// 모션 동기화 키 — 노래 시작/마무리 비트
+const SONG_START_BEAT = BEATS.find((b) => /신나는 노래/.test(b.text)) ?? BEATS[6];
+const SONG_END_BEAT = BEATS.find((b) => /다음 노래를 시작/.test(b.text)) ?? BEATS[BEATS.length - 2];
+
+// 베짱이 포즈 — 비트 인덱스 기반
+// 0~5(들어와서 울먹임/감사) → ghA
+// 노래 시작 직전(고마워/덕분에) → ghB
+// 노래 시작 ~ 끝 직전 → ghC
+// 마무리 비트 → ghD
 function ghPose(t: number): string {
-  return (GH_SCHEDULE.find((s) => t >= s.from && t < s.to) ?? GH_SCHEDULE[GH_SCHEDULE.length - 1]).src;
+  if (t < SONG_START_BEAT.from - 2) return ghA.url;
+  if (t < SONG_START_BEAT.from) return ghB.url;
+  if (t < SONG_END_BEAT.from) return ghC.url;
+  return ghD.url;
 }
 
-// 개미 포즈 스케줄 (베짱이 좌측 30%에서 시간대별로 표정 변화)
-const ANT_SCHEDULE: { from: number; to: number; src: string }[] = [
-  { from: 0,  to: 6,  src: antA.url },
-  { from: 6,  to: 12, src: antB.url },
-  { from: 12, to: 18, src: antC.url },
-  { from: 18, to: 36, src: antD.url },
-  { from: 36, to: 72, src: antE.url },
-  { from: 72, to: 90, src: antF.url },
-];
+// 개미 포즈 — 현재 비트 인덱스에 따라 표정 전환
+const ANT_POSE_BY_IDX = [antA.url, antB.url, antC.url, antD.url, antD.url, antE.url, antE.url, antE.url, antE.url, antE.url, antF.url, antF.url, antF.url, antF.url, antF.url];
 function antPose(t: number): string {
-  return (ANT_SCHEDULE.find((s) => t >= s.from && t < s.to) ?? ANT_SCHEDULE[ANT_SCHEDULE.length - 1]).src;
+  const idx = BEATS.findIndex((b) => t >= b.from && t < b.to);
+  if (idx === -1) return antF.url;
+  return ANT_POSE_BY_IDX[Math.min(idx, ANT_POSE_BY_IDX.length - 1)];
 }
 
 // 배경 개미들 — 화면 수평 50%, 상단 40% 지점을 중심으로 마름모(다이아) 배치
@@ -57,27 +61,8 @@ const BG_ANTS: { src: string; left: number; top: number; bob: number; sway: numb
   { src: ant4.url, left: 50, top: 48, bob: 2.1, sway: 1.5 }, // 아래
 ];
 
-type Line = { from: number; to: number; who: "gh" | "ant" | "ants" | "narration"; text: string };
-const LINES: Line[] = [
-  { from: 0,  to: 6,  who: "narration", text: "너무나도 따뜻한 집안으로 들어오자 베짱이는 기뻐서 눈물을 흘렸어요." },
-  { from: 6,  to: 12, who: "ant", text: "베짱이야 너무 춥고 배고프진 않았니? 그 동안 어떻게 지냈어?" },
-  { from: 12, to: 18, who: "gh",  text: "고마워 개미야! 춥고 배고파서 무섭고 힘들었어! 진즉에 너의 말을 들었으면 좋을 걸 그랬어!" },
-  { from: 18, to: 24, who: "ant", text: "아니야, 베짱이야! 니 덕에 힘든 일을 해도 즐겁게 할 수 있었어, 이리로 와서 같이 밥 먹자!" },
-  { from: 24, to: 30, who: "gh",  text: "고마워 개미야, 아 너무 맛있다! 우걱우걱, 이것도 맛있고, 저것도 맛있다!" },
-  { from: 30, to: 36, who: "narration", text: "베짱이는 개미들의 친절에 추운 몸을 녹이고 맛있는 밥을 배부르게 먹을 수 있게 되었어요." },
-  { from: 36, to: 42, who: "gh",  text: "고마워 덕분에 지금 너무 행복해, 이럴 때에는 신나는 노래가 빠지면 안되지" },
-  { from: 42, to: 48, who: "narration", text: "이제 배부르고 따뜻해진 베짱이가 행복해져서 신나게 노래를 부르기 시작했어요" },
-  { from: 48, to: 54, who: "gh",  text: "나는 나는 베짱이! 이 들판에서 제일가는 음악가, 친절한 개미들은 나의 친구, 우리는 너무나 행복해" },
-  { from: 54, to: 60, who: "narration", text: "벽난로에서는 장작이 타닥타닥 타는 소리가 들렸고. 베짱이와 개미는 같이 노래를 부르고 춤을 추었습니다" },
-  { from: 60, to: 66, who: "ant", text: "베짱이야 역시 네 노래는 모두를 즐겁게 하는 힘이 있어! 이번겨울 동안은 우리랑 같이 지내자!" },
-  { from: 66, to: 72, who: "gh",  text: "정말 고마워, 개미야! 너희는 좋은 친구들이야, 정말로 잘 부탁해!" },
-  { from: 72, to: 78, who: "ants", text: "그래 그럼 이제 또 신나게 춤추고 놀고 난 뒤에 배부르게 먹자구!" },
-  { from: 78, to: 84, who: "gh",  text: "자! 이제 다음 노래를 시작합니다! 원, 투, 쓰리, 가자!" },
-  { from: 84, to: 90, who: "narration", text: "추운 겨울이지만, 개미와 베짱이는 아무 걱정 없이 사이좋게 행복했답니다" },
-];
-
-function currentLine(t: number): Line | null {
-  return LINES.find((l) => t >= l.from && t < l.to) ?? null;
+function currentLine(t: number): SceneBeat | null {
+  return BEATS.find((b) => t >= b.from && t < b.to) ?? null;
 }
 
 export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComplete?: () => void }) {
@@ -93,9 +78,11 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
   useSceneAudio({
     bgm: bgmAsset.url,
     sfx: sfxAsset.url,
-    bgmVolume: 1.0,
-    sfxVolume: 0.7,
+    bgmVolume: 0.4,
+    sfxVolume: 0.4,
   });
+  const audioState = useSceneAudioState();
+  useSceneBeatPlayback(BEATS, t, speed, audioState);
 
   useEffect(() => {
     if (speed === 0) return;
@@ -212,7 +199,7 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
           borderRadius: 999,
         }}
       >
-        씬 4 · {Math.floor(t)}s / {LOOP_SEC}s
+        씬 4 · {t.toFixed(1)}s / {LOOP_SEC}s
       </div>
 
       <Subtitle line={currentLine(t)} />
@@ -220,7 +207,7 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
   );
 }
 
-function Subtitle({ line }: { line: Line | null }) {
+function Subtitle({ line }: { line: SceneBeat | null }) {
   if (!line) return null;
   const palette =
     line.who === "ant" || line.who === "ants"

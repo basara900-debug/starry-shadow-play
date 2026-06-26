@@ -4,7 +4,9 @@ import gh2 from "@/assets/scene3/gh-2.png";
 import gh3 from "@/assets/scene3/gh-3.png";
 import bgmAsset from "@/assets/scene3/scene3_bgm.mp3.asset.json";
 import sfxAsset from "@/assets/scene3/scene3_sfx.mp3.asset.json";
-import { useSceneAudio } from "@/lib/sceneAudio";
+import { useSceneAudio, useSceneAudioState } from "@/lib/sceneAudio";
+import beatsData from "@/assets/scene3-beats.json";
+import { useSceneBeatPlayback, type SceneBeat } from "@/lib/sceneTts";
 
 /**
  * 씬 3 — 겨울 배경 위의 베짱이 캐릭터.
@@ -15,28 +17,16 @@ export type Scene3Speed = 1 | 2 | 0;
 const POSES = [gh1, gh2, gh3];
 const POSE_INTERVAL = 8; // 초
 const FADE = 0.9; // 페이드 구간(초)
-const LOOP_SEC = 90;
+const BEATS = beatsData as SceneBeat[];
+const LAST_END = BEATS[BEATS.length - 1].to;
+const LOOP_SEC = Math.ceil(LAST_END + 1.5);
 
-type Line = { from: number; to: number; who: "gh" | "narration"; text: string };
-const LINES: Line[] = [
-  { from: 0,  to: 6,  who: "narration", text: "시간이 지나 겨울이 찾아 왔어요! 날씨는 추워지고 눈이 내리고 찬 바람이 불고 있네요." },
-  { from: 6,  to: 12, who: "gh", text: "어 추워! 팔,다리가 얼어버릴 것 같아, 배고파 며칠 동안 아무것도 먹지 못했어" },
-  { from: 12, to: 18, who: "gh", text: "들판에 그렇게 많았던 맛있는 풀들이, 열매가, 꽃들은 다 어디로 가고 없어 졌을까?" },
-  { from: 18, to: 24, who: "gh", text: "춥고 배고프고 힘들어! 흑흑 친구들아! 나랑 재미있게 놀던 친구들아! 다 어디로 갔니?" },
-  { from: 24, to: 32, who: "gh", text: "이제 곧 밤이 오겠지! 그러면 나도 더 이상 버틸 수는 없을꺼 같아! 이제 마지막인가?" },
-  { from: 32, to: 38, who: "narration", text: "배고픔과 추위에 떨던 베짱이는 어두워지는 하늘을 보고 지난 날을 후회했습니다." },
-  { from: 38, to: 44, who: "gh", text: "추운 겨울을 대비해서 열심히 일해야 한다는 개미들의 말을 들을껄!" },
-  { from: 44, to: 52, who: "gh", text: "지금쯤 개미들은 어떻게 지내고 있을까?" },
-  { from: 52, to: 58, who: "narration", text: "그때 저 멀리 베짱이의 시야에 불이 환하게 켜진 오두막 집이 보였습니다. 베짱이는 오두막쪽으로 걸어 갔습니다." },
-  { from: 58, to: 64, who: "narration", text: "오두막의 굴뚝에서는 모락모락 연기도 나고, 도란도란 소리도 들렸습니다. 베짱이는 창문으로 오두막 안을 보았습니다." },
-  { from: 64, to: 70, who: "narration", text: "따뜻한 오두막 안에서는 개미들이 오손도손 모여서 맛있는 음식과 따뜻한 음료를 즐기고 있었습니다." },
-  { from: 70, to: 76, who: "gh", text: "아 개미들의 집이잖아! 따뜻한 보금자리와 맛있는 음식을 많이 가지고 있다니, 부럽다!" },
-  { from: 76, to: 82, who: "gh", text: "너무 춥고 배고파서 더 이상은 버틸 수 없을 것 같아! 개미들아, 개미들아 나 좀 살려줘!" },
-  { from: 82, to: 90, who: "narration", text: "그때 오두막 문이 벌컥 열리고 베짱이는 개미들의 집으로 들어 가게 되었습니다." },
-];
+// 모션 동기화 키 — 오두막 발견(중앙 이동), 오두막 도착(우측 이동) 비트
+const HUT_SPOTTED_BEAT = BEATS.find((b) => /오두막/.test(b.text))!;
+const HUT_NEAR_BEAT = BEATS.find((b) => /따뜻한 오두막 안/.test(b.text))!;
 
-function currentLine(t: number): Line | null {
-  return LINES.find((l) => t >= l.from && t < l.to) ?? null;
+function currentLine(t: number): SceneBeat | null {
+  return BEATS.find((b) => t >= b.from && t < b.to) ?? null;
 }
 
 export function Scene3Motion({ speed, onComplete }: { speed: Scene3Speed; onComplete?: () => void }) {
@@ -52,9 +42,11 @@ export function Scene3Motion({ speed, onComplete }: { speed: Scene3Speed; onComp
   useSceneAudio({
     bgm: bgmAsset.url,
     sfx: sfxAsset.url,
-    bgmVolume: 1.0,
-    sfxVolume: 0.7,
+    bgmVolume: 0.4,
+    sfxVolume: 0.4,
   });
+  const audioState = useSceneAudioState();
+  useSceneBeatPlayback(BEATS, t, speed, audioState);
 
   useEffect(() => {
     if (speed === 0) return;
@@ -93,25 +85,30 @@ export function Scene3Motion({ speed, onComplete }: { speed: Scene3Speed; onComp
   const bob = Math.sin(t * 1.6) * 0.6;
   const shiver = idx === 0 ? Math.sin(t * 22) * 0.6 : 0; // 첫 포즈(떠는 베짱이)는 가볍게 진동
 
-  // 시간대별 위치/크기 (자연스러운 이동/스케일)
-  // 0–52s: 좌측 25%, 하단 10%, 크기 44%
-  // 52–64s: 화면 중앙으로 이동, 크기 22% (50%)
-  // 64–90s: 오두막 앞(우측 78%)으로 대각선 아래로 이동, 크기 11% (25%)
+  // 시간대별 위치/크기 — 대사(비트) 시작에 동기화
+  // 시작 ~ HUT_SPOTTED 직전: 좌측 25%
+  // HUT_SPOTTED ~ HUT_NEAR: 화면 중앙으로 이동
+  // HUT_NEAR ~ 끝: 오두막 앞(우측)으로 이동
   const easeInOut = (x: number) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
   const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
   const A = { left: 25, bottom: 10, height: 44 };
   const B = { left: 50, bottom: 12, height: 22 };
   const C = { left: 78, bottom: 4, height: 11 };
+  const T0 = HUT_SPOTTED_BEAT.from; // 중앙으로 이동 시작
+  const T1 = HUT_NEAR_BEAT.from;    // 우측 이동 시작
+  const T2 = LAST_END;              // 완료
+  const MOVE_A = 4; // A→B 전환 시간(초)
+  const MOVE_B = 6; // B→C 전환 시간(초)
   let pos = A;
-  if (t >= 44 && t < 56) {
-    const k = easeInOut((t - 44) / 12);
+  if (t >= T0 && t < T0 + MOVE_A) {
+    const k = easeInOut((t - T0) / MOVE_A);
     pos = { left: lerp(A.left, B.left, k), bottom: lerp(A.bottom, B.bottom, k), height: lerp(A.height, B.height, k) };
-  } else if (t >= 56 && t < 60) {
+  } else if (t >= T0 + MOVE_A && t < T1) {
     pos = B;
-  } else if (t >= 60 && t < 72) {
-    const k = easeInOut((t - 60) / 12);
+  } else if (t >= T1 && t < T1 + MOVE_B) {
+    const k = easeInOut((t - T1) / MOVE_B);
     pos = { left: lerp(B.left, C.left, k), bottom: lerp(B.bottom, C.bottom, k), height: lerp(B.height, C.height, k) };
-  } else if (t >= 72) {
+  } else if (t >= T1 + MOVE_B && t < T2 + 1) {
     pos = C;
   }
 
@@ -166,11 +163,13 @@ export function Scene3Motion({ speed, onComplete }: { speed: Scene3Speed; onComp
   );
 }
 
-function Subtitle({ line }: { line: Line | null }) {
+function Subtitle({ line }: { line: SceneBeat | null }) {
   if (!line) return null;
   const palette =
     line.who === "gh"
       ? { bg: "oklch(0.36 0.13 145 / 0.85)", fg: "oklch(0.98 0.04 110)", border: "oklch(0.65 0.16 145 / 0.55)", label: "베짱이" }
+      : line.who === "ant" || line.who === "ants"
+      ? { bg: "oklch(0.32 0.08 50 / 0.85)", fg: "oklch(0.97 0.03 80)", border: "oklch(0.55 0.12 50 / 0.55)", label: line.who === "ants" ? "개미들" : "개미" }
       : { bg: "oklch(0.97 0.01 90 / 0.88)", fg: "oklch(0.22 0.02 50)", border: "oklch(0.75 0.02 80 / 0.6)", label: "내레이션" };
   return (
     <div
