@@ -6,7 +6,7 @@ import antLeaf from "@/assets/scene1/ant-leaf.png";
 import ghViolin from "@/assets/scene1/gh-violin.png";
 import ghAsk from "@/assets/scene1/gh-ask.png";
 import ghSing from "@/assets/scene1/gh-sing.png";
-import { useSceneAudio } from "@/lib/sceneAudio";
+import { useSceneAudio, useSceneAudioState } from "@/lib/sceneAudio";
 import beatsData from "@/assets/scene1-beats.json";
 
 /**
@@ -44,6 +44,8 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
     sfxVolume: 1.0,
   });
 
+  const audioState = useSceneAudioState();
+
   // TTS 오디오 풀
   const audioRef = useRef<HTMLAudioElement[]>([]);
   const activeIdxRef = useRef<number>(-1);
@@ -61,13 +63,15 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
     };
   }, []);
 
-  // 속도/정지 반영
+  // 속도/볼륨/뮤트 반영
   useEffect(() => {
+    const vol = audioState.voiceMuted ? 0 : audioState.voiceVol;
     audioRef.current.forEach((a) => {
+      a.volume = vol;
       if (speed === 0) a.pause();
       else a.playbackRate = speed;
     });
-  }, [speed]);
+  }, [speed, audioState.voiceVol, audioState.voiceMuted]);
 
   useEffect(() => {
     if (speed === 0) return;
@@ -99,11 +103,19 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
 
   const beat = BEATS.find((b) => t >= b.from && t < b.to) ?? BEATS[0];
 
-  // 비트 진입 시 해당 TTS 재생
+  // 비트 진입 시 해당 TTS 재생 (autoplay 잠금이 풀린 뒤에만)
   useEffect(() => {
     if (speed === 0) return;
+    if (!audioState.unlocked) return;
     const idx = BEATS.findIndex((b) => t >= b.from && t < b.to);
-    if (idx === -1) return;
+    if (idx === -1) {
+      if (activeIdxRef.current !== -1) {
+        const prev = activeIdxRef.current;
+        audioRef.current[prev]?.pause();
+        activeIdxRef.current = -1;
+      }
+      return;
+    }
     if (activeIdxRef.current === idx) return;
     const prev = activeIdxRef.current;
     if (prev >= 0 && audioRef.current[prev]) {
@@ -114,10 +126,11 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
     if (a) {
       a.currentTime = Math.max(0, t - BEATS[idx].from);
       a.playbackRate = speed;
-      a.play().catch(() => {});
+      a.volume = audioState.voiceMuted ? 0 : audioState.voiceVol;
+      void a.play().catch(() => {});
     }
     activeIdxRef.current = idx;
-  }, [t, speed]);
+  }, [t, speed, audioState.unlocked, audioState.voiceVol, audioState.voiceMuted]);
 
   // 개미 행진 위치 (좌 → 우, 12초 주기)
   const marchT = (t % 12) / 12;
