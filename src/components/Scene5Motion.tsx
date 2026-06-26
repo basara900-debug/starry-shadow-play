@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { useSceneAudio } from "@/lib/sceneAudio";
+import { useSceneAudio, useSceneAudioState } from "@/lib/sceneAudio";
+import beatsData from "@/assets/scene5-beats.json";
+import { useSceneBeatPlayback, type SceneBeat } from "@/lib/sceneTts";
 import bgmAsset from "@/assets/scene5/scene5_bgm.mp3.asset.json";
 import ant1Asset from "@/assets/scene5/ant1.png.asset.json";
 import ant2Asset from "@/assets/scene5/ant2.png.asset.json";
@@ -21,22 +23,12 @@ const HOPPER_FRAME_SEC = 8;
  */
 export type Scene5Speed = 1 | 2 | 0;
 
-const LOOP_SEC = 90;
+const BEATS = beatsData as SceneBeat[];
+const LAST_END = BEATS[BEATS.length - 1].to;
+const LOOP_SEC = Math.ceil(LAST_END + 1.5);
 
-type Line = { from: number; to: number; who: "narration"; text: string };
-const LINES: Line[] = [
-  { from: 0,  to: 6,  who: "narration", text: "어린이 여러분 이야기는 재미 있었나요?" },
-  { from: 12, to: 18, who: "narration", text: "그럼 우리! 생각을 크게 하는 연습을 해 볼까요?" },
-  { from: 24, to: 30, who: "narration", text: "여러분은 이 이야기를 보고 어떤 생각을 하게 되었나요?" },
-  { from: 36, to: 42, who: "narration", text: "베짱이는 무엇을 잘못했을까요?" },
-  { from: 48, to: 54, who: "narration", text: "베짱이가 정말 잘 못한 것일까요?" },
-  { from: 60, to: 66, who: "narration", text: "개미는 무엇을 잘 했을까요?" },
-  { from: 72, to: 78, who: "narration", text: "모두가 행복해지려면 서로 사이가 어떤게 좋을까요?" },
-  { from: 84, to: 90, who: "narration", text: "엄마,아빠랑 한번 이야기를 나눠 보세요! 생각이 커질 거예요!" },
-];
-
-function currentLine(t: number): Line | null {
-  return LINES.find((l) => t >= l.from && t < l.to) ?? null;
+function currentLine(t: number): SceneBeat | null {
+  return BEATS.find((b) => t >= b.from && t < b.to) ?? null;
 }
 
 export function Scene5Motion({ speed, onComplete }: { speed: Scene5Speed; onComplete?: () => void }) {
@@ -51,9 +43,11 @@ export function Scene5Motion({ speed, onComplete }: { speed: Scene5Speed; onComp
   // 공용 오디오 버스 — 별도 사운드 파일이 아직 없어 메인 테마를 차분히 깔아준다.
   useSceneAudio({
     bgm: bgmAsset.url,
-    bgmVolume: 0.55,
+    bgmVolume: 0.3,
     sfxVolume: 0,
   });
+  const audioState = useSceneAudioState();
+  useSceneBeatPlayback(BEATS, t, speed, audioState);
 
   useEffect(() => {
     if (speed === 0) return;
@@ -78,8 +72,10 @@ export function Scene5Motion({ speed, onComplete }: { speed: Scene5Speed; onComp
   }, [speed]);
 
   const line = currentLine(t);
-  const antFrame = ANT_FRAMES[Math.floor(t / FRAME_SEC) % ANT_FRAMES.length];
-  const hopperFrame = HOPPER_FRAMES[Math.floor(t / HOPPER_FRAME_SEC) % HOPPER_FRAMES.length];
+  // 캐릭터 포즈는 현재 비트 인덱스에 동기화 — 새로운 대사마다 자연스럽게 전환
+  const beatIdx = Math.max(0, BEATS.findIndex((b) => t >= b.from && t < b.to));
+  const antFrame = ANT_FRAMES[beatIdx % ANT_FRAMES.length];
+  const hopperFrame = HOPPER_FRAMES[beatIdx % HOPPER_FRAMES.length];
 
   return (
     <div className="pointer-events-none absolute inset-0 select-none">
@@ -106,7 +102,7 @@ export function Scene5Motion({ speed, onComplete }: { speed: Scene5Speed; onComp
           borderRadius: 999,
         }}
       >
-        씬 5 · {Math.floor(t)}s / {LOOP_SEC}s
+        씬 5 · {t.toFixed(1)}s / {LOOP_SEC}s
       </div>
 
       {line && <Subtitle line={line} />}
