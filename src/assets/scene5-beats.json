@@ -14,8 +14,8 @@
     "text": "그럼 우리! 생각을 크게 하는 연습을 해 볼까요?",
     "file": "/audio/scene5/tts/01_narration.mp3",
     "dur": 4.008,
-    "from": 4.806,
-    "to": 8.814
+    "from": 12.556,
+    "to": 16.564
   },
   {
     "i": 2,
@@ -23,8 +23,8 @@
     "text": "여러분은 이 이야기를 보고 어떤 생각을 하게 되었나요?",
     "file": "/audio/scene5/tts/02_narration.mp3",
     "dur": 4.368,
-    "from": 9.064,
-    "to": 13.432
+    "from": 24.564,
+    "to": 28.932
   },
   {
     "i": 3,
@@ -32,8 +32,8 @@
     "text": "베짱이는 무엇을 잘못했을까요?",
     "file": "/audio/scene5/tts/03_narration.mp3",
     "dur": 2.76,
-    "from": 13.682,
-    "to": 16.442
+    "from": 36.932,
+    "to": 39.692
   },
   {
     "i": 4,
@@ -41,8 +41,8 @@
     "text": "베짱이가 정말 잘 못한 것일까요?",
     "file": "/audio/scene5/tts/04_narration.mp3",
     "dur": 2.952,
-    "from": 16.692,
-    "to": 19.644
+    "from": 47.692,
+    "to": 50.644
   },
   {
     "i": 5,
@@ -50,8 +50,8 @@
     "text": "개미는 무엇을 잘 했을까요?",
     "file": "/audio/scene5/tts/05_narration.mp3",
     "dur": 3.456,
-    "from": 19.894,
-    "to": 23.35
+    "from": 58.644,
+    "to": 62.1
   },
   {
     "i": 6,
@@ -59,8 +59,8 @@
     "text": "모두가 행복해지려면 서로 사이가 어떤게 좋을까요?",
     "file": "/audio/scene5/tts/06_narration.mp3",
     "dur": 4.968,
-    "from": 23.6,
-    "to": 28.568
+    "from": 70.1,
+    "to": 75.068
   },
   {
     "i": 7,
@@ -68,7 +68,7 @@
     "text": "엄마,아빠랑 한번 이야기를 나눠 보세요! 생각이 커질 거예요!",
     "file": "/audio/scene5/tts/07_narration.mp3",
     "dur": 4.848,
-    "from": 28.818,
-    "to": 33.666
+    "from": 83.068,
+    "to": 87.916
   }
 ]
