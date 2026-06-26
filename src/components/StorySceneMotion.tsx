@@ -29,6 +29,13 @@ import postSheet2Asset from "@/assets/town-country/post_sheet_2.png.asset.json";
 import postSheet3Asset from "@/assets/town-country/post_sheet_3.png.asset.json";
 import postSheet4Asset from "@/assets/town-country/post_sheet_4.png.asset.json";
 import postSheet5Asset from "@/assets/town-country/post_sheet_5.png.asset.json";
+import scene3PairAsset from "@/assets/town-country/scene3_pair.png.asset.json";
+import scene3City1Asset from "@/assets/town-country/scene3_city1.png.asset.json";
+import scene3City2Asset from "@/assets/town-country/scene3_city2.png.asset.json";
+import scene3City3Asset from "@/assets/town-country/scene3_city3.png.asset.json";
+import scene3Country1Asset from "@/assets/town-country/scene3_country1.png.asset.json";
+import scene3Country2Asset from "@/assets/town-country/scene3_country2.png.asset.json";
+import scene3Country3Asset from "@/assets/town-country/scene3_country3.png.asset.json";
 
 const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   narration: "나레이션",
