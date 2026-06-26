@@ -234,14 +234,14 @@ export function StorySceneMotion({
     : [];
 
   // 씬 3: 캐릭터 모션
-  // 0~12s: 한 쌍 캐릭터 시트 (120% 확대) — left 80% → 50%, bottom 15%
+  // 0~12s: 한 쌍 캐릭터 시트 (120% 확대) — left 80% → 50%, bottom 8%
   const showScene3Pair = scene.id === "town-country-3" && t < 12;
   const scene3PairProgress = showScene3Pair ? Math.min(1, t / 12) : 0;
   const scene3PairLeftPct = 80 + (50 - 80) * scene3PairProgress;
   const scene3PairEntry = showScene3Pair ? Math.min(1, t / 0.5) : 0;
 
-  // 12~24s: 서울쥐 3장 (city) — left 40%, bottom 50%, 로테이션(좌우 흔들림)으로 포즈 순환
-  // 12~24s: 시골쥐 3장 (country) — left 50%, bottom 15%, 동일 로테이션 모션
+  // 12~24s: 서울쥐 3장 (city) — left 60%, bottom 30%, 로테이션(좌우 흔들림)으로 포즈 순환
+  // 12~24s: 시골쥐 3장 (country) — left 40%, bottom 8%, 동일 로테이션 모션
   const scene3CityFrames = [scene3City1Asset.url, scene3City2Asset.url, scene3City3Asset.url];
   const scene3CountryFrames = [scene3Country1Asset.url, scene3Country2Asset.url, scene3Country3Asset.url];
   const showScene3Rotation = scene.id === "town-country-3" && t >= 12 && t < 24;
@@ -526,7 +526,7 @@ export function StorySceneMotion({
           className="absolute"
           style={{
             left: `${scene3PairLeftPct}%`,
-            bottom: "15%",
+            bottom: "8%",
             height: "24%",
             width: "auto",
             transform: `translate(-50%, ${cmBob}px)`,
@@ -545,8 +545,8 @@ export function StorySceneMotion({
           draggable={false}
           className="absolute"
           style={{
-            left: "40%",
-            bottom: "50%",
+            left: "60%",
+            bottom: "30%",
             height: "22%",
             width: "auto",
             transform: `translate(-50%, ${cmBob}px) rotate(${scene3RotAngle}deg)`,
@@ -565,8 +565,8 @@ export function StorySceneMotion({
           draggable={false}
           className="absolute"
           style={{
-            left: "50%",
-            bottom: "15%",
+            left: "40%",
+            bottom: "8%",
             height: "22%",
             width: "auto",
             transform: `translate(-50%, ${cmBob}px) rotate(${-scene3RotAngle}deg)`,
