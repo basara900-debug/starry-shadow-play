@@ -518,16 +518,6 @@ export function StorySceneMotion({
       })}
 
 
-      <div
-        className="absolute"
-        style={{
-          left: "2%",
-          top: "8%",
-          zIndex: 5,
-        }}
-      >
-        {/* scene3 anchor */}
-      </div>
       {showScene3Pair && (
         <img
           src={scene3PairAsset.url}
