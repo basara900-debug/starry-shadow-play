@@ -415,3 +415,13 @@ export function useSyncSpeedToBus(speed: SceneSpeed) {
     ctx.patch({ speed });
   }, [ctx, speed]);
 }
+
+/**
+ * 현재 SceneAudio 상태를 구독해 변경시 리렌더한다.
+ */
+export function useSceneAudioState(): SceneAudioState {
+  const ctx = useCtx();
+  const [state, setState] = useState<SceneAudioState>(() => ctx.read());
+  useEffect(() => ctx.subscribe(setState), [ctx]);
+  return state;
+}
