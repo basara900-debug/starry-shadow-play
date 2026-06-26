@@ -889,6 +889,7 @@ function TheaterStage({
             </div>
           </button>
         )}
+        {gridOn && <DevGridOverlay />}
       </div>
 
       {/* 재생 상태 뱃지 */}
