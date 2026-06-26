@@ -27,7 +27,13 @@ const LOOP_SEC = Math.ceil(LAST_END + 1.5);
 const ANT_REPLY_BEAT = BEATS.find((b) => b.who === "ant" && /베짱이/.test(b.text))!;
 
 function currentLine(t: number): SceneBeat | null {
-  return BEATS.find((b) => t >= b.from && t < b.to) ?? null;
+  // 자막은 다음 비트가 시작되기 직전(=다음 from)까지 유지 → 자막 사이 빈 구간/깜빡임 제거.
+  for (let i = 0; i < BEATS.length; i++) {
+    const start = BEATS[i].from;
+    const end = i + 1 < BEATS.length ? BEATS[i + 1].from : LAST_END + 1;
+    if (t >= start && t < end) return BEATS[i];
+  }
+  return null;
 }
 
 export function Scene2Motion({ speed, onComplete }: { speed: Scene2Speed; onComplete?: () => void }) {
