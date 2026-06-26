@@ -986,6 +986,14 @@ function TheaterStage({
           </button>
         )}
         {gridOn && <DevGridOverlay />}
+        {devToolbarOn && (
+          <DevSubtitleToolbar
+            paused={paused}
+            onTogglePlay={() =>
+              setPlayState((s) => (s === "paused" ? "1x" : "paused"))
+            }
+          />
+        )}
       </div>
 
       {/* 재생 상태 뱃지 */}
@@ -1039,6 +1047,21 @@ function TheaterStage({
           title="격자 (좌 0~100%, 아래 0~100%) — 캐릭터 위치 잡기용"
         >
           {gridOn ? "▦ 격자 ON" : "▦ 격자 OFF"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setDevToolbarOn((v) => !v)}
+          className="cursor-pointer rounded-full border-0 text-[11px] font-semibold"
+          style={{
+            padding: "5px 12px",
+            background: devToolbarOn ? "oklch(0.55 0.16 150 / 0.9)" : "oklch(0.3 0.02 50 / 0.75)",
+            color: "oklch(0.97 0.04 80)",
+            border: "1px solid oklch(0.85 0.08 75 / 0.3)",
+          }}
+          aria-pressed={devToolbarOn}
+          title="개발용 자막/타임라인 툴바 — 대사 슬라이드/정지"
+        >
+          {devToolbarOn ? "🎬 자막 ON" : "🎬 자막 OFF"}
         </button>
         {allowSceneUploads && (
           <button
