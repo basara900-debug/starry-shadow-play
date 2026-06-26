@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useSceneAudio } from "@/lib/sceneAudio";
 import type { StorySceneDefinition, StorySpeaker } from "@/data/townCountryStory";
+import { useDevTimelineSync } from "@/lib/devTimeline";
 import countryMouseCutout from "@/assets/town-country/country_mouse_cutout.png";
 import scene2BgAsset from "@/assets/town-country/scene2.jpg.asset.json";
 import sheet1Asset from "@/assets/town-country/country_sheet_1.png.asset.json";
@@ -109,6 +110,20 @@ export function StorySceneMotion({
       lastRef.current = null;
     };
   }, [scene.id, scene.durationSec, speed]);
+
+  useDevTimelineSync({
+    sceneId: scene.id,
+    label: scene.title,
+    beats: scene.beats,
+    t,
+    duration: scene.durationSec,
+    onSeek: (newT: number) => {
+      const clamped = Math.max(0, Math.min(scene.durationSec - 0.01, newT));
+      timeRef.current = clamped;
+      setT(clamped);
+      doneRef.current = false;
+    },
+  });
 
   const pulse = 0.985 + Math.sin(t * 0.55) * 0.015;
   const driftX = Math.sin(t * 0.14) * 1.2;

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSceneAudio, useSceneAudioState } from "@/lib/sceneAudio";
 import beatsData from "@/assets/scene5-beats.json";
 import { useSceneBeatPlayback, type SceneBeat } from "@/lib/sceneTts";
+import { useDevTimelineSync } from "@/lib/devTimeline";
 import bgmAsset from "@/assets/scene5/scene5_bgm.mp3.asset.json";
 import ant1Asset from "@/assets/scene5/ant1.png.asset.json";
 import ant2Asset from "@/assets/scene5/ant2.png.asset.json";
@@ -70,6 +71,20 @@ export function Scene5Motion({ speed, onComplete }: { speed: Scene5Speed; onComp
       lastRef.current = null;
     };
   }, [speed]);
+
+  useDevTimelineSync({
+    sceneId: "scene5",
+    label: "씬 5",
+    beats: BEATS,
+    t,
+    duration: LOOP_SEC,
+    onSeek: (newT: number) => {
+      const clamped = Math.max(0, Math.min(LOOP_SEC - 0.01, newT));
+      timeRef.current = clamped;
+      setT(clamped);
+      doneRef.current = false;
+    },
+  });
 
   const line = currentLine(t);
   // 캐릭터 포즈는 현재 비트 인덱스에 동기화 — 새로운 대사마다 자연스럽게 전환

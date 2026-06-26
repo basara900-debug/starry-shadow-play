@@ -9,6 +9,7 @@ import ant6 from "@/assets/scene2/ant-6.png";
 import { useSceneAudio, useSceneAudioState } from "@/lib/sceneAudio";
 import beatsData from "@/assets/scene2-beats.json";
 import { useSceneBeatPlayback, type SceneBeat } from "@/lib/sceneTts";
+import { useDevTimelineSync } from "@/lib/devTimeline";
 
 /**
  * 씬 2 모션 — 가을, 베짱이는 우측 중간에서 6초마다 포즈 전환,
@@ -76,6 +77,20 @@ export function Scene2Motion({ speed, onComplete }: { speed: Scene2Speed; onComp
       lastRef.current = null;
     };
   }, [speed]);
+
+  useDevTimelineSync({
+    sceneId: "scene2",
+    label: "씬 2",
+    beats: BEATS,
+    t,
+    duration: LOOP_SEC,
+    onSeek: (newT: number) => {
+      const clamped = Math.max(0, Math.min(LOOP_SEC - 0.01, newT));
+      timeRef.current = clamped;
+      setT(clamped);
+      doneRef.current = false;
+    },
+  });
 
   // 베짱이 현재 포즈
   const ghIdx = Math.floor(t / GH_INTERVAL) % GH_POSES.length;

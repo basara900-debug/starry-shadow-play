@@ -7,6 +7,7 @@ import sfxAsset from "@/assets/scene3/scene3_sfx.mp3.asset.json";
 import { useSceneAudio, useSceneAudioState } from "@/lib/sceneAudio";
 import beatsData from "@/assets/scene3-beats.json";
 import { useSceneBeatPlayback, type SceneBeat } from "@/lib/sceneTts";
+import { useDevTimelineSync } from "@/lib/devTimeline";
 
 /**
  * 씬 3 — 겨울 배경 위의 베짱이 캐릭터.
@@ -74,6 +75,20 @@ export function Scene3Motion({ speed, onComplete }: { speed: Scene3Speed; onComp
       lastRef.current = null;
     };
   }, [speed]);
+
+  useDevTimelineSync({
+    sceneId: "scene3",
+    label: "씬 3",
+    beats: BEATS,
+    t,
+    duration: LOOP_SEC,
+    onSeek: (newT: number) => {
+      const clamped = Math.max(0, Math.min(LOOP_SEC - 0.01, newT));
+      timeRef.current = clamped;
+      setT(clamped);
+      doneRef.current = false;
+    },
+  });
 
   const cycle = POSE_INTERVAL * POSES.length;
   const tt = ((t % cycle) + cycle) % cycle;

@@ -8,6 +8,7 @@ import ghAsk from "@/assets/scene1/gh-ask.png";
 import ghSing from "@/assets/scene1/gh-sing.png";
 import { useSceneAudio, useSceneAudioState } from "@/lib/sceneAudio";
 import beatsData from "@/assets/scene1-beats.json";
+import { useDevTimelineSync } from "@/lib/devTimeline";
 
 /**
  * 씬 1 모션 프레임 — TTS 음성과 자막/모션이 싱크된다.
@@ -131,6 +132,22 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
       lastRef.current = null;
     };
   }, [speed]);
+
+  useDevTimelineSync({
+    sceneId: "scene1",
+    label: "씬 1",
+    beats: BEATS,
+    t,
+    duration: LOOP_SEC,
+    onSeek: (newT: number) => {
+      const clamped = Math.max(0, Math.min(LOOP_SEC - 0.01, newT));
+      timeRef.current = clamped;
+      setT(clamped);
+      doneRef.current = false;
+      audioRef.current.forEach((a) => { try { a.pause(); a.currentTime = 0; } catch { /* noop */ } });
+      activeIdxRef.current = -1;
+    },
+  });
 
   const activeBeat = BEATS.find((b) => t >= b.from && t < b.to) ?? null;
   // 자막/이미지 선택용 — gap 일 때는 직전 비트가 아니라 첫 비트를 fallback 으로 사용 (이미지/모션 표시용)
