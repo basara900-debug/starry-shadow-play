@@ -29,6 +29,13 @@ import postSheet2Asset from "@/assets/town-country/post_sheet_2.png.asset.json";
 import postSheet3Asset from "@/assets/town-country/post_sheet_3.png.asset.json";
 import postSheet4Asset from "@/assets/town-country/post_sheet_4.png.asset.json";
 import postSheet5Asset from "@/assets/town-country/post_sheet_5.png.asset.json";
+import scene3PairAsset from "@/assets/town-country/scene3_pair.png.asset.json";
+import scene3City1Asset from "@/assets/town-country/scene3_city1.png.asset.json";
+import scene3City2Asset from "@/assets/town-country/scene3_city2.png.asset.json";
+import scene3City3Asset from "@/assets/town-country/scene3_city3.png.asset.json";
+import scene3Country1Asset from "@/assets/town-country/scene3_country1.png.asset.json";
+import scene3Country2Asset from "@/assets/town-country/scene3_country2.png.asset.json";
+import scene3Country3Asset from "@/assets/town-country/scene3_country3.png.asset.json";
 
 const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   narration: "나레이션",
@@ -225,6 +232,26 @@ export function StorySceneMotion({
   const activePosts = scene.id === "town-country-1"
     ? postSegments.filter((s) => t >= s.from && t < s.to)
     : [];
+
+  // 씬 3: 캐릭터 모션
+  // 0~12s: 한 쌍 캐릭터 시트 (120% 확대) — left 80% → 50%, bottom 15%
+  const showScene3Pair = scene.id === "town-country-3" && t < 12;
+  const scene3PairProgress = showScene3Pair ? Math.min(1, t / 12) : 0;
+  const scene3PairLeftPct = 80 + (50 - 80) * scene3PairProgress;
+  const scene3PairEntry = showScene3Pair ? Math.min(1, t / 0.5) : 0;
+
+  // 12~24s: 서울쥐 3장 (city) — left 40%, bottom 50%, 로테이션(좌우 흔들림)으로 포즈 순환
+  // 12~24s: 시골쥐 3장 (country) — left 50%, bottom 15%, 동일 로테이션 모션
+  const scene3CityFrames = [scene3City1Asset.url, scene3City2Asset.url, scene3City3Asset.url];
+  const scene3CountryFrames = [scene3Country1Asset.url, scene3Country2Asset.url, scene3Country3Asset.url];
+  const showScene3Rotation = scene.id === "town-country-3" && t >= 12 && t < 24;
+  const scene3RotT = showScene3Rotation ? t - 12 : 0;
+  const SCENE3_POSE_DUR = 4; // 12초 / 3포즈
+  const scene3PoseIdx = showScene3Rotation
+    ? Math.min(scene3CityFrames.length - 1, Math.floor(scene3RotT / SCENE3_POSE_DUR))
+    : 0;
+  const scene3RotAngle = Math.sin(scene3RotT * 2.4) * 10; // ±10도 로테이션
+  const scene3RotEntry = showScene3Rotation ? Math.min(1, (t - 12) / 0.4) : 0;
 
   return (
     <div className="pointer-events-none absolute inset-0 select-none overflow-hidden">
@@ -491,6 +518,65 @@ export function StorySceneMotion({
       })}
 
 
+      {showScene3Pair && (
+        <img
+          src={scene3PairAsset.url}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: `${scene3PairLeftPct}%`,
+            bottom: "15%",
+            height: "24%",
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, scene3PairEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear, left 120ms linear",
+          }}
+        />
+      )}
+      {showScene3Rotation && (
+        <img
+          key={`scene3-city-${scene3PoseIdx}`}
+          src={scene3CityFrames[scene3PoseIdx]}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: "40%",
+            bottom: "50%",
+            height: "22%",
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px) rotate(${scene3RotAngle}deg)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, scene3RotEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear",
+          }}
+        />
+      )}
+      {showScene3Rotation && (
+        <img
+          key={`scene3-country-${scene3PoseIdx}`}
+          src={scene3CountryFrames[scene3PoseIdx]}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: "50%",
+            bottom: "15%",
+            height: "22%",
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px) rotate(${-scene3RotAngle}deg)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, scene3RotEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear",
+          }}
+        />
+      )}
       <div
         className="absolute"
         style={{
