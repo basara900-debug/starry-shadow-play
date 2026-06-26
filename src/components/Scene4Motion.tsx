@@ -112,6 +112,20 @@ export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComp
     };
   }, [speed]);
 
+  useDevTimelineSync({
+    sceneId: "scene4",
+    label: "씬 4",
+    beats: BEATS,
+    t,
+    duration: LOOP_SEC,
+    onSeek: (newT: number) => {
+      const clamped = Math.max(0, Math.min(LOOP_SEC - 0.01, newT));
+      timeRef.current = clamped;
+      setT(clamped);
+      doneRef.current = false;
+    },
+  });
+
   // 베짱이 포즈 — 시간대별로 결정
   const ghSrc = ghPose(t);
   const bob = Math.sin(t * 2.4) * 2;
