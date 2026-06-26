@@ -163,11 +163,13 @@ export function Scene3Motion({ speed, onComplete }: { speed: Scene3Speed; onComp
   );
 }
 
-function Subtitle({ line }: { line: Line | null }) {
+function Subtitle({ line }: { line: SceneBeat | null }) {
   if (!line) return null;
   const palette =
     line.who === "gh"
       ? { bg: "oklch(0.36 0.13 145 / 0.85)", fg: "oklch(0.98 0.04 110)", border: "oklch(0.65 0.16 145 / 0.55)", label: "베짱이" }
+      : line.who === "ant" || line.who === "ants"
+      ? { bg: "oklch(0.32 0.08 50 / 0.85)", fg: "oklch(0.97 0.03 80)", border: "oklch(0.55 0.12 50 / 0.55)", label: line.who === "ants" ? "개미들" : "개미" }
       : { bg: "oklch(0.97 0.01 90 / 0.88)", fg: "oklch(0.22 0.02 50)", border: "oklch(0.75 0.02 80 / 0.6)", label: "내레이션" };
   return (
     <div
