@@ -12,7 +12,7 @@ import { StorySceneMotion, type StorySceneSpeed } from "@/components/StorySceneM
 import { CASSETTES, type Cassette } from "@/data/cassettes";
 import { TOWN_COUNTRY_STORY } from "@/data/townCountryStory";
 import { supabase } from "@/integrations/supabase/client";
-import { Scene1Motion, type Scene1Speed } from "@/components/Scene1Motion";
+import { primeScene1Tts, Scene1Motion, type Scene1Speed } from "@/components/Scene1Motion";
 import { Scene2Motion, type Scene2Speed } from "@/components/Scene2Motion";
 import { Scene3Motion, type Scene3Speed } from "@/components/Scene3Motion";
 import { Scene4Motion, type Scene4Speed } from "@/components/Scene4Motion";
@@ -337,6 +337,9 @@ function ShadowTheaterTitle() {
   const handleButton = async (i: number) => {
     setPressed(i);
     setTimeout(() => setPressed(null), 160);
+    if (i === 0 && loadedCassetteId === "ants-grasshopper") {
+      primeScene1Tts();
+    }
     await sfx.click();
     if (i === 0) {
       // PLAY: 카세트가 삽입(커넥팅) 되어 있을 때만 그림자 연극 스테이지로 전환한다.

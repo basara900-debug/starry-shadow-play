@@ -18,8 +18,41 @@ export type Scene1Speed = 1 | 2 | 0;
 
 type Beat = { i: number; who: "gh" | "ant" | "narration"; text: string; file: string; dur: number; from: number; to: number };
 const BEATS = beatsData as Beat[];
+const scene1VoiceCache = new Map<string, HTMLAudioElement>();
 const LAST_END = BEATS[BEATS.length - 1].to;
 const LOOP_SEC = Math.ceil(LAST_END + 1.5); // TTS 끝난 뒤 약간의 여백
+
+function getScene1Voice(file: string) {
+  let audio = scene1VoiceCache.get(file);
+  if (!audio) {
+    audio = new Audio(file);
+    audio.preload = "auto";
+    scene1VoiceCache.set(file, audio);
+  }
+  return audio;
+}
+
+export function primeScene1Tts() {
+  for (const beat of BEATS) {
+    const audio = getScene1Voice(beat.file);
+    const muted = audio.muted;
+    const volume = audio.volume;
+    audio.muted = true;
+    audio.volume = 0;
+    audio
+      .play()
+      .then(() => {
+        audio.pause();
+        try { audio.currentTime = 0; } catch { /* noop */ }
+        audio.muted = muted;
+        audio.volume = volume;
+      })
+      .catch(() => {
+        audio.muted = muted;
+        audio.volume = volume;
+      });
+  }
+}
 
 // 모션 동기화 키 타이밍 (대사 시작 시점에 맞춤)
 const FIRST_GH_BEAT = BEATS.find((b) => b.who === "gh")!;
@@ -50,14 +83,12 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
   const audioRef = useRef<HTMLAudioElement[]>([]);
   const activeIdxRef = useRef<number>(-1);
   useEffect(() => {
-    audioRef.current = BEATS.map((b) => {
-      const a = new Audio(b.file);
-      a.preload = "auto";
-      a.volume = 1;
-      return a;
-    });
+    audioRef.current = BEATS.map((b) => getScene1Voice(b.file));
     return () => {
-      audioRef.current.forEach((a) => { a.pause(); a.src = ""; });
+      audioRef.current.forEach((a) => {
+        a.pause();
+        try { a.currentTime = 0; } catch { /* noop */ }
+      });
       audioRef.current = [];
       activeIdxRef.current = -1;
     };
@@ -116,7 +147,18 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
       }
       return;
     }
-    if (activeIdxRef.current === idx) return;
+    if (activeIdxRef.current === idx) {
+      const current = audioRef.current[idx];
+      if (current) {
+        current.playbackRate = speed;
+        current.volume = audioState.voiceMuted ? 0 : audioState.voiceVol;
+        if (current.paused) {
+          try { current.currentTime = Math.max(0, t - BEATS[idx].from); } catch { /* noop */ }
+          void current.play().catch(() => { activeIdxRef.current = -1; });
+        }
+      }
+      return;
+    }
     const prev = activeIdxRef.current;
     if (prev >= 0 && audioRef.current[prev]) {
       audioRef.current[prev].pause();
@@ -124,10 +166,10 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
     }
     const a = audioRef.current[idx];
     if (a) {
-      a.currentTime = Math.max(0, t - BEATS[idx].from);
+      try { a.currentTime = Math.max(0, t - BEATS[idx].from); } catch { /* noop */ }
       a.playbackRate = speed;
       a.volume = audioState.voiceMuted ? 0 : audioState.voiceVol;
-      void a.play().catch(() => {});
+      void a.play().catch(() => { activeIdxRef.current = -1; });
     }
     activeIdxRef.current = idx;
   }, [t, speed, audioState.unlocked, audioState.voiceVol, audioState.voiceMuted]);
