@@ -8,6 +8,7 @@ import ghAsk from "@/assets/scene1/gh-ask.png";
 import ghSing from "@/assets/scene1/gh-sing.png";
 import { useSceneAudio, useSceneAudioState } from "@/lib/sceneAudio";
 import beatsData from "@/assets/scene1-beats.json";
+import { useDevTimelineSync } from "@/lib/devTimeline";
 
 /**
  * 씬 1 모션 프레임 — TTS 음성과 자막/모션이 싱크된다.
