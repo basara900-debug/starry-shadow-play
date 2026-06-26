@@ -551,6 +551,99 @@ function ShadowTheaterTitle() {
 
 /* ---------- Helpers ---------- */
 
+/**
+ * 개발용 격자 오버레이.
+ * 씬 스크린 박스(SCREEN) 내부를 10x10 으로 분할해 가는 격자선과 % 라벨을 표시한다.
+ * 좌표 규약: 좌 0% → 우 100%, 아래 0% → 위 100% (skill/position-percentage-convention).
+ * pointer-events: none — 위에 있어도 모션/버튼 클릭을 막지 않는다.
+ */
+function DevGridOverlay() {
+  const lines = Array.from({ length: 11 }, (_, i) => i * 10);
+  const lineColor = "oklch(0.95 0.06 220 / 0.35)";
+  const majorColor = "oklch(0.95 0.06 220 / 0.6)";
+  const labelColor = "oklch(0.98 0.05 220 / 0.95)";
+  const labelShadow = "0 0 3px oklch(0 0 0 / 0.9), 0 0 2px oklch(0 0 0 / 0.9)";
+  return (
+    <div className="pointer-events-none absolute inset-0" aria-hidden style={{ zIndex: 50 }}>
+      {lines.map((p) => (
+        <div
+          key={`v-${p}`}
+          style={{
+            position: "absolute",
+            left: `${p}%`,
+            top: 0,
+            bottom: 0,
+            width: p === 0 || p === 100 ? 0 : 1,
+            background: p % 50 === 0 ? majorColor : lineColor,
+          }}
+        />
+      ))}
+      {lines.map((p) => (
+        <div
+          key={`h-${p}`}
+          style={{
+            position: "absolute",
+            top: `${100 - p}%`,
+            left: 0,
+            right: 0,
+            height: p === 0 || p === 100 ? 0 : 1,
+            background: p % 50 === 0 ? majorColor : lineColor,
+          }}
+        />
+      ))}
+      {lines.map((p) => (
+        <div
+          key={`xl-${p}`}
+          style={{
+            position: "absolute",
+            left: `${p}%`,
+            top: 2,
+            transform: "translateX(-50%)",
+            fontSize: 9,
+            fontWeight: 600,
+            color: labelColor,
+            textShadow: labelShadow,
+            fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+          }}
+        >
+          {p}
+        </div>
+      ))}
+      {lines.map((p) => (
+        <div
+          key={`yl-${p}`}
+          style={{
+            position: "absolute",
+            top: `${100 - p}%`,
+            left: 3,
+            transform: "translateY(-50%)",
+            fontSize: 9,
+            fontWeight: 600,
+            color: labelColor,
+            textShadow: labelShadow,
+            fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+          }}
+        >
+          {p}
+        </div>
+      ))}
+      <div
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: "50%",
+          width: 10,
+          height: 10,
+          transform: "translate(-50%, -50%)",
+          borderRadius: "50%",
+          background: "oklch(0.9 0.18 30 / 0.85)",
+          boxShadow: "0 0 6px oklch(0 0 0 / 0.7)",
+        }}
+      />
+    </div>
+  );
+}
+
 /* ---------- Theater Stage (세컨드 스테이지) ---------- */
 // 무대 이미지 내 스크린 영역(이미지 박스 % 좌표)
 const SCREEN = { x: 13.2, y: 7.5, w: 73.6, h: 70.5 };
@@ -584,6 +677,9 @@ function TheaterStage({
   const [playState, setPlayState] = useState<"1x" | "2x" | "paused">("1x");
   const [pressed, setPressed] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
+  // 개발용 격자 오버레이 — 캐릭터/아이템 위치를 % 로 잡을 때 가이드.
+  // 좌 0% → 우 100%, 아래 0% → 위 100% (skill/position-percentage-convention 과 동일).
+  const [gridOn, setGridOn] = useState(true);
 
   // 공용 오디오 버스에 현재 재생 속도를 반영 (일시정지 시 0).
   const audioCtl = useSceneAudioControls();
@@ -886,6 +982,7 @@ function TheaterStage({
             </div>
           </button>
         )}
+        {gridOn && <DevGridOverlay />}
       </div>
 
       {/* 재생 상태 뱃지 */}
@@ -925,6 +1022,21 @@ function TheaterStage({
 
       {/* 우상단 - 씬 추가 / 초기화 */}
       <div className="absolute flex gap-2" style={{ right: "2.5%", top: "3.5%" }}>
+        <button
+          type="button"
+          onClick={() => setGridOn((v) => !v)}
+          className="cursor-pointer rounded-full border-0 text-[11px] font-semibold"
+          style={{
+            padding: "5px 12px",
+            background: gridOn ? "oklch(0.55 0.16 220 / 0.9)" : "oklch(0.3 0.02 50 / 0.75)",
+            color: "oklch(0.97 0.04 80)",
+            border: "1px solid oklch(0.85 0.08 75 / 0.3)",
+          }}
+          aria-pressed={gridOn}
+          title="격자 (좌 0~100%, 아래 0~100%) — 캐릭터 위치 잡기용"
+        >
+          {gridOn ? "▦ 격자 ON" : "▦ 격자 OFF"}
+        </button>
         {allowSceneUploads && (
           <button
             type="button"
