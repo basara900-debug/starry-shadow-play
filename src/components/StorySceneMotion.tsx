@@ -240,7 +240,7 @@ export function StorySceneMotion({
   const scene3PairLeftPct = 80 + (50 - 80) * scene3PairProgress;
   const scene3PairEntry = showScene3Pair ? Math.min(1, t / 0.5) : 0;
 
-  // 12~24s: 서울쥐 3장 (city) — left 60%, bottom 30%, 로테이션(좌우 흔들림)으로 포즈 순환
+  // 12~24s: 서울쥐 3장 (city) — left 60%, bottom 35%, 로테이션(좌우 흔들림)으로 포즈 순환
   // 12~24s: 시골쥐 3장 (country) — left 40%, bottom 8%, 동일 로테이션 모션
   const scene3CityFrames = [scene3City1Asset.url, scene3City2Asset.url, scene3City3Asset.url];
   const scene3CountryFrames = [scene3Country1Asset.url, scene3Country2Asset.url, scene3Country3Asset.url];
