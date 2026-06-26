@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSceneAudio } from "@/lib/sceneAudio";
 import type { StorySceneDefinition, StorySpeaker } from "@/data/townCountryStory";
 import countryMouseCutout from "@/assets/town-country/country_mouse_cutout.png";
+import scene2BgAsset from "@/assets/town-country/scene2.jpg.asset.json";
 import sheet1Asset from "@/assets/town-country/country_sheet_1.png.asset.json";
 import sheet2Asset from "@/assets/town-country/country_sheet_2.png.asset.json";
 import sheet3Asset from "@/assets/town-country/country_sheet_3.png.asset.json";
@@ -227,6 +228,16 @@ export function StorySceneMotion({
 
   return (
     <div className="pointer-events-none absolute inset-0 select-none overflow-hidden">
+      {/* 씬 4: 60~90초 구간에서 배경을 서울쥐 방안(씬 2 배경)으로 전환 */}
+      {scene.id === "town-country-4" && t >= 60 && (
+        <img
+          src={scene2BgAsset.url}
+          alt=""
+          draggable={false}
+          className="absolute inset-0 h-full w-full object-cover pointer-events-none"
+          style={{ zIndex: 0 }}
+        />
+      )}
       <div
         className="absolute inset-[-2.5%]"
         style={{
