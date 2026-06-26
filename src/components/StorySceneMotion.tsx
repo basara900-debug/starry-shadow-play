@@ -523,6 +523,75 @@ export function StorySceneMotion({
         style={{
           left: "2%",
           top: "8%",
+          zIndex: 5,
+        }}
+      >
+        {/* scene3 anchor */}
+      </div>
+      {showScene3Pair && (
+        <img
+          src={scene3PairAsset.url}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: `${scene3PairLeftPct}%`,
+            bottom: "15%",
+            height: "24%",
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, scene3PairEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear, left 120ms linear",
+          }}
+        />
+      )}
+      {showScene3Rotation && (
+        <img
+          key={`scene3-city-${scene3PoseIdx}`}
+          src={scene3CityFrames[scene3PoseIdx]}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: "40%",
+            bottom: "50%",
+            height: "22%",
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px) rotate(${scene3RotAngle}deg)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, scene3RotEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear",
+          }}
+        />
+      )}
+      {showScene3Rotation && (
+        <img
+          key={`scene3-country-${scene3PoseIdx}`}
+          src={scene3CountryFrames[scene3PoseIdx]}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: "50%",
+            bottom: "15%",
+            height: "22%",
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px) rotate(${-scene3RotAngle}deg)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, scene3RotEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear",
+          }}
+        />
+      )}
+      <div
+        className="absolute"
+        style={{
+          left: "2%",
+          top: "8%",
           background: "oklch(0 0 0 / 0.45)",
           color: "oklch(0.95 0.06 80)",
           fontSize: 10,
