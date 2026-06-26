@@ -62,7 +62,12 @@ const BG_ANTS: { src: string; left: number; top: number; bob: number; sway: numb
 ];
 
 function currentLine(t: number): SceneBeat | null {
-  return BEATS.find((b) => t >= b.from && t < b.to) ?? null;
+  for (let i = 0; i < BEATS.length; i++) {
+    const start = BEATS[i].from;
+    const end = i + 1 < BEATS.length ? BEATS[i + 1].from : LAST_END + 1;
+    if (t >= start && t < end) return BEATS[i];
+  }
+  return null;
 }
 
 export function Scene4Motion({ speed, onComplete }: { speed: Scene4Speed; onComplete?: () => void }) {

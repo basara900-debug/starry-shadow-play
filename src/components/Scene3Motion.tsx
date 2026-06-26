@@ -26,7 +26,12 @@ const HUT_SPOTTED_BEAT = BEATS.find((b) => /오두막/.test(b.text))!;
 const HUT_NEAR_BEAT = BEATS.find((b) => /따뜻한 오두막 안/.test(b.text))!;
 
 function currentLine(t: number): SceneBeat | null {
-  return BEATS.find((b) => t >= b.from && t < b.to) ?? null;
+  for (let i = 0; i < BEATS.length; i++) {
+    const start = BEATS[i].from;
+    const end = i + 1 < BEATS.length ? BEATS[i + 1].from : LAST_END + 1;
+    if (t >= start && t < end) return BEATS[i];
+  }
+  return null;
 }
 
 export function Scene3Motion({ speed, onComplete }: { speed: Scene3Speed; onComplete?: () => void }) {
