@@ -132,7 +132,9 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
     };
   }, [speed]);
 
-  const beat = BEATS.find((b) => t >= b.from && t < b.to) ?? BEATS[0];
+  const activeBeat = BEATS.find((b) => t >= b.from && t < b.to) ?? null;
+  // 자막/이미지 선택용 — gap 일 때는 직전 비트가 아니라 첫 비트를 fallback 으로 사용 (이미지/모션 표시용)
+  const beat = activeBeat ?? BEATS[0];
 
   // 비트 진입 시 해당 TTS 재생 (autoplay 잠금이 풀린 뒤에만)
   useEffect(() => {
@@ -259,12 +261,12 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
         {partyMode && <Notes />}
       </div>
 
-      {/* 대사 자막 */}
-      {beat.text && (
+      {/* 대사 자막 — gap(비트 사이) 일 때는 자막을 숨겨 이전 자막이 잔상으로 남지 않도록 한다 */}
+      {activeBeat && activeBeat.text && (
         (() => {
-          const palette = beat.who === "ant"
+          const palette = activeBeat.who === "ant"
             ? { bg: "oklch(0.32 0.08 50 / 0.85)", fg: "oklch(0.97 0.03 80)", border: "oklch(0.55 0.12 50 / 0.55)" }
-            : beat.who === "gh"
+            : activeBeat.who === "gh"
             ? { bg: "oklch(0.36 0.13 145 / 0.85)", fg: "oklch(0.98 0.04 110)", border: "oklch(0.65 0.16 145 / 0.55)" }
             : { bg: "oklch(0.97 0.01 90 / 0.88)", fg: "oklch(0.22 0.02 50)", border: "oklch(0.75 0.02 80 / 0.6)" };
           return (
@@ -282,9 +284,9 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
                 boxShadow: "0 6px 18px oklch(0 0 0 / 0.4)",
                 animation: "fade-in 0.4s ease-out",
               }}
-              key={beat.from}
+              key={activeBeat.from}
             >
-              {beat.text}
+              {activeBeat.text}
             </div>
           );
         })()
