@@ -18,6 +18,7 @@ import sfxAsset from "@/assets/scene4/scene4_sfx.mp3.asset.json";
 import { useSceneAudio, useSceneAudioState } from "@/lib/sceneAudio";
 import beatsData from "@/assets/scene4-beats.json";
 import { useSceneBeatPlayback, type SceneBeat } from "@/lib/sceneTts";
+import { useDevTimelineSync } from "@/lib/devTimeline";
 
 /**
  * 씬 4 — 따뜻한 오두막 안. 베짱이와 개미들의 화해와 노래.
