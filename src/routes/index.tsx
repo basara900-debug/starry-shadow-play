@@ -345,6 +345,11 @@ function ShadowTheaterTitle() {
     setTimeout(() => setPressed(null), 160);
     if (i === 0 && loadedCassetteId === "ants-grasshopper") {
       primeScene1Tts();
+      // 씬 2~5 TTS 도 같은 사용자 제스처 안에서 prime 해야 브라우저 autoplay 정책을 통과한다.
+      primeSceneTts(scene2Beats as SceneBeat[]);
+      primeSceneTts(scene3Beats as SceneBeat[]);
+      primeSceneTts(scene4Beats as SceneBeat[]);
+      primeSceneTts(scene5Beats as SceneBeat[]);
     }
     await sfx.click();
     if (i === 0) {
