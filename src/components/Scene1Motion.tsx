@@ -7,39 +7,25 @@ import ghViolin from "@/assets/scene1/gh-violin.png";
 import ghAsk from "@/assets/scene1/gh-ask.png";
 import ghSing from "@/assets/scene1/gh-sing.png";
 import { useSceneAudio } from "@/lib/sceneAudio";
+import beatsData from "@/assets/scene1-beats.json";
 
 /**
- * 씬 1 모션 프레임 — 여름날 열심히 일하는 개미와 놀고 있는 베짱이
- *
- * 비트(초, 1x 기준):
- *  0–6   개미들 줄지어 일함 + 베짱이 바이올린 연주
- *  6–12  베짱이가 개미에게 "왜 이렇게 일해? 힘들지 않아?"
- *  12–18 개미: "추운 겨울을 대비해서 열심히 일해야 해."
- *  18–24 베짱이: "아직 시간 많아! 같이 놀자~"
- *  24–32 베짱이 신나게 노래/연주, 개미는 계속 일함 (루프)
- *
+ * 씬 1 모션 프레임 — TTS 음성과 자막/모션이 싱크된다.
+ * 비트 타임라인(from/to)은 실제 생성된 TTS 음성 길이로 계산됨 (src/assets/scene1-beats.json).
  * speed: 1 | 2 | 0(=정지)
  */
 export type Scene1Speed = 1 | 2 | 0;
 
-const BEATS: { from: number; to: number; who: "gh" | "ant" | "narration"; text: string }[] = [
-  { from: 0,  to: 6,  who: "narration", text: "어느 무더운 여름! 개미들이 들판에서 열심히 일하고 있었습니다." },
-  { from: 6,  to: 12, who: "ant",  text: "영차 영차 열심히 일하자! 오늘 흘리는 땀이 내일에는 큰 보답으로 돌아 올거야" },
-  { from: 12, to: 18, who: "narration", text: "그때 어디선가 베짱이 하나가 개미들이 일하는 곳에 나타났습니다." },
-  { from: 18, to: 24, who: "gh",   text: "우와 저 개미때들을 봐! 정말 이 더운 여름에 열심히 일하네" },
-  { from: 24, to: 32, who: "ant",  text: "자 이것도 가져가고, 요것도 챙겨가자, 어이 친구 거기 땅좀 파줘" },
-  { from: 32, to: 38, who: "narration", text: "개미들이 열심히 일하는게 신기했던 베짱이는 개미들에게 말을 걸었습니다." },
-  { from: 38, to: 44, who: "gh",   text: "개미야 개미야 왜 그렇게 열심히 일하고 있니? 힘들지 않아?" },
-  { from: 44, to: 52, who: "ant",  text: "아~ 베짱이구나, 앞으로 다가올 추운 겨울을 대비해서 열심히 일해놔야 하거든!" },
-  { from: 52, to: 58, who: "gh",   text: "그렇지만, 아직 겨울이 오려면 시간이 많이 남았어, 힘든데 이제 쉬고, 나랑 같이 놀자 개미야!" },
-  { from: 58, to: 64, who: "ant",  text: "미안하지만 우리는 지금 놀 시간이 없어! 그러니 같이 못 놀아, 하지만 너는 재미있게 놀아!" },
-  { from: 64, to: 70, who: "gh",   text: "아이고 딱해라! 열심히 일 하느라고 쉬지를 못하네! 그럼 내가 너희들을 위해 즐거운 노래를 불러줄께" },
-  { from: 70, to: 76, who: "narration", text: "베짱이는 신나게 연주하고 노래를 했고 개미들은 베짱이의 노래를 들으며 열심히 일을 했습니다." },
-  { from: 76, to: 82, who: "ant",  text: "자 이제 해가 지기 전까지 얼마 안 남았어! 모든 일들을 빨리 끝마쳐야 하니 우리 힘내자" },
-  { from: 82, to: 90, who: "narration", text: "어느 무더운 여름날! 개미들은 땀 흘리며 열심히 일하고, 베짱이는 신나게 노래했습니다." },
-];
+type Beat = { i: number; who: "gh" | "ant" | "narration"; text: string; file: string; dur: number; from: number; to: number };
+const BEATS = beatsData as Beat[];
+const LAST_END = BEATS[BEATS.length - 1].to;
+const LOOP_SEC = Math.ceil(LAST_END + 1.5); // TTS 끝난 뒤 약간의 여백
 
-const LOOP_SEC = 90;
+// 모션 동기화 키 타이밍 (대사 시작 시점에 맞춤)
+const FIRST_GH_BEAT = BEATS.find((b) => b.who === "gh")!;
+const ANT_REPLY_BEAT = BEATS.find((b, idx) => idx > 0 && b.who === "gh" && /개미야/.test(b.text))!;
+const SING_START_BEAT = BEATS.find((b) => /노래를 불러/.test(b.text))!;
+const SING_END = LAST_END;
 
 export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComplete?: () => void }) {
   const [t, setT] = useState(0);
@@ -54,9 +40,34 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
   useSceneAudio({
     bgm: "/audio/scene1_bgm.mp3",
     sfx: "/audio/summer_insects_90s_vfx.wav",
-    bgmVolume: 0.85,
+    bgmVolume: 0.35, // TTS 가청성을 위해 BGM 낮춤
     sfxVolume: 1.0,
   });
+
+  // TTS 오디오 풀
+  const audioRef = useRef<HTMLAudioElement[]>([]);
+  const activeIdxRef = useRef<number>(-1);
+  useEffect(() => {
+    audioRef.current = BEATS.map((b) => {
+      const a = new Audio(b.file);
+      a.preload = "auto";
+      a.volume = 1;
+      return a;
+    });
+    return () => {
+      audioRef.current.forEach((a) => { a.pause(); a.src = ""; });
+      audioRef.current = [];
+      activeIdxRef.current = -1;
+    };
+  }, []);
+
+  // 속도/정지 반영
+  useEffect(() => {
+    audioRef.current.forEach((a) => {
+      if (speed === 0) a.pause();
+      else a.playbackRate = speed;
+    });
+  }, [speed]);
 
   useEffect(() => {
     if (speed === 0) return;
@@ -69,7 +80,13 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
         doneRef.current = true;
         window.setTimeout(() => onCompleteRef.current?.(), 0);
       }
-      timeRef.current = next % LOOP_SEC;
+      const looped = next % LOOP_SEC;
+      if (looped < timeRef.current) {
+        // 루프 — 모든 TTS 멈춤
+        audioRef.current.forEach((a) => { a.pause(); a.currentTime = 0; });
+        activeIdxRef.current = -1;
+      }
+      timeRef.current = looped;
       setT(timeRef.current);
       rafRef.current = requestAnimationFrame(step);
     };
@@ -82,6 +99,26 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
 
   const beat = BEATS.find((b) => t >= b.from && t < b.to) ?? BEATS[0];
 
+  // 비트 진입 시 해당 TTS 재생
+  useEffect(() => {
+    if (speed === 0) return;
+    const idx = BEATS.findIndex((b) => t >= b.from && t < b.to);
+    if (idx === -1) return;
+    if (activeIdxRef.current === idx) return;
+    const prev = activeIdxRef.current;
+    if (prev >= 0 && audioRef.current[prev]) {
+      audioRef.current[prev].pause();
+      audioRef.current[prev].currentTime = 0;
+    }
+    const a = audioRef.current[idx];
+    if (a) {
+      a.currentTime = Math.max(0, t - BEATS[idx].from);
+      a.playbackRate = speed;
+      a.play().catch(() => {});
+    }
+    activeIdxRef.current = idx;
+  }, [t, speed]);
+
   // 개미 행진 위치 (좌 → 우, 12초 주기)
   const marchT = (t % 12) / 12;
   const antX = (offset: number) => ((marchT + offset) % 1) * 110 - 10;
@@ -90,12 +127,13 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
   const sway = Math.sin(t * 2.4) * 2;
   const bob = Math.sin(t * 3.1) * 1.5;
 
-  // 베짱이가 신나게 노래/점프하는 구간: 52–58s, 70–90s
-  const partyMode = (t >= 52 && t < 58) || (t >= 70 && t < 90);
+  // 베짱이가 신나게 노래/점프 — 노래 시작 대사부터 씬 끝까지
+  const partyMode = t >= SING_START_BEAT.from && t < SING_END;
 
-  // 베짱이 진입 애니메이션 (0–2.4s): 화면 아래에서 꽃밭 앞쪽으로 살짝 튀어오르며 등장
+  // 베짱이 진입 — 첫 베짱이 대사 시작 직전에 튀어오르며 등장
   const ENTRY_DUR = 2.4;
-  const entryP = Math.min(1, Math.max(0, t / ENTRY_DUR));
+  const entryStart = Math.max(0, FIRST_GH_BEAT.from - ENTRY_DUR);
+  const entryP = Math.min(1, Math.max(0, (t - entryStart) / ENTRY_DUR));
   // easeOutBack 느낌
   const easeOutBack = (p: number) => {
     const c1 = 1.70158;
@@ -117,8 +155,8 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
       <Ant src={antPush}  x={antX(0.66)} bottom={2}  h={27} flip />
       <Ant src={antWalk}  x={antX(0.15)} bottom={6}  h={22} flip />
 
-      {/* 32s 이후 등장하는 대화 상대 개미 — 화면 중앙에서 베짱이(왼쪽)를 바라봄 */}
-      {t >= 32 && (
+      {/* 베짱이가 개미에게 직접 말 걸 때 등장하는 대화 상대 개미 */}
+      {t >= ANT_REPLY_BEAT.from && (
         <img
           src={antWalk}
           alt=""
@@ -133,7 +171,7 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
           transform: `scaleX(-1) translateY(${Math.sin(t * 3) * 1.2}px)`,
             transformOrigin: "bottom center",
             filter: "drop-shadow(0 2px 3px oklch(0 0 0 / 0.35))",
-            opacity: Math.min(1, (t - 32) / 0.6),
+            opacity: Math.min(1, (t - ANT_REPLY_BEAT.from) / 0.6),
           }}
         />
       )}
@@ -207,7 +245,7 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
           fontSize: 10, padding: "2px 8px", borderRadius: 999,
         }}
       >
-        씬 1 · {Math.floor(t)}s / {LOOP_SEC}s
+        씬 1 · {t.toFixed(1)}s / {LOOP_SEC}s · 비트 {beat.i + 1}/{BEATS.length}
       </div>
     </div>
   );
