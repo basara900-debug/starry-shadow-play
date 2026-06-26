@@ -6,7 +6,9 @@ import gh6 from "@/assets/scene2/gh-6.png";
 import ant2 from "@/assets/scene2/ant-2.png";
 import ant4 from "@/assets/scene2/ant-4.png";
 import ant6 from "@/assets/scene2/ant-6.png";
-import { useSceneAudio } from "@/lib/sceneAudio";
+import { useSceneAudio, useSceneAudioState } from "@/lib/sceneAudio";
+import beatsData from "@/assets/scene2-beats.json";
+import { useSceneBeatPlayback, type SceneBeat } from "@/lib/sceneTts";
 
 /**
  * 씬 2 모션 — 가을, 베짱이는 우측 중간에서 6초마다 포즈 전환,
@@ -16,30 +18,17 @@ export type Scene2Speed = 1 | 2 | 0;
 
 const GH_POSES = [gh2, gh3, gh5, gh6];
 const GH_INTERVAL = 6; // 초
-const LOOP_SEC = 90; // 전체 씬 2 길이
-
 const ANTS = [ant2, ant4, ant6];
 
-type Line = { from: number; to: number; who: "ant" | "gh" | "narration"; text: string };
-const LINES: Line[] = [
-  { from: 0,  to: 6,  who: "narration", text: "더운 여름이 가고 이제 가을이 왔지만 개미들은 여전히 땀을 흘리며 열심히 일하고 있었습니다." },
-  { from: 6,  to: 12, who: "ant", text: "영차 영차! 이제 곧 겨울이 올거야! 더 추워지기 전에 만반의 대비를 마치자" },
-  { from: 12, to: 18, who: "ant", text: "자 이것도 가져가고, 요것도 챙겨가자, 어이 친구 거기 있는 재료 좀 챙겨줘!" },
-  { from: 18, to: 24, who: "gh",  text: "아직도 열심히 일하고 있네! 개미야 겨울은 아직 멀었다구! 나랑 같이 노래 부르면 좋을텐데" },
-  { from: 24, to: 32, who: "gh",  text: "개미야 왜 그렇게 열심히 일하니? 쉬고 싶지 않아? 놀고 싶지 않아?" },
-  { from: 32, to: 38, who: "narration", text: "베짱이가 개미에게 말을 거니 개미 하나가 베짱이를 보고 대답을 했습니다." },
-  { from: 38, to: 44, who: "ant", text: "베짱이야, 추운 겨울이 얼마 안 남았어 그때를 대비해서 열심히 일해야 돼!" },
-  { from: 44, to: 52, who: "gh",  text: "하지만 개미야 지금까지 일을 많이 했잖아, 이제 좀 쉬고 나랑 같이 놀자!" },
-  { from: 52, to: 58, who: "narration", text: "베짱이는 춤추고 노래를 부르며 개미에게 말했지만, 개미는 쉬지 않고 계속 일했습니다." },
-  { from: 58, to: 64, who: "ant", text: "미안해 베짱이야! 하지만 우린 아직 해야 할 게 많아서 계속 일할께" },
-  { from: 64, to: 70, who: "gh",  text: "아이고 딱해라 열심히 일만 하느라 놀지를 못하네! 그럼 내가 또 너희들을 위해 노래를 불러줄께" },
-  { from: 70, to: 76, who: "narration", text: "베짱이는 신나게 연주하면서 노래를 불렀고, 개미들은 베짱이의 노래를 들으며 열심히 일했습니다." },
-  { from: 76, to: 82, who: "ant", text: "자 더 추워지기 전까지 모든 준비를 끝마쳐야 한다! 모두 힘내자!" },
-  { from: 82, to: 90, who: "narration", text: "어느덧 하늘은 붉게 물들고 바람은 차가워 지기 시작했습니다." },
-];
+const BEATS = beatsData as SceneBeat[];
+const LAST_END = BEATS[BEATS.length - 1].to;
+const LOOP_SEC = Math.ceil(LAST_END + 1.5);
+// 베짱이가 처음 말하는 시점, 개미가 베짱이에게 답하는 시점 — 모션 동기화 키
+const FIRST_GH_BEAT = BEATS.find((b) => b.who === "gh")!;
+const ANT_REPLY_BEAT = BEATS.find((b) => b.who === "ant" && /베짱이/.test(b.text))!;
 
-function currentLine(t: number): Line | null {
-  return LINES.find((l) => t >= l.from && t < l.to) ?? null;
+function currentLine(t: number): SceneBeat | null {
+  return BEATS.find((b) => t >= b.from && t < b.to) ?? null;
 }
 
 export function Scene2Motion({ speed, onComplete }: { speed: Scene2Speed; onComplete?: () => void }) {
@@ -55,9 +44,11 @@ export function Scene2Motion({ speed, onComplete }: { speed: Scene2Speed; onComp
   useSceneAudio({
     bgm: "/audio/scene2_bgm.mp3",
     sfx: "/audio/scene2_sfx.mp3",
-    bgmVolume: 0.85,
-    sfxVolume: 0.55,
+    bgmVolume: 0.35,
+    sfxVolume: 0.35,
   });
+  const audioState = useSceneAudioState();
+  useSceneBeatPlayback(BEATS, t, speed, audioState);
 
   useEffect(() => {
     if (speed === 0) return;
@@ -101,8 +92,8 @@ export function Scene2Motion({ speed, onComplete }: { speed: Scene2Speed; onComp
       <Ant src={ANTS[1]} x={antX(0.33)} bottom={6} h={22} />
       <Ant src={ANTS[2]} x={antX(0.66)} bottom={3} h={26} />
 
-      {/* 32초~ : 나뭇잎을 짊어진 개미가 베짱이와 마주보고 대화 (중앙 하단 15%) */}
-      {t >= 32 && (
+      {/* 개미가 베짱이에게 답하는 비트 이후, 마주보고 대화 (중앙 하단 15%) */}
+      {t >= ANT_REPLY_BEAT.from && (
         <img
           src={ANTS[0]}
           alt=""
@@ -116,7 +107,7 @@ export function Scene2Motion({ speed, onComplete }: { speed: Scene2Speed; onComp
             transform: `translateX(-50%) scaleX(-1) translateY(${Math.sin(t * 3) * 1.5}px)`,
             transformOrigin: "bottom center",
             filter: "drop-shadow(0 3px 5px oklch(0 0 0 / 0.4))",
-            opacity: Math.min(1, (t - 32) / 0.6),
+            opacity: Math.min(1, (t - ANT_REPLY_BEAT.from) / 0.6),
             transition: "opacity 0.2s linear",
           }}
         />
@@ -160,7 +151,7 @@ export function Scene2Motion({ speed, onComplete }: { speed: Scene2Speed; onComp
           borderRadius: 999,
         }}
       >
-        씬 2 · {Math.floor(t)}s / {LOOP_SEC}s
+        씬 2 · {t.toFixed(1)}s / {LOOP_SEC}s
       </div>
 
       {/* 대사 자막 */}
@@ -169,7 +160,7 @@ export function Scene2Motion({ speed, onComplete }: { speed: Scene2Speed; onComp
   );
 }
 
-function Subtitle({ line }: { line: Line | null }) {
+function Subtitle({ line }: { line: SceneBeat | null }) {
   if (!line) return null;
   const palette =
     line.who === "ant"
