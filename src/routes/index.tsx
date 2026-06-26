@@ -29,6 +29,7 @@ import {
   usePrimeSceneAudio,
   type SceneSpeed,
 } from "@/lib/sceneAudio";
+import { DevSubtitleToolbar } from "@/components/DevSubtitleToolbar";
 
 export const Route = createFileRoute("/")({
   component: ShadowTheaterRoute,
@@ -680,6 +681,8 @@ function TheaterStage({
   // 개발용 격자 오버레이 — 캐릭터/아이템 위치를 % 로 잡을 때 가이드.
   // 좌 0% → 우 100%, 아래 0% → 위 100% (skill/position-percentage-convention 과 동일).
   const [gridOn, setGridOn] = useState(true);
+  // 개발용 자막/타임라인 툴바 — 활성 씬의 대사 비트를 슬라이드/정지하며 확인.
+  const [devToolbarOn, setDevToolbarOn] = useState(true);
 
   // 공용 오디오 버스에 현재 재생 속도를 반영 (일시정지 시 0).
   const audioCtl = useSceneAudioControls();
