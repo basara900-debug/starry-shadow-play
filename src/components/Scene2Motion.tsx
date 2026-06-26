@@ -23,8 +23,7 @@ const ANTS = [ant2, ant4, ant6];
 const BEATS = beatsData as SceneBeat[];
 const LAST_END = BEATS[BEATS.length - 1].to;
 const LOOP_SEC = Math.ceil(LAST_END + 1.5);
-// 베짱이가 처음 말하는 시점, 개미가 베짱이에게 답하는 시점 — 모션 동기화 키
-const FIRST_GH_BEAT = BEATS.find((b) => b.who === "gh")!;
+// 모션 동기화 키 — 개미가 베짱이에게 답하는 비트
 const ANT_REPLY_BEAT = BEATS.find((b) => b.who === "ant" && /베짱이/.test(b.text))!;
 
 function currentLine(t: number): SceneBeat | null {
