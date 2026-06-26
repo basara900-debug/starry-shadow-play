@@ -584,6 +584,9 @@ function TheaterStage({
   const [playState, setPlayState] = useState<"1x" | "2x" | "paused">("1x");
   const [pressed, setPressed] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
+  // 개발용 격자 오버레이 — 캐릭터/아이템 위치를 % 로 잡을 때 가이드.
+  // 좌 0% → 우 100%, 아래 0% → 위 100% (skill/position-percentage-convention 과 동일).
+  const [gridOn, setGridOn] = useState(true);
 
   // 공용 오디오 버스에 현재 재생 속도를 반영 (일시정지 시 0).
   const audioCtl = useSceneAudioControls();
