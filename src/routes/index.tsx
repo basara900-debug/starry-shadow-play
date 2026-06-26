@@ -13,6 +13,12 @@ import { CASSETTES, type Cassette } from "@/data/cassettes";
 import { TOWN_COUNTRY_STORY } from "@/data/townCountryStory";
 import { supabase } from "@/integrations/supabase/client";
 import { primeScene1Tts, Scene1Motion, type Scene1Speed } from "@/components/Scene1Motion";
+import { primeSceneTts } from "@/lib/sceneTts";
+import scene2Beats from "@/assets/scene2-beats.json";
+import scene3Beats from "@/assets/scene3-beats.json";
+import scene4Beats from "@/assets/scene4-beats.json";
+import scene5Beats from "@/assets/scene5-beats.json";
+import type { SceneBeat } from "@/lib/sceneTts";
 import { Scene2Motion, type Scene2Speed } from "@/components/Scene2Motion";
 import { Scene3Motion, type Scene3Speed } from "@/components/Scene3Motion";
 import { Scene4Motion, type Scene4Speed } from "@/components/Scene4Motion";
@@ -339,6 +345,11 @@ function ShadowTheaterTitle() {
     setTimeout(() => setPressed(null), 160);
     if (i === 0 && loadedCassetteId === "ants-grasshopper") {
       primeScene1Tts();
+      // 씬 2~5 TTS 도 같은 사용자 제스처 안에서 prime 해야 브라우저 autoplay 정책을 통과한다.
+      primeSceneTts(scene2Beats as SceneBeat[]);
+      primeSceneTts(scene3Beats as SceneBeat[]);
+      primeSceneTts(scene4Beats as SceneBeat[]);
+      primeSceneTts(scene5Beats as SceneBeat[]);
     }
     await sfx.click();
     if (i === 0) {
