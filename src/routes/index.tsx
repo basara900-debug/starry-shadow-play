@@ -929,6 +929,21 @@ function TheaterStage({
 
       {/* 우상단 - 씬 추가 / 초기화 */}
       <div className="absolute flex gap-2" style={{ right: "2.5%", top: "3.5%" }}>
+        <button
+          type="button"
+          onClick={() => setGridOn((v) => !v)}
+          className="cursor-pointer rounded-full border-0 text-[11px] font-semibold"
+          style={{
+            padding: "5px 12px",
+            background: gridOn ? "oklch(0.55 0.16 220 / 0.9)" : "oklch(0.3 0.02 50 / 0.75)",
+            color: "oklch(0.97 0.04 80)",
+            border: "1px solid oklch(0.85 0.08 75 / 0.3)",
+          }}
+          aria-pressed={gridOn}
+          title="격자 (좌 0~100%, 아래 0~100%) — 캐릭터 위치 잡기용"
+        >
+          {gridOn ? "▦ 격자 ON" : "▦ 격자 OFF"}
+        </button>
         {allowSceneUploads && (
           <button
             type="button"
