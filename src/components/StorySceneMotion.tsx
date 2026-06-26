@@ -233,6 +233,26 @@ export function StorySceneMotion({
     ? postSegments.filter((s) => t >= s.from && t < s.to)
     : [];
 
+  // 씬 3: 캐릭터 모션
+  // 0~12s: 한 쌍 캐릭터 시트 (120% 확대) — left 80% → 50%, bottom 15%
+  const showScene3Pair = scene.id === "town-country-3" && t < 12;
+  const scene3PairProgress = showScene3Pair ? Math.min(1, t / 12) : 0;
+  const scene3PairLeftPct = 80 + (50 - 80) * scene3PairProgress;
+  const scene3PairEntry = showScene3Pair ? Math.min(1, t / 0.5) : 0;
+
+  // 12~24s: 서울쥐 3장 (city) — left 40%, bottom 50%, 로테이션(좌우 흔들림)으로 포즈 순환
+  // 12~24s: 시골쥐 3장 (country) — left 50%, bottom 15%, 동일 로테이션 모션
+  const scene3CityFrames = [scene3City1Asset.url, scene3City2Asset.url, scene3City3Asset.url];
+  const scene3CountryFrames = [scene3Country1Asset.url, scene3Country2Asset.url, scene3Country3Asset.url];
+  const showScene3Rotation = scene.id === "town-country-3" && t >= 12 && t < 24;
+  const scene3RotT = showScene3Rotation ? t - 12 : 0;
+  const SCENE3_POSE_DUR = 4; // 12초 / 3포즈
+  const scene3PoseIdx = showScene3Rotation
+    ? Math.min(scene3CityFrames.length - 1, Math.floor(scene3RotT / SCENE3_POSE_DUR))
+    : 0;
+  const scene3RotAngle = Math.sin(scene3RotT * 2.4) * 10; // ±10도 로테이션
+  const scene3RotEntry = showScene3Rotation ? Math.min(1, (t - 12) / 0.4) : 0;
+
   return (
     <div className="pointer-events-none absolute inset-0 select-none overflow-hidden">
       {/* 씬 4: 60~90초 구간에서 배경을 서울쥐 방안(씬 2 배경)으로 전환 */}
