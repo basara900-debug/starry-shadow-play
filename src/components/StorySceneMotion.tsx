@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSceneAudio } from "@/lib/sceneAudio";
 import type { StorySceneDefinition, StorySpeaker } from "@/data/townCountryStory";
 import countryMouseCutout from "@/assets/town-country/country_mouse_cutout.png";
+import scene2BgAsset from "@/assets/town-country/scene2.jpg.asset.json";
 import sheet1Asset from "@/assets/town-country/country_sheet_1.png.asset.json";
 import sheet2Asset from "@/assets/town-country/country_sheet_2.png.asset.json";
 import sheet3Asset from "@/assets/town-country/country_sheet_3.png.asset.json";
