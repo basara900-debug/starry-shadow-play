@@ -546,7 +546,7 @@ export function StorySceneMotion({
           className="absolute"
           style={{
             left: "60%",
-            bottom: "30%",
+            bottom: "35%",
             height: "22%",
             width: "auto",
             transform: `translate(-50%, ${cmBob}px) rotate(${scene3RotAngle}deg)`,
