@@ -140,7 +140,7 @@ export function Scene5Motion({ speed, onComplete }: { speed: Scene5Speed; onComp
   );
 }
 
-function Subtitle({ line }: { line: Line }) {
+function Subtitle({ line }: { line: SceneBeat }) {
   const palette = {
     bg: "oklch(0.97 0.01 90 / 0.88)",
     fg: "oklch(0.22 0.02 50)",
