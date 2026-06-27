@@ -227,8 +227,8 @@ export function DevSubtitleToolbar({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 6,
-          fontSize: 10,
+          gap: 5,
+          fontSize: 9,
         }}
       >
         <button
