@@ -270,11 +270,11 @@ export function DevSubtitleToolbar({
 }
 
 const btnStyle: React.CSSProperties = {
-  padding: "2px 6px",
-  borderRadius: 4,
+  padding: "1px 5px",
+  borderRadius: 3,
   border: "1px solid oklch(0.5 0.05 220 / 0.4)",
   background: "oklch(0.18 0.02 50 / 0.9)",
   color: "oklch(0.92 0.03 80)",
   cursor: "pointer",
-  fontSize: 10,
+  fontSize: 9,
 };
