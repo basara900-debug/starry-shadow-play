@@ -106,18 +106,15 @@ export function DevSubtitleToolbar({
   return (
     <div
       style={{
-        position: "absolute",
-        left: 0,
-        right: 0,
-        bottom: 0,
-        padding: "6px 8px 6px",
+        position: "relative",
+        height: "100%",
+        padding: "4px 6px",
         background: "oklch(0.1 0.02 50 / 0.92)",
         color: "oklch(0.95 0.03 80)",
         borderTop: "1px solid oklch(0.55 0.08 220 / 0.5)",
-        zIndex: 60,
         display: "flex",
         flexDirection: "column",
-        gap: 4,
+        gap: 2,
         fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
       }}
     >
