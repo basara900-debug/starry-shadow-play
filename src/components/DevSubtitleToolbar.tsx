@@ -123,21 +123,21 @@ export function DevSubtitleToolbar({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 6,
-          minHeight: 18,
-          fontSize: 11,
-          lineHeight: 1.25,
+          gap: 5,
+          minHeight: 14,
+          fontSize: 10,
+          lineHeight: 1.2,
         }}
       >
         <span
           style={{
             flex: "0 0 auto",
-            padding: "1px 6px",
+            padding: "1px 5px",
             borderRadius: 999,
             background: whoColor,
             color: "oklch(0.12 0.02 50)",
             fontWeight: 700,
-            fontSize: 9,
+            fontSize: 8,
             letterSpacing: 0.3,
           }}
         >
@@ -148,7 +148,7 @@ export function DevSubtitleToolbar({
             flex: 1,
             color: activeBeat ? "oklch(0.97 0.03 80)" : "oklch(0.6 0.02 80)",
             fontFamily: "ui-sans-serif, system-ui",
-            fontSize: 11,
+            fontSize: 10,
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
