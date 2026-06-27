@@ -8,6 +8,7 @@ import ghAsk from "@/assets/scene1/gh-ask.png";
 import ghSing from "@/assets/scene1/gh-sing.png";
 import { useSceneAudio, useSceneAudioState } from "@/lib/sceneAudio";
 import beatsData from "@/assets/scene1-beats.json";
+import scene1Sfx from "@/assets/scene1/scene1_cricket.mp3.asset.json";
 import { useDevTimelineSync } from "@/lib/devTimeline";
 
 /**
@@ -73,7 +74,7 @@ export function Scene1Motion({ speed, onComplete }: { speed: Scene1Speed; onComp
   // 공용 오디오 버스에 씬1 BGM/SFX 등록 — 툴바(BGM/SFX/음소거/속도)가 자동 반영된다.
   useSceneAudio({
     bgm: "/audio/scene1_bgm.mp3",
-    sfx: "/audio/summer_insects_90s_vfx.wav",
+    sfx: scene1Sfx.url,
     bgmVolume: 0.35, // TTS 가청성을 위해 BGM 낮춤
     sfxVolume: 1.0,
   });
