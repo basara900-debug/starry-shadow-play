@@ -986,15 +986,26 @@ function TheaterStage({
           </button>
         )}
         {gridOn && <DevGridOverlay />}
-        {devToolbarOn && (
+      </div>
+
+      {/* 개발용 자막/타임라인 툴바 — 스크린(연극 창) 밖, 무대 하단 프레임에 배치 */}
+      {devToolbarOn && (
+        <div
+          className="absolute left-0 right-0"
+          style={{
+            bottom: 0,
+            height: "44px",
+            zIndex: 60,
+          }}
+        >
           <DevSubtitleToolbar
             paused={paused}
             onTogglePlay={() =>
               setPlayState((s) => (s === "paused" ? "1x" : "paused"))
             }
           />
-        )}
-      </div>
+        </div>
+      )}
 
       {/* 재생 상태 뱃지 */}
       <div

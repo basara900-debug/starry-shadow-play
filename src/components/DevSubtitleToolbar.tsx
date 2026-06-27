@@ -54,17 +54,16 @@ export function DevSubtitleToolbar({
     return (
       <div
         style={{
-          position: "absolute",
-          left: 0,
-          right: 0,
-          bottom: 0,
-          padding: "8px 10px",
+          position: "relative",
+          height: "100%",
+          padding: "4px 6px",
           background: "oklch(0.12 0.02 50 / 0.85)",
           color: "oklch(0.85 0.03 80)",
-          fontSize: 10,
+          fontSize: 9,
           fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
           borderTop: "1px solid oklch(0.5 0.05 220 / 0.4)",
-          zIndex: 60,
+          display: "flex",
+          alignItems: "center",
         }}
       >
         ◇ 개발자 타임라인 대기 중 (활성 씬 없음)
@@ -107,18 +106,15 @@ export function DevSubtitleToolbar({
   return (
     <div
       style={{
-        position: "absolute",
-        left: 0,
-        right: 0,
-        bottom: 0,
-        padding: "6px 8px 6px",
+        position: "relative",
+        height: "100%",
+        padding: "4px 6px",
         background: "oklch(0.1 0.02 50 / 0.92)",
         color: "oklch(0.95 0.03 80)",
         borderTop: "1px solid oklch(0.55 0.08 220 / 0.5)",
-        zIndex: 60,
         display: "flex",
         flexDirection: "column",
-        gap: 4,
+        gap: 2,
         fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
       }}
     >
@@ -127,21 +123,21 @@ export function DevSubtitleToolbar({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 6,
-          minHeight: 18,
-          fontSize: 11,
-          lineHeight: 1.25,
+          gap: 5,
+          minHeight: 14,
+          fontSize: 10,
+          lineHeight: 1.2,
         }}
       >
         <span
           style={{
             flex: "0 0 auto",
-            padding: "1px 6px",
+            padding: "1px 5px",
             borderRadius: 999,
             background: whoColor,
             color: "oklch(0.12 0.02 50)",
             fontWeight: 700,
-            fontSize: 9,
+            fontSize: 8,
             letterSpacing: 0.3,
           }}
         >
@@ -152,7 +148,7 @@ export function DevSubtitleToolbar({
             flex: 1,
             color: activeBeat ? "oklch(0.97 0.03 80)" : "oklch(0.6 0.02 80)",
             fontFamily: "ui-sans-serif, system-ui",
-            fontSize: 11,
+            fontSize: 10,
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
@@ -170,9 +166,9 @@ export function DevSubtitleToolbar({
         onPointerMove={handlePointerMove}
         style={{
           position: "relative",
-          height: 14,
+          height: 10,
           background: "oklch(0.2 0.02 50)",
-          borderRadius: 4,
+          borderRadius: 3,
           cursor: "pointer",
           touchAction: "none",
           overflow: "hidden",
@@ -231,22 +227,22 @@ export function DevSubtitleToolbar({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 6,
-          fontSize: 10,
+          gap: 5,
+          fontSize: 9,
         }}
       >
         <button
           type="button"
           onClick={onTogglePlay}
           style={{
-            padding: "2px 8px",
-            borderRadius: 4,
+            padding: "1px 6px",
+            borderRadius: 3,
             border: "1px solid oklch(0.55 0.08 220 / 0.5)",
             background: paused ? "oklch(0.55 0.16 80 / 0.9)" : "oklch(0.3 0.05 220 / 0.9)",
             color: "oklch(0.98 0.02 80)",
             fontWeight: 700,
             cursor: "pointer",
-            fontSize: 10,
+            fontSize: 9,
           }}
         >
           {paused ? "▶ 재생" : "⏸ 정지"}
@@ -274,11 +270,11 @@ export function DevSubtitleToolbar({
 }
 
 const btnStyle: React.CSSProperties = {
-  padding: "2px 6px",
-  borderRadius: 4,
+  padding: "1px 5px",
+  borderRadius: 3,
   border: "1px solid oklch(0.5 0.05 220 / 0.4)",
   background: "oklch(0.18 0.02 50 / 0.9)",
   color: "oklch(0.92 0.03 80)",
   cursor: "pointer",
-  fontSize: 10,
+  fontSize: 9,
 };
