@@ -54,17 +54,16 @@ export function DevSubtitleToolbar({
     return (
       <div
         style={{
-          position: "absolute",
-          left: 0,
-          right: 0,
-          bottom: 0,
-          padding: "8px 10px",
+          position: "relative",
+          height: "100%",
+          padding: "4px 6px",
           background: "oklch(0.12 0.02 50 / 0.85)",
           color: "oklch(0.85 0.03 80)",
-          fontSize: 10,
+          fontSize: 9,
           fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
           borderTop: "1px solid oklch(0.5 0.05 220 / 0.4)",
-          zIndex: 60,
+          display: "flex",
+          alignItems: "center",
         }}
       >
         ◇ 개발자 타임라인 대기 중 (활성 씬 없음)
