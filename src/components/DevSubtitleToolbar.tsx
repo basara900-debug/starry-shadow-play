@@ -235,14 +235,14 @@ export function DevSubtitleToolbar({
           type="button"
           onClick={onTogglePlay}
           style={{
-            padding: "2px 8px",
-            borderRadius: 4,
+            padding: "1px 6px",
+            borderRadius: 3,
             border: "1px solid oklch(0.55 0.08 220 / 0.5)",
             background: paused ? "oklch(0.55 0.16 80 / 0.9)" : "oklch(0.3 0.05 220 / 0.9)",
             color: "oklch(0.98 0.02 80)",
             fontWeight: 700,
             cursor: "pointer",
-            fontSize: 10,
+            fontSize: 9,
           }}
         >
           {paused ? "▶ 재생" : "⏸ 정지"}
