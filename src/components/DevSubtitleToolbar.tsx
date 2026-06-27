@@ -166,9 +166,9 @@ export function DevSubtitleToolbar({
         onPointerMove={handlePointerMove}
         style={{
           position: "relative",
-          height: 14,
+          height: 10,
           background: "oklch(0.2 0.02 50)",
-          borderRadius: 4,
+          borderRadius: 3,
           cursor: "pointer",
           touchAction: "none",
           overflow: "hidden",
