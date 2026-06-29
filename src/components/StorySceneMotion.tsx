@@ -284,6 +284,20 @@ export function StorySceneMotion({
     : 0;
   const scene3CityAltEntry = showScene3CityAlt ? Math.min(1, ((t - 24) % 4) / 0.4) : 0;
 
+  // 씬 3 36~52s: 서울쥐 신규 시트 5장 — left 60%, bottom 40%, 4초 간격 전환
+  const scene3CityAlt2Frames = [
+    scene3CityDAsset.url,
+    scene3CityEAsset.url,
+    scene3CityFAsset.url,
+    scene3CityGAsset.url,
+    scene3CityHAsset.url,
+  ];
+  const showScene3CityAlt2 = scene.id === "town-country-3" && t >= 36 && t < 52;
+  const scene3CityAlt2Idx = showScene3CityAlt2
+    ? Math.min(scene3CityAlt2Frames.length - 1, Math.floor((t - 36) / 4))
+    : 0;
+  const scene3CityAlt2Entry = showScene3CityAlt2 ? Math.min(1, ((t - 36) % 4) / 0.4) : 0;
+
   return (
     <div className="pointer-events-none absolute inset-0 select-none overflow-hidden">
       {/* 씬 4: 60~90초 구간에서 배경을 서울쥐 방안(씬 2 배경)으로 전환 */}
