@@ -40,6 +40,11 @@ import scene3Country3Asset from "@/assets/town-country/scene3_country3.png.asset
 import scene3CityAAsset from "@/assets/town-country/scene3_city_a.png.asset.json";
 import scene3CityBAsset from "@/assets/town-country/scene3_city_b.png.asset.json";
 import scene3CityCAsset from "@/assets/town-country/scene3_city_c.png.asset.json";
+import scene3CityDAsset from "@/assets/town-country/scene3_city_d.png.asset.json";
+import scene3CityEAsset from "@/assets/town-country/scene3_city_e.png.asset.json";
+import scene3CityFAsset from "@/assets/town-country/scene3_city_f.png.asset.json";
+import scene3CityGAsset from "@/assets/town-country/scene3_city_g.png.asset.json";
+import scene3CityHAsset from "@/assets/town-country/scene3_city_h.png.asset.json";
 
 const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   narration: "나레이션",
