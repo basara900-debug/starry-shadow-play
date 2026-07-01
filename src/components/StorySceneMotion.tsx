@@ -49,6 +49,7 @@ import scene3CityIAsset from "@/assets/town-country/scene3_city_i.png.asset.json
 import scene3CityJAsset from "@/assets/town-country/scene3_city_j.png.asset.json";
 import scene3CityKAsset from "@/assets/town-country/scene3_city_k.png.asset.json";
 import scene3CityLAsset from "@/assets/town-country/scene3_city_l.png.asset.json";
+import scene3CityMAsset from "@/assets/town-country/scene3_city_m.png.asset.json";
 
 const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   narration: "나레이션",
@@ -310,9 +311,11 @@ export function StorySceneMotion({
     : 0;
   const scene3CityAlt3Entry = showScene3CityAlt3 ? Math.min(1, ((t - 52) % 4) / 0.4) : 0;
 
-  // 씬 3 64~70s: 서울쥐 신규 시트 1장 — left 60%, bottom 40%
-  const showScene3CityAlt4 = scene.id === "town-country-3" && t >= 64 && t < 70;
-  const scene3CityAlt4Entry = showScene3CityAlt4 ? Math.min(1, (t - 64) / 0.4) : 0;
+  // 씬 3 64~70s: 달리는 서울쥐(좌우 반전) — left 60% → 40%, bottom 40%
+  const showScene3CityRun = scene.id === "town-country-3" && t >= 64 && t < 70;
+  const scene3CityRunProgress = showScene3CityRun ? (t - 64) / 6 : 0;
+  const scene3CityRunLeftPct = 60 + (40 - 60) * scene3CityRunProgress;
+  const scene3CityRunEntry = showScene3CityRun ? Math.min(1, (t - 64) / 0.4) : 0;
 
   return (
     <div className="pointer-events-none absolute inset-0 select-none overflow-hidden">
@@ -698,23 +701,23 @@ export function StorySceneMotion({
           }}
         />
       )}
-      {showScene3CityAlt4 && (
+      {showScene3CityRun && (
         <img
-          key="scene3-city-alt4"
-          src={scene3CityLAsset.url}
+          key="scene3-city-run"
+          src={scene3CityMAsset.url}
           alt=""
           draggable={false}
           className="absolute"
           style={{
-            left: "60%",
+            left: `${scene3CityRunLeftPct}%`,
             bottom: "40%",
             height: "22%",
             width: "auto",
-            transform: `translate(-50%, ${cmBob}px) rotate(${cmSway}deg)`,
+            transform: `translate(-50%, ${cmBob}px) scaleX(-1)`,
             transformOrigin: "bottom center",
-            opacity: Math.max(0.9, scene3CityAlt4Entry),
+            opacity: Math.max(0.9, scene3CityRunEntry),
             filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
-            transition: "transform 100ms linear",
+            transition: "left 100ms linear, transform 100ms linear",
           }}
         />
       )}
