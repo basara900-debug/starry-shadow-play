@@ -311,10 +311,6 @@ export function StorySceneMotion({
     : 0;
   const scene3CityAlt3Entry = showScene3CityAlt3 ? Math.min(1, ((t - 52) % 4) / 0.4) : 0;
 
-  // 씬 3 64~70s: 서울쥐 신규 시트 1장 — left 60%, bottom 40%
-  const showScene3CityAlt4 = scene.id === "town-country-3" && t >= 64 && t < 70;
-  const scene3CityAlt4Entry = showScene3CityAlt4 ? Math.min(1, (t - 64) / 0.4) : 0;
-
   // 씬 3 64~70s: 달리는 서울쥐(좌우 반전) — left 60% → 40%, bottom 40%
   const showScene3CityRun = scene.id === "town-country-3" && t >= 64 && t < 70;
   const scene3CityRunProgress = showScene3CityRun ? (t - 64) / 6 : 0;
@@ -700,26 +696,6 @@ export function StorySceneMotion({
             transform: `translate(-50%, ${cmBob}px) rotate(${cmSway}deg)`,
             transformOrigin: "bottom center",
             opacity: Math.max(0.9, scene3CityAlt3Entry),
-            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
-            transition: "transform 100ms linear",
-          }}
-        />
-      )}
-      {showScene3CityAlt4 && (
-        <img
-          key="scene3-city-alt4"
-          src={scene3CityLAsset.url}
-          alt=""
-          draggable={false}
-          className="absolute"
-          style={{
-            left: "60%",
-            bottom: "40%",
-            height: "22%",
-            width: "auto",
-            transform: `translate(-50%, ${cmBob}px) rotate(${cmSway}deg)`,
-            transformOrigin: "bottom center",
-            opacity: Math.max(0.9, scene3CityAlt4Entry),
             filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
             transition: "transform 100ms linear",
           }}
