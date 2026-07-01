@@ -45,6 +45,9 @@ import scene3CityEAsset from "@/assets/town-country/scene3_city_e.png.asset.json
 import scene3CityFAsset from "@/assets/town-country/scene3_city_f.png.asset.json";
 import scene3CityGAsset from "@/assets/town-country/scene3_city_g.png.asset.json";
 import scene3CityHAsset from "@/assets/town-country/scene3_city_h.png.asset.json";
+import scene3CityIAsset from "@/assets/town-country/scene3_city_i.png.asset.json";
+import scene3CityJAsset from "@/assets/town-country/scene3_city_j.png.asset.json";
+import scene3CityKAsset from "@/assets/town-country/scene3_city_k.png.asset.json";
 
 const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   narration: "나레이션",
@@ -297,6 +300,14 @@ export function StorySceneMotion({
     ? Math.min(scene3CityAlt2Frames.length - 1, Math.floor((t - 36) / 4))
     : 0;
   const scene3CityAlt2Entry = showScene3CityAlt2 ? Math.min(1, ((t - 36) % 4) / 0.4) : 0;
+
+  // 씬 3 52~64s: 서울쥐 신규 시트 3장 — left 60%, bottom 40%, 4초 간격 전환
+  const scene3CityAlt3Frames = [scene3CityIAsset.url, scene3CityJAsset.url, scene3CityKAsset.url];
+  const showScene3CityAlt3 = scene.id === "town-country-3" && t >= 52 && t < 64;
+  const scene3CityAlt3Idx = showScene3CityAlt3
+    ? Math.min(scene3CityAlt3Frames.length - 1, Math.floor((t - 52) / 4))
+    : 0;
+  const scene3CityAlt3Entry = showScene3CityAlt3 ? Math.min(1, ((t - 52) % 4) / 0.4) : 0;
 
   return (
     <div className="pointer-events-none absolute inset-0 select-none overflow-hidden">
