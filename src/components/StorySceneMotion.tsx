@@ -48,6 +48,7 @@ import scene3CityHAsset from "@/assets/town-country/scene3_city_h.png.asset.json
 import scene3CityIAsset from "@/assets/town-country/scene3_city_i.png.asset.json";
 import scene3CityJAsset from "@/assets/town-country/scene3_city_j.png.asset.json";
 import scene3CityKAsset from "@/assets/town-country/scene3_city_k.png.asset.json";
+import scene3CityLAsset from "@/assets/town-country/scene3_city_l.png.asset.json";
 
 const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   narration: "나레이션",
@@ -308,6 +309,10 @@ export function StorySceneMotion({
     ? Math.min(scene3CityAlt3Frames.length - 1, Math.floor((t - 52) / 4))
     : 0;
   const scene3CityAlt3Entry = showScene3CityAlt3 ? Math.min(1, ((t - 52) % 4) / 0.4) : 0;
+
+  // 씬 3 64~70s: 서울쥐 신규 시트 1장 — left 60%, bottom 40%
+  const showScene3CityAlt4 = scene.id === "town-country-3" && t >= 64 && t < 70;
+  const scene3CityAlt4Entry = showScene3CityAlt4 ? Math.min(1, (t - 64) / 0.4) : 0;
 
   return (
     <div className="pointer-events-none absolute inset-0 select-none overflow-hidden">
@@ -688,6 +693,26 @@ export function StorySceneMotion({
             transform: `translate(-50%, ${cmBob}px) rotate(${cmSway}deg)`,
             transformOrigin: "bottom center",
             opacity: Math.max(0.9, scene3CityAlt3Entry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear",
+          }}
+        />
+      )}
+      {showScene3CityAlt4 && (
+        <img
+          key="scene3-city-alt4"
+          src={scene3CityLAsset.url}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: "60%",
+            bottom: "40%",
+            height: "22%",
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px) rotate(${cmSway}deg)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, scene3CityAlt4Entry),
             filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
             transition: "transform 100ms linear",
           }}
