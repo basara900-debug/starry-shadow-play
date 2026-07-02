@@ -745,6 +745,26 @@ export function StorySceneMotion({
           }}
         />
       )}
+      {showScene3CountryAlt3 && (
+        <img
+          key={`scene3-country-alt3-${scene3CountryAlt3Idx}`}
+          src={scene3CountryAlt3Frames[scene3CountryAlt3Idx]}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: "40%",
+            bottom: "40%",
+            height: "22%",
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px) rotate(${cmSway}deg)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, scene3CountryAlt3Entry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear",
+          }}
+        />
+      )}
       {showScene3CityAlt2 && (
         <img
           key={`scene3-city-alt2-${scene3CityAlt2Idx}`}
