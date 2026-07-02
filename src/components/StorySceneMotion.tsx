@@ -50,6 +50,8 @@ import scene3CityJAsset from "@/assets/town-country/scene3_city_j.png.asset.json
 import scene3CityKAsset from "@/assets/town-country/scene3_city_k.png.asset.json";
 import scene3CityLAsset from "@/assets/town-country/scene3_city_l.png.asset.json";
 import scene3CityMAsset from "@/assets/town-country/scene3_city_m.png.asset.json";
+import scene3CityNAsset from "@/assets/town-country/scene3_city_n.png.asset.json";
+import scene3CityOAsset from "@/assets/town-country/scene3_city_o.png.asset.json";
 
 const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   narration: "나레이션",
@@ -288,6 +290,14 @@ export function StorySceneMotion({
     ? Math.min(scene3CityAltFrames.length - 1, Math.floor((t - 24) / 4))
     : 0;
   const scene3CityAltEntry = showScene3CityAlt ? Math.min(1, ((t - 24) % 4) / 0.4) : 0;
+
+  // 씬 3 24~36s: 시골쥐 신규 시트 2장 — left 40%, bottom 40%, 4초 간격 순환 전환 (A,B,A)
+  const scene3CountryAltCycle = [scene3CityNAsset.url, scene3CityOAsset.url, scene3CityNAsset.url];
+  const showScene3CountryAlt = scene.id === "town-country-3" && t >= 24 && t < 36;
+  const scene3CountryAltIdx = showScene3CountryAlt
+    ? Math.min(scene3CountryAltCycle.length - 1, Math.floor((t - 24) / 4))
+    : 0;
+  const scene3CountryAltEntry = showScene3CountryAlt ? Math.min(1, ((t - 24) % 4) / 0.4) : 0;
 
   // 씬 3 36~52s: 서울쥐 신규 시트 5장 — left 60%, bottom 40%, 4초 간격 전환
   const scene3CityAlt2Frames = [
@@ -656,6 +666,26 @@ export function StorySceneMotion({
             transform: `translate(-50%, ${cmBob}px) rotate(${cmSway}deg)`,
             transformOrigin: "bottom center",
             opacity: Math.max(0.9, scene3CityAltEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear",
+          }}
+        />
+      )}
+      {showScene3CountryAlt && (
+        <img
+          key={`scene3-country-alt-${scene3CountryAltIdx}`}
+          src={scene3CountryAltCycle[scene3CountryAltIdx]}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: "40%",
+            bottom: "40%",
+            height: "22%",
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px) rotate(${cmSway}deg)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, scene3CountryAltEntry),
             filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
             transition: "transform 100ms linear",
           }}
