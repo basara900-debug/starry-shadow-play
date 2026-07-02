@@ -57,6 +57,9 @@ import scene3CountryQAsset from "@/assets/town-country/scene3_country_q.png.asse
 import scene3CountryRAsset from "@/assets/town-country/scene3_country_r.png.asset.json";
 import scene3CountrySAsset from "@/assets/town-country/scene3_country_s.png.asset.json";
 import scene3CountryTAsset from "@/assets/town-country/scene3_country_t.png.asset.json";
+import scene3CountryUAsset from "@/assets/town-country/scene3_country_u.png.asset.json";
+import scene3CountryVAsset from "@/assets/town-country/scene3_country_v.png.asset.json";
+import scene3CountryWAsset from "@/assets/town-country/scene3_country_w.png.asset.json";
 
 const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   narration: "나레이션",
@@ -317,6 +320,18 @@ export function StorySceneMotion({
     ? Math.min(scene3CountryAlt2Frames.length - 1, Math.floor((t - 36) / 4))
     : 0;
   const scene3CountryAlt2Entry = showScene3CountryAlt2 ? Math.min(1, ((t - 36) % 4) / 0.4) : 0;
+
+  // 씬 3 52~64s: 시골쥐 신규 시트 3장 — left 40%, bottom 40%, 4초 간격 순환 전환
+  const scene3CountryAlt3Frames = [
+    scene3CountryUAsset.url,
+    scene3CountryVAsset.url,
+    scene3CountryWAsset.url,
+  ];
+  const showScene3CountryAlt3 = scene.id === "town-country-3" && t >= 52 && t < 64;
+  const scene3CountryAlt3Idx = showScene3CountryAlt3
+    ? Math.min(scene3CountryAlt3Frames.length - 1, Math.floor((t - 52) / 4))
+    : 0;
+  const scene3CountryAlt3Entry = showScene3CountryAlt3 ? Math.min(1, ((t - 52) % 4) / 0.4) : 0;
 
   // 씬 3 36~52s: 서울쥐 신규 시트 5장 — left 60%, bottom 40%, 4초 간격 전환
   const scene3CityAlt2Frames = [
