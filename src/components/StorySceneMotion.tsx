@@ -52,6 +52,11 @@ import scene3CityLAsset from "@/assets/town-country/scene3_city_l.png.asset.json
 import scene3CityMAsset from "@/assets/town-country/scene3_city_m.png.asset.json";
 import scene3CityNAsset from "@/assets/town-country/scene3_city_n.png.asset.json";
 import scene3CityOAsset from "@/assets/town-country/scene3_city_o.png.asset.json";
+import scene3CountryPAsset from "@/assets/town-country/scene3_country_p.png.asset.json";
+import scene3CountryQAsset from "@/assets/town-country/scene3_country_q.png.asset.json";
+import scene3CountryRAsset from "@/assets/town-country/scene3_country_r.png.asset.json";
+import scene3CountrySAsset from "@/assets/town-country/scene3_country_s.png.asset.json";
+import scene3CountryTAsset from "@/assets/town-country/scene3_country_t.png.asset.json";
 
 const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   narration: "나레이션",
@@ -298,6 +303,20 @@ export function StorySceneMotion({
     ? Math.min(scene3CountryAltCycle.length - 1, Math.floor((t - 24) / 4))
     : 0;
   const scene3CountryAltEntry = showScene3CountryAlt ? Math.min(1, ((t - 24) % 4) / 0.4) : 0;
+
+  // 씬 3 36~52s: 시골쥐 신규 시트 5장 — left 40%, bottom 40%, 4초 간격 순환 전환
+  const scene3CountryAlt2Frames = [
+    scene3CountryPAsset.url,
+    scene3CountryQAsset.url,
+    scene3CountryRAsset.url,
+    scene3CountrySAsset.url,
+    scene3CountryTAsset.url,
+  ];
+  const showScene3CountryAlt2 = scene.id === "town-country-3" && t >= 36 && t < 52;
+  const scene3CountryAlt2Idx = showScene3CountryAlt2
+    ? Math.min(scene3CountryAlt2Frames.length - 1, Math.floor((t - 36) / 4))
+    : 0;
+  const scene3CountryAlt2Entry = showScene3CountryAlt2 ? Math.min(1, ((t - 36) % 4) / 0.4) : 0;
 
   // 씬 3 36~52s: 서울쥐 신규 시트 5장 — left 60%, bottom 40%, 4초 간격 전환
   const scene3CityAlt2Frames = [
@@ -686,6 +705,26 @@ export function StorySceneMotion({
             transform: `translate(-50%, ${cmBob}px) rotate(${cmSway}deg)`,
             transformOrigin: "bottom center",
             opacity: Math.max(0.9, scene3CountryAltEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "transform 100ms linear",
+          }}
+        />
+      )}
+      {showScene3CountryAlt2 && (
+        <img
+          key={`scene3-country-alt2-${scene3CountryAlt2Idx}`}
+          src={scene3CountryAlt2Frames[scene3CountryAlt2Idx]}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: "40%",
+            bottom: "40%",
+            height: "22%",
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px) rotate(${cmSway}deg)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, scene3CountryAlt2Entry),
             filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
             transition: "transform 100ms linear",
           }}
