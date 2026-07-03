@@ -363,6 +363,21 @@ export function StorySceneMotion({
   const scene3CityRunLeftPct = 60 + (40 - 60) * scene3CityRunProgress;
   const scene3CityRunEntry = showScene3CityRun ? Math.min(1, (t - 64) / 0.4) : 0;
 
+  // 씬 3 64~72s: 시골쥐 왕복 모션 — 2회 왕복 (각 4초).
+  // 각 왕복: 0~2s 프레임1로 left 40→30, 2~4s 프레임2로 left 30→40.
+  const showScene3CountryRun = scene.id === "town-country-3" && t >= 64 && t < 72;
+  const scene3CountryRunLocal = showScene3CountryRun ? (t - 64) % 4 : 0;
+  const scene3CountryRunGoing = scene3CountryRunLocal < 2;
+  const scene3CountryRunPhase = scene3CountryRunGoing
+    ? scene3CountryRunLocal / 2
+    : (scene3CountryRunLocal - 2) / 2;
+  const scene3CountryRunLeftPct = scene3CountryRunGoing
+    ? 40 + (30 - 40) * scene3CountryRunPhase
+    : 30 + (40 - 30) * scene3CountryRunPhase;
+  const scene3CountryRunSrc = scene3CountryRunGoing
+    ? scene3CountryRun1Asset.url
+    : scene3CountryRun2Asset.url;
+
   return (
     <div className="pointer-events-none absolute inset-0 select-none overflow-hidden">
       {/* 씬 4: 60~90초 구간에서 배경을 서울쥐 방안(씬 2 배경)으로 전환 */}
