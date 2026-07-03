@@ -60,6 +60,8 @@ import scene3CountryTAsset from "@/assets/town-country/scene3_country_t.png.asse
 import scene3CountryUAsset from "@/assets/town-country/scene3_country_u.png.asset.json";
 import scene3CountryVAsset from "@/assets/town-country/scene3_country_v.png.asset.json";
 import scene3CountryWAsset from "@/assets/town-country/scene3_country_w.png.asset.json";
+import scene3CountryRun1Asset from "@/assets/town-country/scene3_country_run1.png.asset.json";
+import scene3CountryRun2Asset from "@/assets/town-country/scene3_country_run2.png.asset.json";
 
 const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   narration: "나레이션",
