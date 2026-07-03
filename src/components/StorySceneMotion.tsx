@@ -60,6 +60,8 @@ import scene3CountryTAsset from "@/assets/town-country/scene3_country_t.png.asse
 import scene3CountryUAsset from "@/assets/town-country/scene3_country_u.png.asset.json";
 import scene3CountryVAsset from "@/assets/town-country/scene3_country_v.png.asset.json";
 import scene3CountryWAsset from "@/assets/town-country/scene3_country_w.png.asset.json";
+import scene3CountryRun1Asset from "@/assets/town-country/scene3_country_run1.png.asset.json";
+import scene3CountryRun2Asset from "@/assets/town-country/scene3_country_run2.png.asset.json";
 
 const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   narration: "나레이션",
@@ -360,6 +362,21 @@ export function StorySceneMotion({
   const scene3CityRunProgress = showScene3CityRun ? (t - 64) / 6 : 0;
   const scene3CityRunLeftPct = 60 + (40 - 60) * scene3CityRunProgress;
   const scene3CityRunEntry = showScene3CityRun ? Math.min(1, (t - 64) / 0.4) : 0;
+
+  // 씬 3 64~72s: 시골쥐 왕복 모션 — 2회 왕복 (각 4초).
+  // 각 왕복: 0~2s 프레임1로 left 40→30, 2~4s 프레임2로 left 30→40.
+  const showScene3CountryRun = scene.id === "town-country-3" && t >= 64 && t < 72;
+  const scene3CountryRunLocal = showScene3CountryRun ? (t - 64) % 4 : 0;
+  const scene3CountryRunGoing = scene3CountryRunLocal < 2;
+  const scene3CountryRunPhase = scene3CountryRunGoing
+    ? scene3CountryRunLocal / 2
+    : (scene3CountryRunLocal - 2) / 2;
+  const scene3CountryRunLeftPct = scene3CountryRunGoing
+    ? 40 + (30 - 40) * scene3CountryRunPhase
+    : 30 + (40 - 30) * scene3CountryRunPhase;
+  const scene3CountryRunSrc = scene3CountryRunGoing
+    ? scene3CountryRun1Asset.url
+    : scene3CountryRun2Asset.url;
 
   return (
     <div className="pointer-events-none absolute inset-0 select-none overflow-hidden">
@@ -820,6 +837,25 @@ export function StorySceneMotion({
             transform: `translate(-50%, ${cmBob}px) scaleX(-1)`,
             transformOrigin: "bottom center",
             opacity: Math.max(0.9, scene3CityRunEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "left 100ms linear, transform 100ms linear",
+          }}
+        />
+      )}
+      {showScene3CountryRun && (
+        <img
+          key={`scene3-country-run-${scene3CountryRunGoing ? 1 : 2}`}
+          src={scene3CountryRunSrc}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: `${scene3CountryRunLeftPct}%`,
+            bottom: "40%",
+            height: "22%",
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px)`,
+            transformOrigin: "bottom center",
             filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
             transition: "left 100ms linear, transform 100ms linear",
           }}
