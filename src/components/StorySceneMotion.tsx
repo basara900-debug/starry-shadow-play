@@ -842,6 +842,25 @@ export function StorySceneMotion({
           }}
         />
       )}
+      {showScene3CountryRun && (
+        <img
+          key={`scene3-country-run-${scene3CountryRunGoing ? 1 : 2}`}
+          src={scene3CountryRunSrc}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: `${scene3CountryRunLeftPct}%`,
+            bottom: "40%",
+            height: "22%",
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px)`,
+            transformOrigin: "bottom center",
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "left 100ms linear, transform 100ms linear",
+          }}
+        />
+      )}
       <div
         className="absolute"
         style={{
