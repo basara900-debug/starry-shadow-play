@@ -379,7 +379,7 @@ export function StorySceneMotion({
     ? scene3CountryRun1Asset.url
     : scene3CountryRun2Asset.url;
 
-  // 씬 3 76~86s: 한 쌍 캐릭터(좌우 반전) 도망 — left 50% → 80%, bottom 15%
+  // 씬 3 76~86s: 한 쌍 캐릭터(좌우 반전) 도망 — left 50% → 80%, bottom 1%
   const showScene3PairFlee = scene.id === "town-country-3" && t >= 76 && t < 86;
   const scene3PairFleeProgress = showScene3PairFlee ? (t - 76) / 10 : 0;
   const scene3PairFleeLeftPct = 50 + (80 - 50) * scene3PairFleeProgress;
