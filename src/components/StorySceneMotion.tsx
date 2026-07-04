@@ -62,6 +62,7 @@ import scene3CountryVAsset from "@/assets/town-country/scene3_country_v.png.asse
 import scene3CountryWAsset from "@/assets/town-country/scene3_country_w.png.asset.json";
 import scene3CountryRun1Asset from "@/assets/town-country/scene3_country_run1.png.asset.json";
 import scene3CountryRun2Asset from "@/assets/town-country/scene3_country_run2.png.asset.json";
+import scene3PairRunAsset from "@/assets/town-country/scene3_pair_run.png.asset.json";
 
 const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   narration: "나레이션",
@@ -377,6 +378,12 @@ export function StorySceneMotion({
   const scene3CountryRunSrc = scene3CountryRunGoing
     ? scene3CountryRun1Asset.url
     : scene3CountryRun2Asset.url;
+
+  // 씬 3 76~86s: 한 쌍 캐릭터(좌우 반전) 도망 — left 50% → 80%, bottom 15%
+  const showScene3PairFlee = scene.id === "town-country-3" && t >= 76 && t < 86;
+  const scene3PairFleeProgress = showScene3PairFlee ? (t - 76) / 10 : 0;
+  const scene3PairFleeLeftPct = 50 + (80 - 50) * scene3PairFleeProgress;
+  const scene3PairFleeEntry = showScene3PairFlee ? Math.min(1, (t - 76) / 0.4) : 0;
 
   return (
     <div className="pointer-events-none absolute inset-0 select-none overflow-hidden">
@@ -856,6 +863,25 @@ export function StorySceneMotion({
             width: "auto",
             transform: `translate(-50%, ${cmBob}px)`,
             transformOrigin: "bottom center",
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "left 100ms linear, transform 100ms linear",
+          }}
+        />
+      )}
+      {showScene3PairFlee && (
+        <img
+          src={scene3PairRunAsset.url}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: `${scene3PairFleeLeftPct}%`,
+            bottom: "15%",
+            height: "26%",
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px) scaleX(-1)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, scene3PairFleeEntry),
             filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
             transition: "left 100ms linear, transform 100ms linear",
           }}
