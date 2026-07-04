@@ -868,6 +868,25 @@ export function StorySceneMotion({
           }}
         />
       )}
+      {showScene3PairFlee && (
+        <img
+          src={scene3PairRunAsset.url}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: `${scene3PairFleeLeftPct}%`,
+            bottom: "15%",
+            height: "26%",
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px) scaleX(-1)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, scene3PairFleeEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "left 100ms linear, transform 100ms linear",
+          }}
+        />
+      )}
       <div
         className="absolute"
         style={{
