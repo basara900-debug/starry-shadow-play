@@ -859,7 +859,7 @@ export function StorySceneMotion({
           style={{
             left: `${scene3CountryRunLeftPct}%`,
             bottom: "40%",
-            height: "22%",
+            height: "28.6%",
             width: "auto",
             transform: `translate(-50%, ${cmBob}px)`,
             transformOrigin: "bottom center",
