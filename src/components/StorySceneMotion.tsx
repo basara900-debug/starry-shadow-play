@@ -892,6 +892,24 @@ export function StorySceneMotion({
             transition: "left 100ms linear, transform 100ms linear",
           }}
         />
+      {showScene4PairFlee && (
+        <img
+          src={scene4PairFleeAsset.url}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: `${scene4PairFleeLeftPct}%`,
+            bottom: "10%",
+            height: "26%",
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px) scaleX(-1)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, scene4PairFleeEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+            transition: "left 100ms linear, transform 100ms linear",
+          }}
+        />
       )}
       <div
         className="absolute"
