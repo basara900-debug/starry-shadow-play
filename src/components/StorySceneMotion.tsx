@@ -380,7 +380,12 @@ export function StorySceneMotion({
     ? scene3CountryRun1Asset.url
     : scene3CountryRun2Asset.url;
 
-  // 씬 3 76~86s: 한 쌍 캐릭터(좌우 반전) 도망 — left 50% → 80%, bottom 10%
+  // 씬 4 0~12s: 한 쌍 캐릭터(좌우 반전) 도망 — left 15% → 80%, bottom 10%
+  const showScene4PairFlee = scene.id === "town-country-4" && t >= 0 && t < 12;
+  const scene4PairFleeProgress = showScene4PairFlee ? t / 12 : 0;
+  const scene4PairFleeLeftPct = 15 + (80 - 15) * scene4PairFleeProgress;
+  const scene4PairFleeEntry = showScene4PairFlee ? Math.min(1, t / 0.4) : 0;
+
   const showScene3PairFlee = scene.id === "town-country-3" && t >= 76 && t < 86;
   const scene3PairFleeProgress = showScene3PairFlee ? (t - 76) / 10 : 0;
   const scene3PairFleeLeftPct = 50 + (80 - 50) * scene3PairFleeProgress;
