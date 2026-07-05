@@ -892,6 +892,7 @@ export function StorySceneMotion({
             transition: "left 100ms linear, transform 100ms linear",
           }}
         />
+      )}
       {showScene4PairFlee && (
         <img
           src={scene4PairFleeAsset.url}
