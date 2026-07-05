@@ -876,7 +876,7 @@ export function StorySceneMotion({
           className="absolute"
           style={{
             left: `${scene3PairFleeLeftPct}%`,
-            bottom: "1%",
+            bottom: "10%",
             height: "26%",
             width: "auto",
             transform: `translate(-50%, ${cmBob}px) scaleX(-1)`,
