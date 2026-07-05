@@ -62,6 +62,7 @@ import scene3CountryVAsset from "@/assets/town-country/scene3_country_v.png.asse
 import scene3CountryWAsset from "@/assets/town-country/scene3_country_w.png.asset.json";
 import scene3CountryRun1Asset from "@/assets/town-country/scene3_country_run1.png.asset.json";
 import scene3CountryRun2Asset from "@/assets/town-country/scene3_country_run2.png.asset.json";
+import scene3PairRunAsset from "@/assets/town-country/scene3_pair_run.png.asset.json";
 import scene4PairFleeAsset from "@/assets/town-country/scene4_pair_flee.png.asset.json";
 
 const SPEAKER_LABEL: Record<StorySpeaker, string> = {
