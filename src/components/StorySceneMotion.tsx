@@ -65,6 +65,30 @@ import scene3CountryRun2Asset from "@/assets/town-country/scene3_country_run2.pn
 import scene3PairRunAsset from "@/assets/town-country/scene3_pair_run.png.asset.json";
 import scene4PairFleeAsset from "@/assets/town-country/scene4_pair_flee.png.asset.json";
 
+const SCENE4_FLEE = {
+  sceneId: "town-country-4",
+  asset: scene4PairFleeAsset,
+  startSec: 0,
+  endSec: 12,
+  fromLeftPct: 15,
+  toLeftPct: 80,
+  bottomPct: 10,
+  heightPct: 26,
+  flipX: true,
+  fadeInSec: 0.4,
+};
+
+const SCENE3_COUNTRY_ALT3 = {
+  sceneId: "town-country-3",
+  frames: [scene3CountryUAsset, scene3CountryVAsset, scene3CountryWAsset],
+  startSec: 52,
+  endSec: 58,
+  intervalSec: 2,
+  leftPct: 40,
+  bottomPct: 40,
+  fadeInSec: 0.4,
+};
+
 const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   narration: "나레이션",
   country: "시골쥐",
@@ -325,17 +349,25 @@ export function StorySceneMotion({
     : 0;
   const scene3CountryAlt2Entry = showScene3CountryAlt2 ? Math.min(1, ((t - 36) % 4) / 0.4) : 0;
 
-  // 씬 3 52~64s: 시골쥐 신규 시트 3장 — left 40%, bottom 40%, 4초 간격 순환 전환
-  const scene3CountryAlt3Frames = [
-    scene3CountryUAsset.url,
-    scene3CountryVAsset.url,
-    scene3CountryWAsset.url,
-  ];
-  const showScene3CountryAlt3 = scene.id === "town-country-3" && t >= 52 && t < 64;
+  // 씬 3 52~58s: 시골쥐 신규 시트 3장 — left 40%, bottom 40%, 2초 간격 순환 전환
+  const scene3CountryAlt3Frames = SCENE3_COUNTRY_ALT3.frames.map((f) => f.url);
+  const showScene3CountryAlt3 =
+    scene.id === SCENE3_COUNTRY_ALT3.sceneId &&
+    t >= SCENE3_COUNTRY_ALT3.startSec &&
+    t < SCENE3_COUNTRY_ALT3.endSec;
   const scene3CountryAlt3Idx = showScene3CountryAlt3
-    ? Math.min(scene3CountryAlt3Frames.length - 1, Math.floor((t - 52) / 4))
+    ? Math.min(
+        scene3CountryAlt3Frames.length - 1,
+        Math.floor((t - SCENE3_COUNTRY_ALT3.startSec) / SCENE3_COUNTRY_ALT3.intervalSec)
+      )
     : 0;
-  const scene3CountryAlt3Entry = showScene3CountryAlt3 ? Math.min(1, ((t - 52) % 4) / 0.4) : 0;
+  const scene3CountryAlt3Entry = showScene3CountryAlt3
+    ? Math.min(
+        1,
+        ((t - SCENE3_COUNTRY_ALT3.startSec) % SCENE3_COUNTRY_ALT3.intervalSec) /
+          SCENE3_COUNTRY_ALT3.fadeInSec
+      )
+    : 0;
 
   // 씬 3 36~52s: 서울쥐 신규 시트 5장 — left 60%, bottom 40%, 4초 간격 전환
   const scene3CityAlt2Frames = [
@@ -381,10 +413,16 @@ export function StorySceneMotion({
     : scene3CountryRun2Asset.url;
 
   // 씬 4 0~12s: 한 쌍 캐릭터(좌우 반전) 도망 — left 15% → 80%, bottom 10%
-  const showScene4PairFlee = scene.id === "town-country-4" && t >= 0 && t < 12;
-  const scene4PairFleeProgress = showScene4PairFlee ? t / 12 : 0;
-  const scene4PairFleeLeftPct = 15 + (80 - 15) * scene4PairFleeProgress;
-  const scene4PairFleeEntry = showScene4PairFlee ? Math.min(1, t / 0.4) : 0;
+  const showScene4PairFlee =
+    scene.id === SCENE4_FLEE.sceneId && t >= SCENE4_FLEE.startSec && t < SCENE4_FLEE.endSec;
+  const scene4PairFleeProgress = showScene4PairFlee
+    ? (t - SCENE4_FLEE.startSec) / (SCENE4_FLEE.endSec - SCENE4_FLEE.startSec)
+    : 0;
+  const scene4PairFleeLeftPct =
+    SCENE4_FLEE.fromLeftPct + (SCENE4_FLEE.toLeftPct - SCENE4_FLEE.fromLeftPct) * scene4PairFleeProgress;
+  const scene4PairFleeEntry = showScene4PairFlee
+    ? Math.min(1, (t - SCENE4_FLEE.startSec) / SCENE4_FLEE.fadeInSec)
+    : 0;
 
   const showScene3PairFlee = scene.id === "town-country-3" && t >= 76 && t < 86;
   const scene3PairFleeProgress = showScene3PairFlee ? (t - 76) / 10 : 0;
@@ -783,8 +821,8 @@ export function StorySceneMotion({
           draggable={false}
           className="absolute"
           style={{
-            left: "40%",
-            bottom: "40%",
+            left: `${SCENE3_COUNTRY_ALT3.leftPct}%`,
+            bottom: `${SCENE3_COUNTRY_ALT3.bottomPct}%`,
             height: "22%",
             width: "auto",
             transform: `translate(-50%, ${cmBob}px) rotate(${cmSway}deg)`,
@@ -895,16 +933,16 @@ export function StorySceneMotion({
       )}
       {showScene4PairFlee && (
         <img
-          src={scene4PairFleeAsset.url}
+          src={SCENE4_FLEE.asset.url}
           alt=""
           draggable={false}
           className="absolute"
           style={{
             left: `${scene4PairFleeLeftPct}%`,
-            bottom: "10%",
-            height: "26%",
+            bottom: `${SCENE4_FLEE.bottomPct}%`,
+            height: `${SCENE4_FLEE.heightPct}%`,
             width: "auto",
-            transform: `translate(-50%, ${cmBob}px) scaleX(-1)`,
+            transform: `translate(-50%, ${cmBob}px)${SCENE4_FLEE.flipX ? " scaleX(-1)" : ""}`,
             transformOrigin: "bottom center",
             opacity: Math.max(0.9, scene4PairFleeEntry),
             filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
