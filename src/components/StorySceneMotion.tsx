@@ -64,6 +64,8 @@ import scene3CountryRun1Asset from "@/assets/town-country/scene3_country_run1.pn
 import scene3CountryRun2Asset from "@/assets/town-country/scene3_country_run2.png.asset.json";
 import scene3PairRunAsset from "@/assets/town-country/scene3_pair_run.png.asset.json";
 import scene4PairFleeAsset from "@/assets/town-country/scene4_pair_flee.png.asset.json";
+import scene4CountryAAsset from "@/assets/town-country/scene4_country_a.png.asset.json";
+import scene4CountryBAsset from "@/assets/town-country/scene4_country_b.png.asset.json";
 
 const SCENE4_FLEE = {
   sceneId: "town-country-4",
@@ -86,6 +88,19 @@ const SCENE3_COUNTRY_ALT3 = {
   intervalSec: 2,
   leftPct: 40,
   bottomPct: 40,
+  fadeInSec: 0.4,
+};
+
+// 씬 4 12~36s: 시골쥐 캐릭터 시트 2장 — left 80%, bottom 15%, 4초 간격 순환 전환
+const SCENE4_COUNTRY_CYCLE = {
+  sceneId: "town-country-4",
+  frames: [scene4CountryAAsset, scene4CountryBAsset],
+  startSec: 12,
+  endSec: 36,
+  intervalSec: 4,
+  leftPct: 80,
+  bottomPct: 15,
+  heightPct: 26,
   fadeInSec: 0.4,
 };
 
