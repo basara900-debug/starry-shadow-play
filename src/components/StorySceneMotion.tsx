@@ -983,6 +983,24 @@ export function StorySceneMotion({
           }}
         />
       )}
+      {showScene4CountryCycle && (
+        <img
+          src={scene4CountryCycleFrames[scene4CountryCycleIdx]}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: `${SCENE4_COUNTRY_CYCLE.leftPct}%`,
+            bottom: `${SCENE4_COUNTRY_CYCLE.bottomPct}%`,
+            height: `${SCENE4_COUNTRY_CYCLE.heightPct}%`,
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, scene4CountryCycleEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+          }}
+        />
+      )}
       <div
         className="absolute"
         style={{
