@@ -64,6 +64,8 @@ import scene3CountryRun1Asset from "@/assets/town-country/scene3_country_run1.pn
 import scene3CountryRun2Asset from "@/assets/town-country/scene3_country_run2.png.asset.json";
 import scene3PairRunAsset from "@/assets/town-country/scene3_pair_run.png.asset.json";
 import scene4PairFleeAsset from "@/assets/town-country/scene4_pair_flee.png.asset.json";
+import scene4CountryAAsset from "@/assets/town-country/scene4_country_a.png.asset.json";
+import scene4CountryBAsset from "@/assets/town-country/scene4_country_b.png.asset.json";
 
 const SCENE4_FLEE = {
   sceneId: "town-country-4",
@@ -86,6 +88,19 @@ const SCENE3_COUNTRY_ALT3 = {
   intervalSec: 2,
   leftPct: 40,
   bottomPct: 40,
+  fadeInSec: 0.4,
+};
+
+// 씬 4 12~36s: 시골쥐 캐릭터 시트 2장 — left 80%, bottom 15%, 4초 간격 순환 전환
+const SCENE4_COUNTRY_CYCLE = {
+  sceneId: "town-country-4",
+  frames: [scene4CountryAAsset, scene4CountryBAsset],
+  startSec: 12,
+  endSec: 36,
+  intervalSec: 4,
+  leftPct: 80,
+  bottomPct: 15,
+  heightPct: 26,
   fadeInSec: 0.4,
 };
 
@@ -422,6 +437,24 @@ export function StorySceneMotion({
     SCENE4_FLEE.fromLeftPct + (SCENE4_FLEE.toLeftPct - SCENE4_FLEE.fromLeftPct) * scene4PairFleeProgress;
   const scene4PairFleeEntry = showScene4PairFlee
     ? Math.min(1, (t - SCENE4_FLEE.startSec) / SCENE4_FLEE.fadeInSec)
+    : 0;
+
+  // 씬 4 12~36s: 시골쥐 캐릭터 시트 2장 — left 80%, bottom 15%, 4초 간격 순환 전환
+  const scene4CountryCycleFrames = SCENE4_COUNTRY_CYCLE.frames.map((f) => f.url);
+  const showScene4CountryCycle =
+    scene.id === SCENE4_COUNTRY_CYCLE.sceneId &&
+    t >= SCENE4_COUNTRY_CYCLE.startSec &&
+    t < SCENE4_COUNTRY_CYCLE.endSec;
+  const scene4CountryCycleIdx = showScene4CountryCycle
+    ? Math.floor((t - SCENE4_COUNTRY_CYCLE.startSec) / SCENE4_COUNTRY_CYCLE.intervalSec) %
+      scene4CountryCycleFrames.length
+    : 0;
+  const scene4CountryCycleEntry = showScene4CountryCycle
+    ? Math.min(
+        1,
+        ((t - SCENE4_COUNTRY_CYCLE.startSec) % SCENE4_COUNTRY_CYCLE.intervalSec) /
+          SCENE4_COUNTRY_CYCLE.fadeInSec
+      )
     : 0;
 
   const showScene3PairFlee = scene.id === "town-country-3" && t >= 76 && t < 86;
@@ -947,6 +980,24 @@ export function StorySceneMotion({
             opacity: Math.max(0.9, scene4PairFleeEntry),
             filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
             transition: "left 100ms linear, transform 100ms linear",
+          }}
+        />
+      )}
+      {showScene4CountryCycle && (
+        <img
+          src={scene4CountryCycleFrames[scene4CountryCycleIdx]}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: `${SCENE4_COUNTRY_CYCLE.leftPct}%`,
+            bottom: `${SCENE4_COUNTRY_CYCLE.bottomPct}%`,
+            height: `${SCENE4_COUNTRY_CYCLE.heightPct}%`,
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, scene4CountryCycleEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
           }}
         />
       )}
