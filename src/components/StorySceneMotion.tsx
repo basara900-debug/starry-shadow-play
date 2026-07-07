@@ -439,6 +439,24 @@ export function StorySceneMotion({
     ? Math.min(1, (t - SCENE4_FLEE.startSec) / SCENE4_FLEE.fadeInSec)
     : 0;
 
+  // 씬 4 12~36s: 시골쥐 캐릭터 시트 2장 — left 80%, bottom 15%, 4초 간격 순환 전환
+  const scene4CountryCycleFrames = SCENE4_COUNTRY_CYCLE.frames.map((f) => f.url);
+  const showScene4CountryCycle =
+    scene.id === SCENE4_COUNTRY_CYCLE.sceneId &&
+    t >= SCENE4_COUNTRY_CYCLE.startSec &&
+    t < SCENE4_COUNTRY_CYCLE.endSec;
+  const scene4CountryCycleIdx = showScene4CountryCycle
+    ? Math.floor((t - SCENE4_COUNTRY_CYCLE.startSec) / SCENE4_COUNTRY_CYCLE.intervalSec) %
+      scene4CountryCycleFrames.length
+    : 0;
+  const scene4CountryCycleEntry = showScene4CountryCycle
+    ? Math.min(
+        1,
+        ((t - SCENE4_COUNTRY_CYCLE.startSec) % SCENE4_COUNTRY_CYCLE.intervalSec) /
+          SCENE4_COUNTRY_CYCLE.fadeInSec
+      )
+    : 0;
+
   const showScene3PairFlee = scene.id === "town-country-3" && t >= 76 && t < 86;
   const scene3PairFleeProgress = showScene3PairFlee ? (t - 76) / 10 : 0;
   const scene3PairFleeLeftPct = 50 + (80 - 50) * scene3PairFleeProgress;
