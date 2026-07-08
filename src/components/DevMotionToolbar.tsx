@@ -8,6 +8,7 @@ import {
   findOverlaps,
   groupByTrack,
   useDevMotionState,
+  type DevMotionSegment,
 } from "@/lib/devMotionTimeline";
 
 /**
@@ -42,7 +43,7 @@ export function DevMotionToolbar() {
     () => (motion ? findGaps(motion.segments, 0.05) : []),
     [motion],
   );
-  const byTrack = useMemo(
+  const byTrack = useMemo<Map<string, DevMotionSegment[]>>(
     () => (motion ? groupByTrack(motion.segments) : new Map()),
     [motion],
   );
