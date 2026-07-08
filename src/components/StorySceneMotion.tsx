@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSceneAudio } from "@/lib/sceneAudio";
 import type { StorySceneDefinition, StorySpeaker } from "@/data/townCountryStory";
 import { useDevTimelineSync } from "@/lib/devTimeline";
+import { useDevMotionSync, type DevMotionSegment } from "@/lib/devMotionTimeline";
 import countryMouseCutout from "@/assets/town-country/country_mouse_cutout.png";
 import scene2BgAsset from "@/assets/town-country/scene2.jpg.asset.json";
 import sheet1Asset from "@/assets/town-country/country_sheet_1.png.asset.json";
@@ -104,6 +105,55 @@ const SCENE4_COUNTRY_CYCLE = {
   fadeInSec: 0.4,
 };
 
+// 씬별 모션 세그먼트 카탈로그 — DevMotionToolbar 가 트랙 시각화 + 겹침/공백 경고에 사용.
+// 실제 렌더링 조건과 동일한 시간 구간을 정적으로 나열한다. 실제 조건과 어긋나면 툴바 표시가 실제와 달라지니 유지·보수 시 함께 갱신.
+const SCENE_MOTIONS: Record<string, DevMotionSegment[]> = {
+  "town-country-1": [
+    { id: "s1-cm",     track: "시골쥐",     label: "배치",     from: 0,  to: 32 },
+    { id: "s1-sh1",    track: "시골쥐",     label: "시트1",    from: 32, to: 52 },
+    { id: "s1-sh2",    track: "시골쥐",     label: "시트2",    from: 52, to: 70 },
+    { id: "s1-sh3",    track: "시골쥐",     label: "시트3",    from: 70, to: 76 },
+    { id: "s1-sh4",    track: "시골쥐",     label: "시트4",    from: 76, to: 82 },
+    { id: "s1-ex1",    track: "시골쥐",     label: "퇴장1",    from: 82, to: 86 },
+    { id: "s1-ex2",    track: "시골쥐",     label: "퇴장2",    from: 86, to: 90 },
+    { id: "s1-p1",     track: "우편배달쥐", label: "p1",       from: 32, to: 38 },
+    { id: "s1-p2",     track: "우편배달쥐", label: "p2",       from: 38, to: 44 },
+    { id: "s1-p3",     track: "우편배달쥐", label: "p3",       from: 44, to: 52 },
+    { id: "s1-p4",     track: "우편배달쥐", label: "p4",       from: 52, to: 58 },
+    { id: "s1-p5",     track: "우편배달쥐", label: "p5",       from: 58, to: 72 },
+  ],
+  "town-country-2": [
+    { id: "s2-city-a", track: "서울쥐",     label: "순환A",    from: 0,  to: 12 },
+    { id: "s2-city-b", track: "서울쥐",     label: "순환B",    from: 24, to: 67 },
+    { id: "s2-walk1",  track: "서울쥐",     label: "걷기1",    from: 67, to: 70 },
+    { id: "s2-walk2",  track: "서울쥐",     label: "걷기2",    from: 73, to: 76 },
+    { id: "s2-cf1",    track: "시골쥐",     label: "반전1",    from: 0,  to: 6  },
+    { id: "s2-cf2",    track: "시골쥐",     label: "반전2",    from: 6,  to: 12 },
+    { id: "s2-cc",     track: "시골쥐",     label: "순환",     from: 24, to: 76 },
+    { id: "s2-pair",   track: "한쌍",       label: "순환",     from: 12, to: 24 },
+    { id: "s2-pw",     track: "한쌍",       label: "이동",     from: 76, to: 90 },
+  ],
+  "town-country-3": [
+    { id: "s3-pair",       track: "한쌍",   label: "이동",     from: 0,  to: 12 },
+    { id: "s3-city-rot",   track: "서울쥐", label: "포즈회전", from: 12, to: 24 },
+    { id: "s3-city-alt",   track: "서울쥐", label: "신규3장",  from: 24, to: 36 },
+    { id: "s3-city-alt2",  track: "서울쥐", label: "신규5장",  from: 36, to: 52 },
+    { id: "s3-city-alt3",  track: "서울쥐", label: "신규3장",  from: 52, to: 64 },
+    { id: "s3-city-run",   track: "서울쥐", label: "달리기",   from: 64, to: 70 },
+    { id: "s3-country-rot",track: "시골쥐", label: "포즈회전", from: 12, to: 24 },
+    { id: "s3-country-alt",track: "시골쥐", label: "신규2장",  from: 24, to: 36 },
+    { id: "s3-country-a2", track: "시골쥐", label: "신규5장",  from: 36, to: 52 },
+    { id: "s3-country-a3", track: "시골쥐", label: `순환(${SCENE3_COUNTRY_ALT3.intervalSec}s)`, from: SCENE3_COUNTRY_ALT3.startSec, to: SCENE3_COUNTRY_ALT3.endSec },
+    { id: "s3-country-run",track: "시골쥐", label: "왕복",     from: 64, to: 72 },
+    { id: "s3-pair-flee",  track: "한쌍",   label: "도망",     from: 76, to: 86 },
+  ],
+  "town-country-4": [
+    { id: "s4-flee",   track: "한쌍",   label: "도망",     from: SCENE4_FLEE.startSec,          to: SCENE4_FLEE.endSec },
+    { id: "s4-cc",     track: "시골쥐", label: `순환(${SCENE4_COUNTRY_CYCLE.intervalSec}s)`, from: SCENE4_COUNTRY_CYCLE.startSec, to: SCENE4_COUNTRY_CYCLE.endSec },
+    { id: "s4-bg2",    track: "배경",   label: "서울방 전환", from: 60, to: 90 },
+  ],
+};
+
 const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   narration: "나레이션",
   country: "시골쥐",
@@ -190,6 +240,8 @@ export function StorySceneMotion({
       doneRef.current = false;
     },
   });
+
+  useDevMotionSync(scene.id, SCENE_MOTIONS[scene.id] ?? []);
 
   const pulse = 0.985 + Math.sin(t * 0.55) * 0.015;
   const driftX = Math.sin(t * 0.14) * 1.2;
