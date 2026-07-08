@@ -30,6 +30,7 @@ import {
   type SceneSpeed,
 } from "@/lib/sceneAudio";
 import { DevSubtitleToolbar } from "@/components/DevSubtitleToolbar";
+import { DevMotionToolbar } from "@/components/DevMotionToolbar";
 
 export const Route = createFileRoute("/")({
   component: ShadowTheaterRoute,
@@ -994,16 +995,23 @@ function TheaterStage({
           className="absolute left-0 right-0"
           style={{
             bottom: 0,
-            height: "44px",
+            height: "180px",
             zIndex: 60,
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          <DevSubtitleToolbar
-            paused={paused}
-            onTogglePlay={() =>
-              setPlayState((s) => (s === "paused" ? "1x" : "paused"))
-            }
-          />
+          <div style={{ flex: "0 0 auto" }}>
+            <DevSubtitleToolbar
+              paused={paused}
+              onTogglePlay={() =>
+                setPlayState((s) => (s === "paused" ? "1x" : "paused"))
+              }
+            />
+          </div>
+          <div style={{ flex: 1, minHeight: 0 }}>
+            <DevMotionToolbar />
+          </div>
         </div>
       )}
 
