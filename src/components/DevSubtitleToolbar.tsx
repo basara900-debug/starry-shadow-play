@@ -56,12 +56,12 @@ export function DevSubtitleToolbar({
         style={{
           position: "relative",
           height: "100%",
-          padding: "4px 6px",
-          background: "oklch(0.12 0.02 50 / 0.85)",
-          color: "oklch(0.85 0.03 80)",
-          fontSize: 9,
+          padding: "2px 6px",
+          background: "oklch(0.12 0.02 50 / 0.35)",
+          color: "oklch(0.85 0.03 80 / 0.9)",
+          fontSize: 8,
           fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-          borderTop: "1px solid oklch(0.5 0.05 220 / 0.4)",
+          borderTop: "1px solid oklch(0.5 0.05 220 / 0.2)",
           display: "flex",
           alignItems: "center",
         }}
@@ -108,13 +108,13 @@ export function DevSubtitleToolbar({
       style={{
         position: "relative",
         height: "100%",
-        padding: "4px 6px",
-        background: "oklch(0.1 0.02 50 / 0.92)",
-        color: "oklch(0.95 0.03 80)",
-        borderTop: "1px solid oklch(0.55 0.08 220 / 0.5)",
+        padding: "2px 4px",
+        background: "oklch(0.1 0.02 50 / 0.35)",
+        color: "oklch(0.95 0.03 80 / 0.95)",
+        borderTop: "1px solid oklch(0.55 0.08 220 / 0.2)",
         display: "flex",
         flexDirection: "column",
-        gap: 2,
+        gap: 1,
         fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
       }}
     >

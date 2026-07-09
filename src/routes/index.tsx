@@ -992,16 +992,18 @@ function TheaterStage({
       {/* 개발용 자막/타임라인 툴바 — 스크린(연극 창) 밖, 무대 하단 프레임에 배치 */}
       {devToolbarOn && (
         <div
-          className="absolute left-0 right-0"
+          className="fixed left-0 right-0 md:h-[110px]"
           style={{
             bottom: 0,
-            height: "180px",
+            height: "85px",
             zIndex: 60,
             display: "flex",
             flexDirection: "column",
+            background: "transparent",
+            pointerEvents: "none",
           }}
         >
-          <div style={{ flex: "0 0 auto" }}>
+          <div style={{ flex: "0 0 auto", pointerEvents: "auto" }}>
             <DevSubtitleToolbar
               paused={paused}
               onTogglePlay={() =>
@@ -1009,7 +1011,7 @@ function TheaterStage({
               }
             />
           </div>
-          <div style={{ flex: 1, minHeight: 0 }}>
+          <div style={{ flex: 1, minHeight: 0, pointerEvents: "auto" }}>
             <DevMotionToolbar />
           </div>
         </div>
