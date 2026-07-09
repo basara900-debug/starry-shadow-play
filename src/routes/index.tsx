@@ -992,10 +992,10 @@ function TheaterStage({
       {/* 개발용 자막/타임라인 툴바 — 스크린(연극 창) 밖, 무대 하단 프레임에 배치 */}
       {devToolbarOn && (
         <div
-          className="fixed left-0 right-0 md:h-[120px]"
+          className="fixed left-0 right-0 md:h-[110px]"
           style={{
             bottom: 0,
-            height: "100px",
+            height: "85px",
             zIndex: 60,
             display: "flex",
             flexDirection: "column",
