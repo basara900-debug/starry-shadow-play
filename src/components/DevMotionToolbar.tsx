@@ -190,7 +190,7 @@ export function DevMotionToolbar() {
                 position: "relative",
                 flex: 1,
                 height: 10,
-                background: "oklch(0.17 0.02 50 / 0.55)",
+                background: "oklch(0.17 0.02 50 / 0.4)",
                 borderRadius: 3,
                 cursor: "pointer",
                 touchAction: "none",
