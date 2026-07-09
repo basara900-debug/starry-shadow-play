@@ -98,8 +98,8 @@ export function DevMotionToolbar() {
       style={{
         height: "100%",
         padding: "2px 4px",
-        background: "oklch(0.09 0.02 50 / 0.5)",
-        borderTop: "1px solid oklch(0.55 0.08 220 / 0.25)",
+        background: "oklch(0.09 0.02 50 / 0.35)",
+        borderTop: "1px solid oklch(0.55 0.08 220 / 0.2)",
         display: "flex",
         flexDirection: "column",
         gap: 1,
