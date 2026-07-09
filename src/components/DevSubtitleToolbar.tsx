@@ -56,12 +56,12 @@ export function DevSubtitleToolbar({
         style={{
           position: "relative",
           height: "100%",
-          padding: "4px 6px",
-          background: "oklch(0.12 0.02 50 / 0.85)",
-          color: "oklch(0.85 0.03 80)",
-          fontSize: 9,
+          padding: "2px 6px",
+          background: "oklch(0.12 0.02 50 / 0.35)",
+          color: "oklch(0.85 0.03 80 / 0.9)",
+          fontSize: 8,
           fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-          borderTop: "1px solid oklch(0.5 0.05 220 / 0.4)",
+          borderTop: "1px solid oklch(0.5 0.05 220 / 0.2)",
           display: "flex",
           alignItems: "center",
         }}
