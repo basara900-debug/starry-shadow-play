@@ -65,23 +65,23 @@ export function DevMotionToolbar() {
 
   if (!motion || !timeline || duration <= 0) {
     return (
-      <div
-        style={{
-          height: "100%",
-          padding: "2px 6px",
-          background: "oklch(0.11 0.02 50 / 0.45)",
-          color: "oklch(0.7 0.03 80 / 0.9)",
-          fontSize: 8,
-          fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-          borderTop: "1px solid oklch(0.5 0.05 220 / 0.25)",
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        ◇ 모션 타임라인 대기 중 (현재 씬에 등록된 모션 없음)
-      </div>
-    );
-  }
+    <div
+      style={{
+        height: "100%",
+        padding: "2px 6px",
+        background: "oklch(0.11 0.02 50 / 0.35)",
+        color: "oklch(0.7 0.03 80 / 0.9)",
+        fontSize: 8,
+        fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+        borderTop: "1px solid oklch(0.5 0.05 220 / 0.2)",
+        display: "flex",
+        alignItems: "center",
+      }}
+    >
+      ◇ 모션 타임라인 대기 중 (현재 씬에 등록된 모션 없음)
+    </div>
+  );
+}
 
   const seek = (clientX: number, el: HTMLDivElement) => {
     const rect = el.getBoundingClientRect();
