@@ -91,45 +91,45 @@ export function DevMotionToolbar() {
 
   const trackList = Array.from(byTrack.keys());
   // 라벨 폭
-  const LABEL_W = 74;
+  const LABEL_W = 64;
 
   return (
     <div
       style={{
         height: "100%",
-        padding: "4px 6px",
-        background: "oklch(0.09 0.02 50 / 0.95)",
-        borderTop: "1px solid oklch(0.55 0.08 220 / 0.5)",
+        padding: "2px 4px",
+        background: "oklch(0.09 0.02 50 / 0.5)",
+        borderTop: "1px solid oklch(0.55 0.08 220 / 0.25)",
         display: "flex",
         flexDirection: "column",
-        gap: 2,
+        gap: 1,
         overflowY: "auto",
         fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-        color: "oklch(0.92 0.03 80)",
+        color: "oklch(0.92 0.03 80 / 0.95)",
       }}
     >
       <div
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 8,
-          fontSize: 9,
-          color: "oklch(0.75 0.03 80)",
-          padding: "0 2px 2px",
-          borderBottom: "1px dashed oklch(0.4 0.03 220 / 0.35)",
+          gap: 6,
+          fontSize: 8,
+          color: "oklch(0.75 0.03 80 / 0.95)",
+          padding: "0 2px 1px",
+          borderBottom: "1px dashed oklch(0.4 0.03 220 / 0.25)",
         }}
       >
-        <span style={{ fontWeight: 700, color: "oklch(0.85 0.04 80)" }}>
+        <span style={{ fontWeight: 700, color: "oklch(0.85 0.04 80 / 0.95)" }}>
           🎬 모션 타임라인
         </span>
         <span>트랙 {trackList.length} · 세그먼트 {motion.segments.length}</span>
         {overlaps.size > 0 && (
-          <span style={{ color: "oklch(0.72 0.2 25)", fontWeight: 700 }}>
+          <span style={{ color: "oklch(0.72 0.2 25 / 0.95)", fontWeight: 700 }}>
             ⚠ 겹침 {overlaps.size / 2}쌍
           </span>
         )}
         {gaps.length > 0 && (
-          <span style={{ color: "oklch(0.78 0.16 90)", fontWeight: 700 }}>
+          <span style={{ color: "oklch(0.78 0.16 90 / 0.95)", fontWeight: 700 }}>
             ⚠ 공백 {gaps.length}
           </span>
         )}
@@ -139,7 +139,7 @@ export function DevMotionToolbar() {
       </div>
 
       {trackList.length === 0 && (
-        <div style={{ fontSize: 9, color: "oklch(0.6 0.02 80)", padding: 4 }}>
+        <div style={{ fontSize: 8, color: "oklch(0.6 0.02 80 / 0.9)", padding: 2 }}>
           이 씬에 등록된 모션 세그먼트가 없습니다.
         </div>
       )}
@@ -154,9 +154,9 @@ export function DevMotionToolbar() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 4,
-              fontSize: 9,
-              minHeight: 14,
+              gap: 3,
+              fontSize: 8,
+              minHeight: 12,
             }}
           >
             <div
@@ -168,7 +168,7 @@ export function DevMotionToolbar() {
                 whiteSpace: "nowrap",
                 color: color,
                 fontWeight: 700,
-                paddingRight: 4,
+                paddingRight: 2,
               }}
               title={track}
             >
@@ -189,8 +189,8 @@ export function DevMotionToolbar() {
               style={{
                 position: "relative",
                 flex: 1,
-                height: 12,
-                background: "oklch(0.17 0.02 50)",
+                height: 10,
+                background: "oklch(0.17 0.02 50 / 0.55)",
                 borderRadius: 3,
                 cursor: "pointer",
                 touchAction: "none",
@@ -211,7 +211,7 @@ export function DevMotionToolbar() {
                       top: 0,
                       bottom: 0,
                       background:
-                        "repeating-linear-gradient(45deg, oklch(0.75 0.16 90 / 0.35) 0 3px, transparent 3px 6px)",
+                        "repeating-linear-gradient(45deg, oklch(0.75 0.16 90 / 0.25) 0 3px, transparent 3px 6px)",
                       pointerEvents: "none",
                     }}
                     title={`공백 ${g.from.toFixed(1)}~${g.to.toFixed(1)}s`}
@@ -235,25 +235,25 @@ export function DevMotionToolbar() {
                       position: "absolute",
                       left: `${left}%`,
                       width: `${Math.max(0.4, width)}%`,
-                      top: 1,
-                      bottom: 1,
+                      top: 0,
+                      bottom: 0,
                       background: color,
-                      opacity: active ? 1 : 0.72,
+                      opacity: active ? 0.95 : 0.6,
                       border: isOverlap
-                        ? "1.5px solid oklch(0.7 0.22 25)"
+                        ? "1.5px solid oklch(0.7 0.22 25 / 0.95)"
                         : active
-                          ? "1px solid oklch(0.95 0.03 80)"
-                          : "1px solid oklch(0 0 0 / 0.3)",
+                          ? "1px solid oklch(0.95 0.03 80 / 0.8)"
+                          : "1px solid oklch(0 0 0 / 0.25)",
                       borderRadius: 2,
                       boxShadow: isOverlap
-                        ? "0 0 4px oklch(0.7 0.22 25 / 0.9)"
+                        ? "0 0 4px oklch(0.7 0.22 25 / 0.7)"
                         : "none",
                       cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: "oklch(0.1 0.02 50)",
-                      fontSize: 8,
+                      color: "oklch(0.1 0.02 50 / 0.95)",
+                      fontSize: 7,
                       fontWeight: 700,
                       overflow: "hidden",
                       whiteSpace: "nowrap",
@@ -272,8 +272,8 @@ export function DevMotionToolbar() {
                   top: -1,
                   bottom: -1,
                   width: 2,
-                  background: "oklch(0.95 0.14 80)",
-                  boxShadow: "0 0 3px oklch(0.95 0.14 80 / 0.9)",
+                  background: "oklch(0.95 0.14 80 / 0.95)",
+                  boxShadow: "0 0 3px oklch(0.95 0.14 80 / 0.7)",
                   pointerEvents: "none",
                 }}
               />
