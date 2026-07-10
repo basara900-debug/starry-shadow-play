@@ -1,0 +1,100 @@
+[
+  {
+    "from": 0,
+    "to": 6,
+    "who": "narration",
+    "text": "도시에 도착한 시골쥐는 어렵사리 서울쥐가 살고 있는 집에 도착하게 되었습니다.",
+    "file": "/audio/town-country/scene2/tts/00_narration.mp3"
+  },
+  {
+    "from": 6,
+    "to": 12,
+    "who": "city",
+    "text": "어서와 시골쥐야! 오는 길이 힘들지 않았어?",
+    "file": "/audio/town-country/scene2/tts/06_city.mp3"
+  },
+  {
+    "from": 12,
+    "to": 18,
+    "who": "country",
+    "text": "반가워 서울쥐야! 도시는 너무 복잡하고 어렵네, 하지만 네가 편지에 써 준대로 왔더니 잘 도착할 수 있었어.",
+    "file": "/audio/town-country/scene2/tts/12_country.mp3"
+  },
+  {
+    "from": 18,
+    "to": 24,
+    "who": "city",
+    "text": "다행이다, 먼길 오느라 힘들고 배고팠을텐데 곧 맛있는 밥을 먹으러 갈테니 잠시만 기다려줘!",
+    "file": "/audio/town-country/scene2/tts/18_city.mp3"
+  },
+  {
+    "from": 24,
+    "to": 32,
+    "who": "country",
+    "text": "그래, 알았어! 하지만 지금은 식사 시간이 아닌거야?",
+    "file": "/audio/town-country/scene2/tts/24_country.mp3"
+  },
+  {
+    "from": 32,
+    "to": 38,
+    "who": "narration",
+    "text": "시간은 어느덧 저녁 무렵이였고, 도시 곳곳에서는 맛있는 음식 냄세가 여기저기서 나고 있었습니다",
+    "file": "/audio/town-country/scene2/tts/32_narration.mp3"
+  },
+  {
+    "from": 38,
+    "to": 44,
+    "who": "city",
+    "text": "응, 지금이 저녁식사 시간은 맞지! 하지만 맛있는 음식을 먹으려면 조금 기다림이 필요해!",
+    "file": "/audio/town-country/scene2/tts/38_city.mp3"
+  },
+  {
+    "from": 44,
+    "to": 52,
+    "who": "country",
+    "text": "그래 얼마나 맛있는 음식이 있을지 궁금해지네!",
+    "file": "/audio/town-country/scene2/tts/44_country.mp3"
+  },
+  {
+    "from": 52,
+    "to": 58,
+    "who": "narration",
+    "text": "자신만만한 서울쥐와 기대에 찬 시골쥐가 서로를 바라보며 저녁식사를 기다렸습니다.",
+    "file": "/audio/town-country/scene2/tts/52_narration.mp3"
+  },
+  {
+    "from": 58,
+    "to": 64,
+    "who": "city",
+    "text": "기대하라구 시골에서는 절대 맛보지 못했던 온갖 음식들을 먹어보게 될꺼야!",
+    "file": "/audio/town-country/scene2/tts/58_city.mp3"
+  },
+  {
+    "from": 64,
+    "to": 70,
+    "who": "country",
+    "text": "그래 알았어, 서울쥐! 네 덕에 호강 한번 해 보자구!",
+    "file": "/audio/town-country/scene2/tts/64_country.mp3"
+  },
+  {
+    "from": 70,
+    "to": 76,
+    "who": "narration",
+    "text": "기다림의 시간이 더 지나고 난 뒤, 서울쥐는 밖에 나갔다가 한 참 뒤에 돌아왔습니다.",
+    "file": "/audio/town-country/scene2/tts/70_narration.mp3"
+  },
+  {
+    "from": 76,
+    "to": 82,
+    "who": "city",
+    "text": "이제 음식이 준비되었어, 같이 나가자!",
+    "file": "/audio/town-country/scene2/tts/76_city.mp3"
+  },
+  {
+    "from": 82,
+    "to": 90,
+    "who": "narration",
+    "text": "서울쥐는 시골쥐를 데리고 밖으로 나갔습니다.",
+    "file": "/audio/town-country/scene2/tts/82_narration.mp3"
+  }
+]

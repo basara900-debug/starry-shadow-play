@@ -1,0 +1,58 @@
+[
+  {
+    "from": 0,
+    "to": 6,
+    "who": "narration",
+    "text": "어린이 여러분 이야기는 재미 있었나요?",
+    "file": "/audio/town-country/scene5/tts/00_narration.mp3"
+  },
+  {
+    "from": 12,
+    "to": 18,
+    "who": "narration",
+    "text": "그럼 우리! 생각을 크게 하는 연습을 해 볼까요?",
+    "file": "/audio/town-country/scene5/tts/12_narration.mp3"
+  },
+  {
+    "from": 24,
+    "to": 30,
+    "who": "narration",
+    "text": "여러분은 이 이야기를 보고 어떤 생각을 하게 되었나요?",
+    "file": "/audio/town-country/scene5/tts/24_narration.mp3"
+  },
+  {
+    "from": 36,
+    "to": 42,
+    "who": "narration",
+    "text": "서울쥐의 도시 생활은 어떤가요? 서울쥐의 생활 방식은 정말 잘못된일까요?",
+    "file": "/audio/town-country/scene5/tts/36_narration.mp3"
+  },
+  {
+    "from": 48,
+    "to": 54,
+    "who": "narration",
+    "text": "서울쥐는 무엇을 잘 하고 무엇을 못한걸까요?",
+    "file": "/audio/town-country/scene5/tts/48_narration.mp3"
+  },
+  {
+    "from": 60,
+    "to": 66,
+    "who": "narration",
+    "text": "시골쥐의 시골 생활은 어떨까요? 시골쥐에게 중요한 건 어떤 생활인 것 같을까요?",
+    "file": "/audio/town-country/scene5/tts/60_narration.mp3"
+  },
+  {
+    "from": 72,
+    "to": 78,
+    "who": "narration",
+    "text": "둘의 삶의 방식을 보고 진정 중요한 것이 무엇일까요? 고민해 보아요!",
+    "file": "/audio/town-country/scene5/tts/72_narration.mp3"
+  },
+  {
+    "from": 84,
+    "to": 90,
+    "who": "narration",
+    "text": "엄마,아빠랑 한번 이야기를 나눠 보세요! 생각이 커질 거예요!",
+    "file": "/audio/town-country/scene5/tts/84_narration.mp3"
+  }
+]

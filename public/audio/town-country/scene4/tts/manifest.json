@@ -1,0 +1,107 @@
+[
+  {
+    "from": 0,
+    "to": 6,
+    "who": "narration",
+    "text": "식당에서 복도로 무사하 도망친 서울쥐와 시골쥐는 기둥 뒤로 숨었어요.",
+    "file": "/audio/town-country/scene4/tts/00_narration.mp3"
+  },
+  {
+    "from": 6,
+    "to": 12,
+    "who": "country",
+    "text": " 서울쥐야 이게 무슨일이야? 왜 도망치는 거야?",
+    "file": "/audio/town-country/scene4/tts/06_country.mp3"
+  },
+  {
+    "from": 12,
+    "to": 18,
+    "who": "city",
+    "text": "젠장, 방심했어! 이미 식사가 끝났다고 생각했는데, 다시 올 줄은 몰랐네.",
+    "file": "/audio/town-country/scene4/tts/12_city.mp3"
+  },
+  {
+    "from": 18,
+    "to": 24,
+    "who": "country",
+    "text": "아니 그 맛있는 밥이 서울쥐 네가 준비한게 아니라 사람의 음식이였던 거야!",
+    "file": "/audio/town-country/scene4/tts/18_country.mp3"
+  },
+  {
+    "from": 24,
+    "to": 30,
+    "who": "city",
+    "text": "당연하지 도시에서 나오는 모든것은 사람의 것을 훔쳐야만 얻을 수 있어!",
+    "file": "/audio/town-country/scene4/tts/24_city.mp3"
+  },
+  {
+    "from": 30,
+    "to": 36,
+    "who": "narration",
+    "text": "그때 복도 저 멀리서 야옹하는 소리가 들려 왔습니다.",
+    "file": "/audio/town-country/scene4/tts/30_narration.mp3"
+  },
+  {
+    "from": 36,
+    "to": 42,
+    "who": "city",
+    "text": "고양이다, 빨리 도망치자, 나를 따라 이리 와!",
+    "file": "/audio/town-country/scene4/tts/36_city.mp3"
+  },
+  {
+    "from": 42,
+    "to": 48,
+    "who": "narration",
+    "text": "고양이의 울음소리를 듣고 공포에 빠져 꼼짝도 못하던 시골쥐를 서울쥐가 강제로 끌고 도망쳤어요.",
+    "file": "/audio/town-country/scene4/tts/42_narration.mp3"
+  },
+  {
+    "from": 48,
+    "to": 54,
+    "who": "city",
+    "text": "정신차려 시골쥐야, 넋이 나간채로 있으면 목숨을 부지하지 못해!",
+    "file": "/audio/town-country/scene4/tts/48_city.mp3"
+  },
+  {
+    "from": 54,
+    "to": 60,
+    "who": "narration",
+    "text": "서울쥐의 번개같은 대처에 둘은 무사히 안전하게 도망칠 수 있었습니다.",
+    "file": "/audio/town-country/scene4/tts/54_narration.mp3"
+  },
+  {
+    "from": 60,
+    "to": 66,
+    "who": "country",
+    "text": "도시는 정말 무서운 곳이구나! 나는 도저히 여기서 지낼 수가 없을 것 같아.",
+    "file": "/audio/town-country/scene4/tts/60_country.mp3"
+  },
+  {
+    "from": 66,
+    "to": 72,
+    "who": "city",
+    "text": "무슨말이야! 도시처럼 살기좋은 곳이 어디 있다고 나만 정신 바짝 차리면 얼마든지 풍족하게 살 수 있다구.",
+    "file": "/audio/town-country/scene4/tts/66_city.mp3"
+  },
+  {
+    "from": 72,
+    "to": 78,
+    "who": "country",
+    "text": "아니야! 이렇게 무섭고 위험한 곳인 줄 알았다면 여기에 오지 않았을거야, 이만 난 시골로 돌아갈께 잘 있어!",
+    "file": "/audio/town-country/scene4/tts/72_country.mp3"
+  },
+  {
+    "from": 78,
+    "to": 84,
+    "who": "city",
+    "text": "그럼 어쩔 수 없지, 더 좋고 재미있는게 많지만, 잘 가, 시골쥐야!",
+    "file": "/audio/town-country/scene4/tts/78_city.mp3"
+  },
+  {
+    "from": 84,
+    "to": 90,
+    "who": "narration",
+    "text": "시골쥐는 서울쥐를 뒤로 하고 아무 걱정 없고 안전한 시골집으로 돌아 갔습니다!",
+    "file": "/audio/town-country/scene4/tts/84_narration.mp3"
+  }
+]

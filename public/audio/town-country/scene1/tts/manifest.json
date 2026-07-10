@@ -1,0 +1,100 @@
+[
+  {
+    "from": 0,
+    "to": 6,
+    "who": "narration",
+    "text": "가을이 끝나가는 무렵, 수확을 끝마친 시골쥐가 들판에 서 있었습니다.",
+    "file": "/audio/town-country/scene1/tts/00_narration.mp3"
+  },
+  {
+    "from": 6,
+    "to": 12,
+    "who": "country",
+    "text": "올해도 무사히 수확을 끝마쳤네, 이제 겨울이 와도 걱정이 없겠어",
+    "file": "/audio/town-country/scene1/tts/06_country.mp3"
+  },
+  {
+    "from": 12,
+    "to": 18,
+    "who": "narration",
+    "text": "수확이 끝난 넓은 밭과 논을 보며 시골쥐는 기분 좋은 미소를 지었습니다.",
+    "file": "/audio/town-country/scene1/tts/12_narration.mp3"
+  },
+  {
+    "from": 18,
+    "to": 24,
+    "who": "country",
+    "text": "그나저나 올 봄에 도시로 간 서울쥐는 어떻게 살고 있을까?",
+    "file": "/audio/town-country/scene1/tts/18_country.mp3"
+  },
+  {
+    "from": 24,
+    "to": 32,
+    "who": "country",
+    "text": "별 탈 없이 잘 지내야 할텐데!",
+    "file": "/audio/town-country/scene1/tts/24_country.mp3"
+  },
+  {
+    "from": 32,
+    "to": 38,
+    "who": "narration",
+    "text": "그때 저 멀리서 우편 배달부 쥐가 시골쥐가 있는 곳으로 오고 있었습니다.",
+    "file": "/audio/town-country/scene1/tts/32_narration.mp3"
+  },
+  {
+    "from": 38,
+    "to": 44,
+    "who": "post",
+    "text": "안녕하십니까? 시골쥐 양반 오랜 만에 뵙는 군요!",
+    "file": "/audio/town-country/scene1/tts/38_post.mp3"
+  },
+  {
+    "from": 44,
+    "to": 52,
+    "who": "country",
+    "text": "아~ ! 안녕하세요? 고생이 많으시네요! 어쩐일이세요 ",
+    "file": "/audio/town-country/scene1/tts/44_country.mp3"
+  },
+  {
+    "from": 52,
+    "to": 58,
+    "who": "post",
+    "text": "글쎄 서울쥐가 편지를 보냈네요! 여기 있습니다. ",
+    "file": "/audio/town-country/scene1/tts/52_post.mp3"
+  },
+  {
+    "from": 58,
+    "to": 64,
+    "who": "country",
+    "text": "감사합니다 서울쥐가 편지를 보냈군요! 잘 받았습니다",
+    "file": "/audio/town-country/scene1/tts/58_country.mp3"
+  },
+  {
+    "from": 64,
+    "to": 70,
+    "who": "post",
+    "text": "네! 그럼 저는 다음 마을로 가봐야 하니 잘 지내시길 빕니다. 그럼 이만.",
+    "file": "/audio/town-country/scene1/tts/64_post.mp3"
+  },
+  {
+    "from": 70,
+    "to": 76,
+    "who": "narration",
+    "text": "우편 배달쥐가 떠나고 시골쥐는 서울쥐가 보낸 편지를 읽고 미소를 지었습니다.",
+    "file": "/audio/town-country/scene1/tts/70_narration.mp3"
+  },
+  {
+    "from": 76,
+    "to": 82,
+    "who": "country",
+    "text": "서울쥐가 나를 초대 했군! 멋진 대접을 해준다고 했으니 빨리 서울쥐에게 가봐야 겠어!",
+    "file": "/audio/town-country/scene1/tts/76_country.mp3"
+  },
+  {
+    "from": 82,
+    "to": 90,
+    "who": "narration",
+    "text": "서울쥐의 초대에 시골쥐는 잔뜩 기대하며 짐을 챙겨 도시로 떠났습니다.",
+    "file": "/audio/town-country/scene1/tts/82_narration.mp3"
+  }
+]
