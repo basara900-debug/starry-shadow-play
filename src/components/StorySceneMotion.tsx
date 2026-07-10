@@ -206,7 +206,7 @@ export function StorySceneMotion({
     i,
     who: b.who,
     text: b.text,
-    file: `/audio/town-country/scene${sceneNum}/tts/${String(b.from).padStart(2, "0")}_${b.who}.mp3`,
+    file: `/audio/town-country/scene${sceneNum}/tts/${String(i).padStart(2, "0")}_${b.who}.mp3`,
     dur: b.to - b.from,
     from: b.from,
     to: b.to,
