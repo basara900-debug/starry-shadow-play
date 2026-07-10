@@ -1,0 +1,100 @@
+[
+  {
+    "from": 0,
+    "to": 6,
+    "who": "narration",
+    "text": "서울쥐가 시골쥐를 데리고 온 곳은 불이 꺼져 어두워진 식당이였습니다.",
+    "file": "/audio/town-country/scene3/tts/00_narration.mp3"
+  },
+  {
+    "from": 6,
+    "to": 12,
+    "who": "country",
+    "text": "너무 어두워서 잘 보이지가 않네, 여기 맛있는 음식이 있는게 맞니?",
+    "file": "/audio/town-country/scene3/tts/06_country.mp3"
+  },
+  {
+    "from": 12,
+    "to": 18,
+    "who": "city",
+    "text": "물론이지, 맛있는 냄세가 느껴지지 않니? ",
+    "file": "/audio/town-country/scene3/tts/12_city.mp3"
+  },
+  {
+    "from": 18,
+    "to": 24,
+    "who": "country",
+    "text": " 응 냄세는 너무 좋아 어디에서 먹으면 될까?",
+    "file": "/audio/town-country/scene3/tts/18_country.mp3"
+  },
+  {
+    "from": 24,
+    "to": 32,
+    "who": "city",
+    "text": "이리와봐 여기 이것 좀 먹어봐, 어때 맛있지? ",
+    "file": "/audio/town-country/scene3/tts/24_city.mp3"
+  },
+  {
+    "from": 32,
+    "to": 38,
+    "who": "narration",
+    "text": "서울쥐는 연신 시골쥐에게 음식을 권했고 시골쥐는 처음 먹어본 맛있는 음식에 행복했습니다.",
+    "file": "/audio/town-country/scene3/tts/32_narration.mp3"
+  },
+  {
+    "from": 38,
+    "to": 44,
+    "who": "country",
+    "text": "이야 정말 맛있다. 서울쥐 네 덕에 너무 행복해, 네가 너무 자랑스럽고 부럽다!",
+    "file": "/audio/town-country/scene3/tts/38_country.mp3"
+  },
+  {
+    "from": 44,
+    "to": 52,
+    "who": "city",
+    "text": "에헴! 그럼, 이제 이 형님의 위대함을 알게 되었군.",
+    "file": "/audio/town-country/scene3/tts/44_city.mp3"
+  },
+  {
+    "from": 52,
+    "to": 58,
+    "who": "narration",
+    "text": " 둘은 서로 친밀하게 대화를 하며 맛있는 음식을 마음껏 배부르게 먹고 있었습니다.",
+    "file": "/audio/town-country/scene3/tts/52_narration.mp3"
+  },
+  {
+    "from": 58,
+    "to": 64,
+    "who": "narration",
+    "text": "갑자기 덜컥 문이 열리며 식당이 환해 졌고 서울쥐와 시골쥐는 순간 공포에 얼어 버렸습니다.",
+    "file": "/audio/town-country/scene3/tts/58_narration.mp3"
+  },
+  {
+    "from": 64,
+    "to": 70,
+    "who": "narration",
+    "text": "문을 열고 사람이 들어오자, 서울쥐는 바로 시골쥐의 손을 잡고 복도로 도망치기 시작했습니다.",
+    "file": "/audio/town-country/scene3/tts/64_narration.mp3"
+  },
+  {
+    "from": 70,
+    "to": 76,
+    "who": "city",
+    "text": "야! 뛰어! 잡히면 큰일난다.",
+    "file": "/audio/town-country/scene3/tts/70_city.mp3"
+  },
+  {
+    "from": 76,
+    "to": 82,
+    "who": "country",
+    "text": "어! 서울쥐야, 서울쥐야 대체 왜 이래!",
+    "file": "/audio/town-country/scene3/tts/76_country.mp3"
+  },
+  {
+    "from": 82,
+    "to": 90,
+    "who": "narration",
+    "text": "사람의 비명 소리가 천둥처럼 울려퍼지고 우당탕탕하는 소란스러움에 시골쥐는 당황했어요.",
+    "file": "/audio/town-country/scene3/tts/82_narration.mp3"
+  }
+]
