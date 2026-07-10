@@ -3,7 +3,7 @@ import type { SceneAudioState } from "@/lib/sceneAudio";
 
 export type SceneBeat = {
   i: number;
-  who: "narration" | "ant" | "gh" | "ants";
+  who: "narration" | "ant" | "gh" | "ants" | "city" | "country" | "post" | string;
   text: string;
   file: string;
   dur: number;
