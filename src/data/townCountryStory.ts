@@ -1,3 +1,9 @@
+// 이 파일은 이제 얇은 로더입니다.
+// - 대사/자막/배경/BGM 지정: src/stories/town-country/script.json
+// - TTS 재생 타이밍/씬 길이: src/stories/town-country/timing.json (scripts/build-tts.py 산출)
+// 자세한 authoring 가이드는 src/stories/README.md 참고.
+import script from "@/stories/town-country/script.json";
+import timing from "@/stories/town-country/timing.json";
 import scene1Asset from "@/assets/town-country/scene1.jpg.asset.json";
 import scene2Asset from "@/assets/town-country/scene2.jpg.asset.json";
 import scene3Asset from "@/assets/town-country/scene3.jpg.asset.json";
