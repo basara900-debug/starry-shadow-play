@@ -813,6 +813,13 @@ function TheaterStage({
 
   const actions = [
     {
+      label: "Previous scene",
+      onClick: () => {
+        if (activeScenes.length === 0) return;
+        setSceneIndex((i) => (i - 1 + activeScenes.length) % activeScenes.length);
+      },
+    },
+    {
       label: "Play / 2x / Pause",
       onClick: () =>
         setPlayState((s) => (s === "1x" ? "2x" : s === "2x" ? "paused" : "1x")),
