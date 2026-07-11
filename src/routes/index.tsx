@@ -653,7 +653,8 @@ const SCREEN = { x: 13.2, y: 7.5, w: 73.6, h: 70.5 };
 const THEATER_BTN_Y = 81.0;
 const THEATER_BTN_W = 7.5;
 const THEATER_BTN_H = 7.2;
-const THEATER_BTN_X = [29.0, 43.0, 57.0, 68.0];
+// 5 buttons: 이전 씬 · 재생/2x/일시정지 · 다음 씬 · 설정 · 나가기
+const THEATER_BTN_X = [29.0, 38.75, 48.5, 58.25, 68.0];
 
 function TheaterStage({
   cassetteId,
