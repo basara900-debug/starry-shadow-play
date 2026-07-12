@@ -160,6 +160,16 @@ const SPEAKER_LABEL: Record<StorySpeaker, string> = {
   country: "시골쥐",
   city: "서울쥐",
   post: "우편 배달쥐",
+  // boy-wolf
+  tom: "톰",
+  tom_hurry: "톰",
+  tom_sad: "톰",
+  v_m1: "마을 남자 1",
+  v_m2: "마을 남자 2",
+  v_m3: "마을 남자 3",
+  v_w1: "마을 여자 1",
+  v_w2: "마을 여자 2",
+  villagers: "마을 사람들",
 };
 
 const SPEAKER_PALETTE: Record<StorySpeaker, { bg: string; fg: string; border: string }> = {
@@ -167,6 +177,16 @@ const SPEAKER_PALETTE: Record<StorySpeaker, { bg: string; fg: string; border: st
   country:     { bg: "oklch(0.36 0.10 80 / 0.88)", fg: "oklch(0.98 0.04 95)", border: "oklch(0.65 0.13 80 / 0.55)" },
   city:        { bg: "oklch(0.34 0.12 260 / 0.88)", fg: "oklch(0.97 0.04 250)", border: "oklch(0.62 0.15 260 / 0.55)" },
   post:        { bg: "oklch(0.34 0.11 30 / 0.88)", fg: "oklch(0.98 0.04 60)", border: "oklch(0.62 0.15 30 / 0.55)" },
+  // boy-wolf — 톰(초록 계열), 마을 남자(따뜻한 갈색), 마을 여자(부드러운 로즈), 군중(중립)
+  tom:         { bg: "oklch(0.36 0.11 145 / 0.88)", fg: "oklch(0.98 0.04 130)", border: "oklch(0.62 0.15 145 / 0.55)" },
+  tom_hurry:   { bg: "oklch(0.36 0.13 35 / 0.9)",  fg: "oklch(0.98 0.04 60)",  border: "oklch(0.65 0.17 35 / 0.6)" },
+  tom_sad:     { bg: "oklch(0.30 0.08 240 / 0.9)", fg: "oklch(0.96 0.03 240)", border: "oklch(0.58 0.10 240 / 0.55)" },
+  v_m1:        { bg: "oklch(0.34 0.09 55 / 0.88)", fg: "oklch(0.98 0.04 70)",  border: "oklch(0.62 0.12 55 / 0.55)" },
+  v_m2:        { bg: "oklch(0.34 0.08 40 / 0.88)", fg: "oklch(0.98 0.04 55)",  border: "oklch(0.60 0.10 40 / 0.55)" },
+  v_m3:        { bg: "oklch(0.32 0.12 20 / 0.9)",  fg: "oklch(0.98 0.04 40)",  border: "oklch(0.60 0.15 20 / 0.55)" },
+  v_w1:        { bg: "oklch(0.38 0.10 350 / 0.88)", fg: "oklch(0.98 0.04 350)", border: "oklch(0.66 0.13 350 / 0.55)" },
+  v_w2:        { bg: "oklch(0.36 0.08 330 / 0.88)", fg: "oklch(0.97 0.04 340)", border: "oklch(0.62 0.10 330 / 0.55)" },
+  villagers:   { bg: "oklch(0.30 0.03 80 / 0.9)",  fg: "oklch(0.96 0.02 85)",  border: "oklch(0.55 0.04 80 / 0.55)" },
 };
 
 export type StorySceneSpeed = 1 | 2 | 0;
@@ -199,14 +219,15 @@ export function StorySceneMotion({
     maxDurationSec: scene.durationSec,
   });
 
-  // Town-country TTS: 각 beat 의 from/to 구간에 사전 생성된 mp3 를 재생한다.
+  // 스토리별 TTS: scene.id 에서 story 폴더/씬 번호를 도출한다. ("boy-wolf-3" → boy-wolf/scene3)
   const audioState = useSceneAudioState();
-  const sceneNum = scene.id.split("-").pop() ?? "1";
+  const sceneNum = scene.id.match(/-(\d+)$/)?.[1] ?? "1";
+  const storyDir = scene.id.replace(/-\d+$/, "");
   const ttsBeats: SceneBeat[] = scene.beats.map((b, i) => ({
     i,
     who: b.who,
     text: b.text,
-    file: `/audio/town-country/scene${sceneNum}/tts/${String(i).padStart(2, "0")}_${b.who}.mp3`,
+    file: `/audio/${storyDir}/scene${sceneNum}/tts/${String(i).padStart(2, "0")}_${b.who}.mp3`,
     dur: b.to - b.from,
     from: b.from,
     to: b.to,
