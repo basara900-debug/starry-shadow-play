@@ -75,10 +75,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Little Star, Little Forêt Bébé — Shadow Theater" },
       { name: "description", content: "Un théâtre d'ombres poétique : une petite étoile, un bébé et la forêt qui danse à la nuit tombée." },
       { property: "og:title", content: "Little Star, Little Forêt Bébé — Shadow Theater" },
-      { property: "og:description", content: "Un théâtre d'ombres poétique pour les rêves des tout-petits." },
+      { property: "og:description", content: "Un théâtre d'ombres poétique : une petite étoile, un bébé et la forêt qui danse à la nuit tombée." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Little Star, Little Forêt Bébé — Shadow Theater" },
+      { name: "twitter:description", content: "Un théâtre d'ombres poétique : une petite étoile, un bébé et la forêt qui danse à la nuit tombée." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/29d73e87-ee1c-4f6e-a0a9-af1146483a0e/id-preview-5f71c5a4--13e23f2f-2f47-436b-ad1e-4598b332778a.lovable.app-1783754913250.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/29d73e87-ee1c-4f6e-a0a9-af1146483a0e/id-preview-5f71c5a4--13e23f2f-2f47-436b-ad1e-4598b332778a.lovable.app-1783754913250.png" },
     ],
     links: [
       {
