@@ -25,6 +25,16 @@ export const CASSETTES: Cassette[] = [
     updatedAt: "2026-06-15",
   },
   {
+    id: "boy-wolf",
+    title: "양치기 소년",
+    subtitle: "거짓말과 진심, 12막 구성",
+    hueA: "oklch(0.82 0.11 130)",
+    hueB: "oklch(0.42 0.10 145)",
+    purchased: true,
+    isUpdate: true,
+    updatedAt: "2026-07-12",
+  },
+  {
     id: "ants-grasshopper",
     title: "개미와 베짱이",
     subtitle: "여름 노래와 겨울 식량의 우화",

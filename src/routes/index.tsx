@@ -11,6 +11,7 @@ import scene5BgmAsset from "@/assets/scene5/scene5_bgm.mp3.asset.json";
 import { StorySceneMotion, type StorySceneSpeed } from "@/components/StorySceneMotion";
 import { CASSETTES, type Cassette } from "@/data/cassettes";
 import { TOWN_COUNTRY_STORY } from "@/data/townCountryStory";
+import { BOY_WOLF_STORY } from "@/data/boyWolfStory";
 import { supabase } from "@/integrations/supabase/client";
 import { primeScene1Tts, Scene1Motion, type Scene1Speed } from "@/components/Scene1Motion";
 import { primeSceneTts } from "@/lib/sceneTts";
@@ -704,13 +705,20 @@ function TheaterStage({
 
   // 카세트별 프로그램 분리 — 한 카세트가 다른 카세트의 모션/대사/오디오를 절대 침범하지 않는다.
   // program 값이 그 카세트 안에서 어떤 씬 시스템이 동작할지를 결정한다.
-  const program: "ants-grasshopper" | "town-country" | null =
+  const program: "ants-grasshopper" | "town-country" | "boy-wolf" | null =
     cassetteId === "ants-grasshopper"
       ? "ants-grasshopper"
       : cassetteId === TOWN_COUNTRY_STORY.id
         ? "town-country"
+        : cassetteId === BOY_WOLF_STORY.id
+          ? "boy-wolf"
+          : null;
+  const storyProgram =
+    program === "town-country"
+      ? TOWN_COUNTRY_STORY
+      : program === "boy-wolf"
+        ? BOY_WOLF_STORY
         : null;
-  const storyProgram = program === "town-country" ? TOWN_COUNTRY_STORY : null;
   const activeScenes = storyProgram
     ? storyProgram.scenes.map((scene) => ({
         id: scene.id,
@@ -927,7 +935,7 @@ function TheaterStage({
                 }}
               />
             )}
-            {program === "town-country" && storyProgram && sceneIndex >= 0 && sceneIndex < storyProgram.scenes.length && (
+            {(program === "town-country" || program === "boy-wolf") && storyProgram && sceneIndex >= 0 && sceneIndex < storyProgram.scenes.length && (
               <StorySceneMotion
                 scene={storyProgram.scenes[sceneIndex]}
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as StorySceneSpeed}
