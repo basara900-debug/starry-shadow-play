@@ -21,7 +21,21 @@ export type StoryCue = {
   note: string;
 };
 
-export type StorySpeaker = "narration" | "country" | "city" | "post";
+export type StorySpeaker =
+  | "narration"
+  | "country"
+  | "city"
+  | "post"
+  // boy-wolf 스토리 화자들
+  | "tom"
+  | "tom_hurry"
+  | "tom_sad"
+  | "v_m1"
+  | "v_m2"
+  | "v_m3"
+  | "v_w1"
+  | "v_w2"
+  | "villagers";
 
 export type StoryBeat = {
   from: number;
