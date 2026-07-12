@@ -935,7 +935,7 @@ function TheaterStage({
                 }}
               />
             )}
-            {program === "town-country" && storyProgram && sceneIndex >= 0 && sceneIndex < storyProgram.scenes.length && (
+            {(program === "town-country" || program === "boy-wolf") && storyProgram && sceneIndex >= 0 && sceneIndex < storyProgram.scenes.length && (
               <StorySceneMotion
                 scene={storyProgram.scenes[sceneIndex]}
                 speed={(playState === "paused" ? 0 : playState === "2x" ? 2 : 1) as StorySceneSpeed}
