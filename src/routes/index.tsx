@@ -11,6 +11,7 @@ import scene5BgmAsset from "@/assets/scene5/scene5_bgm.mp3.asset.json";
 import { StorySceneMotion, type StorySceneSpeed } from "@/components/StorySceneMotion";
 import { CASSETTES, type Cassette } from "@/data/cassettes";
 import { TOWN_COUNTRY_STORY } from "@/data/townCountryStory";
+import { BOY_WOLF_STORY } from "@/data/boyWolfStory";
 import { supabase } from "@/integrations/supabase/client";
 import { primeScene1Tts, Scene1Motion, type Scene1Speed } from "@/components/Scene1Motion";
 import { primeSceneTts } from "@/lib/sceneTts";
