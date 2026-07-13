@@ -1,77 +1,79 @@
 ## 목표
-ElevenLabs `eleven_multilingual_v2`로 TTS를 교체해 한국어 자연스러움을 확보하고, **캐릭터별 목소리 프로파일 + 씬/대사별 감정 오버라이드**를 스크립트에서 선언적으로 지정한다. 재생 로직·타이밍 파이프라인은 그대로 유지한다.
+ElevenLabs 커넥션을 프로젝트에 링크해 `ELEVENLABS_API_KEY`를 서버 런타임에 주입하고, 「양치기 소년」 스크립트에 **캐릭터별 보이스 프로파일 + 씬 mood + 대사별 emotion**을 완성해 “생성 실행” 한 번이면 12씬 전체 TTS가 새로 만들어지는 상태로 준비한다. 재생·타이밍 파이프라인은 무변경.
 
-## 사전 준비 (사용자 조작)
-1. ElevenLabs 스탠다드 커넥터 연결 → `ELEVENLABS_API_KEY` 주입.
-2. 필요 시 [Voice Library](https://elevenlabs.io/voice-library)에서 원하는 한국어/다국어 보이스 ID를 골라 알려주기. 기본값은 아래 프리셋으로 채운다.
+## 1. 커넥터 링크
+- `standard_connectors--connect(connector_id: "elevenlabs")` 호출 → 프로젝트에 링크 → `ELEVENLABS_API_KEY` 주입.
+- `secrets--fetch_secrets` 로 확인.
 
-## 스크립트 스키마 확장 (`src/stories/<id>/script.json`)
+## 2. `scripts/build-tts.py` 재작성 (ElevenLabs 엔진 추가)
+- `script.engine` 값을 읽어 `elevenlabs` / `lovable`(기존) 분기.
+- ElevenLabs 경로:
+  - `POST https://api.elevenlabs.io/v1/text-to-speech/{voiceId}?output_format=mp3_44100_128`
+  - 헤더: `xi-api-key: $ELEVENLABS_API_KEY`
+  - 바디: `{ text, model_id, voice_settings, previous_text, next_text }`
+  - **Request Stitching**: 같은 씬 내 직전·직후 대사를 `previous_text` / `next_text`로 전달 → 짧은 대사에서 튀는 프로소디 완화.
+  - `voice_settings` 병합 순서: `voices[who].settings` ← `emotions[scene.mood]` ← `emotions[line.emotion]`.
+  - 재시도 백오프(429/5xx, 3회) 포함.
+- 파일 경로·이름·`timing.json` 산출·gap 로직은 그대로 유지 → 앱 코드 무변경.
+- 텍스트+최종 voice_settings + voiceId 해시를 `<mp3>.hash`에 저장 → `--force` 없이 실행 시 변경분만 재생성.
 
-```json
-{
-  "engine": "elevenlabs",
-  "model": "eleven_multilingual_v2",
-  "gapSec": 0.5,
-  "voices": {
-    "narration": {
-      "voiceId": "XrExE9yKIg1WjnnlVkGX",   // Matilda: 따뜻·지적
-      "settings": { "stability": 0.6, "similarity_boost": 0.8, "style": 0.35, "speed": 0.95 }
-    },
-    "tom":     { "voiceId": "IKne3meq5aSn9XLyUdCD", "settings": { "stability": 0.35, "style": 0.55 } },
-    "country": { "voiceId": "Xb7hH8MSUJpSbSDYk0k2", "settings": { "stability": 0.4,  "style": 0.5 } },
-    "city":    { "voiceId": "TX3LPaxmHKxFdv7VOQHJ", "settings": { "stability": 0.35, "style": 0.6 } }
-    // …
-  },
-  "emotions": {
-    "hurry":   { "stability": 0.2, "style": 0.75, "speed": 1.1 },
-    "sad":     { "stability": 0.75, "style": 0.25, "speed": 0.9 },
-    "excited": { "stability": 0.25, "style": 0.8,  "speed": 1.05 },
-    "angry":   { "stability": 0.2, "style": 0.85, "speed": 1.05 },
-    "warm":    { "stability": 0.7, "style": 0.3,  "speed": 0.97 },
-    "calm":    { "stability": 0.8, "style": 0.2,  "speed": 0.95 }
-  },
-  "scenes": [
-    {
-      "id": "boy-wolf-11",
-      "mood": "sad",                // 씬 전역 감정 (선택)
-      "dialogue": [
-        { "who": "tom",  "emotion": "sad",   "text": "휘슬아…" },
-        { "who": "narration",             "text": "…" }
-      ]
-    }
-  ]
-}
+## 3. 「양치기 소년」 스크립트 재구성 (`src/stories/boy-wolf/script.json`)
+
+### 3-1. 파생 화자 정리
+- 기존 `tom_hurry` / `tom_sad` 는 **`who: "tom" + emotion`** 으로 변환. `voices`에는 `tom` 하나만.
+
+### 3-2. 캐릭터 → ElevenLabs 보이스 매핑 (기본 프리셋, 커스텀 요청 없으면 이대로 진행)
+
+| 화자 | 설명 (원안) | Voice | Voice ID | 베이스 settings |
+|---|---|---|---|---|
+| narration | 80대 여성, 따뜻·지적 | Matilda | `XrExE9yKIg1WjnnlVkGX` | stability .65 / sim .8 / style .3 / speed .95 |
+| tom | 10대 남자, 짓궂고 쾌활 | Callum | `N2lVS1w4EtoT3dr4eOWO` | stability .4 / sim .75 / style .55 / speed 1.0 |
+| v_m1 | 30대 남자, 밝고 따뜻 | Liam | `TX3LPaxmHKxFdv7VOQHJ` | stability .5 / sim .8 / style .4 / speed 1.0 |
+| v_m2 | 40대 남자, 친절·따뜻 | George | `JBFqnCBsd6RMkjVDRZzb` | stability .6 / sim .8 / style .3 / speed .97 |
+| v_m3 | 20대 남자, 성격 급하고 거침 | Will | `bIHbv24MWmeRgasZH58o` | stability .3 / sim .75 / style .7 / speed 1.05 |
+| v_w1 | 20대 여자, 쾌활·따뜻 | Jessica | `cgSgspJ2msm6clMCkdW9` | stability .45 / sim .8 / style .55 / speed 1.0 |
+| v_w2 | 40대 여자, 침착·친절 | Sarah | `EXAVITQu4vr4xnSDxMaL` | stability .65 / sim .8 / style .3 / speed .97 |
+| villagers | 여러 마을 사람의 외침 | Bill | `pqHfZKP75CvOlQylNhV4` | stability .3 / sim .7 / style .75 / speed 1.05 |
+
+모델: `eleven_multilingual_v2` (한국어 자연스러움 우선).
+
+### 3-3. 감정 프리셋
+
+```
+hurry   : stability .2  / style .8  / speed 1.1
+sad     : stability .75 / style .25 / speed .9
+excited : stability .25 / style .8  / speed 1.05
+angry   : stability .2  / style .85 / speed 1.05
+warm    : stability .7  / style .3  / speed .97
+calm    : stability .8  / style .2  / speed .95
+mischief: stability .3  / style .7  / speed 1.02
+regret  : stability .8  / style .2  / speed .88
 ```
 
-- 병합 순서: `voices[who].settings` → `emotions[scene.mood]` → `emotions[line.emotion]` (뒤가 앞을 덮어씀).
-- 기존 파생 화자(`tom_hurry`, `tom_sad`)는 마이그레이션 스크립트로 `who: "tom" + emotion` 형태로 변환.
+### 3-4. 씬별 mood + 라인 emotion 태깅
+- 씬1 mood=`calm` — 톰 대사에 `mischief` (음흉한 웃음 이후).
+- 씬2 mood=`excited` — v_m3 마지막 재촉 라인에 `hurry`.
+- 씬3 mood=`calm` — 톰 변명 라인에 `mischief`.
+- 씬4 mood=`calm` — 두 번째 외침(늑대 나타났다)에 `hurry`.
+- 씬5 mood=`excited` — v_m3 `angry`.
+- 씬6 mood=`excited` — 톰 웃음 라인 `mischief`, v_m1 꾸중 라인 `angry`.
+- 씬7 mood=`angry` — v_w1/v_w2 라인은 `warm`으로 대비.
+- 씬8 mood=`hurry` — 두 tom 라인 이미 `hurry`.
+- 씬9 mood=`excited`.
+- 씬10 mood=`hurry` — 톰의 `내가 지루함을…` 라인 `regret`, v_m3 `angry`.
+- 씬11 mood=`sad` — 톰 세 라인 `regret`, v_w2 `warm`.
+- 씬12 mood=`warm` (에필로그, 질문 톤).
 
-## 빌드 스크립트 재작성 (`scripts/build-tts.py`)
+## 4. 앱 코드 소폭 수정
+- `src/components/StorySceneMotion.tsx`: `who` 파생 화자(`tom_hurry`, `tom_sad`) 참조가 있는 경우 자막 표시명 매핑 유지하되 내부적으로 `tom`으로 정규화.
+- `src/lib/sceneTts.ts`: 변경 없음 (같은 파일명 그대로 재생).
 
-- 엔진 분기: `script.engine === "elevenlabs"`이면 ElevenLabs 경로.
-- 엔드포인트: `POST https://api.elevenlabs.io/v1/text-to-speech/{voiceId}?output_format=mp3_44100_128`
-- 헤더: `xi-api-key: $ELEVENLABS_API_KEY`
-- 바디: `{ text, model_id, voice_settings, previous_text, next_text }`
-- **Request Stitching**: 같은 씬 안에서 직전·직후 대사 텍스트를 `previous_text` / `next_text`로 넘겨 억양·프로소디 연속성 확보 (대사가 짧고 많아 로봇처럼 들리는 문제를 크게 완화).
-- 저장 경로·파일명(`public/audio/<id>/scene<N>/tts/<idx>_<who>.mp3`)·`timing.json` 산출 로직은 유지 → 앱 코드 무변경.
-- `--force` 없이 실행 시: 신규/변경된 대사만 재생성 (텍스트+설정 해시를 파일 옆 `.hash`에 저장해 판정).
-
-## 적용 범위 & 마이그레이션
-1. `town-country/script.json` — 화자 4명, 씬 5개 → 보이스 매핑 + 씬 mood 추가.
-2. `boy-wolf/script.json` — 화자 12개 → `tom_hurry/tom_sad` 등 감정 접미 화자를 `who=tom + emotion` 으로 정규화. 씬 8/9/10에 `mood: "hurry"`, 씬 11에 `mood: "sad"` 프리셋 적용.
-3. `--force`로 두 카세트 전부 재생성 → `timing.json` 갱신. 씬 길이가 상단 타임라인에 그대로 반영됨.
-
-## 앱/재생 코드
-- 변경 없음. `sceneTts.ts`는 동일한 mp3 파일을 그대로 재생.
-- `StorySceneMotion`에서 `boy-wolf`의 파생 화자 참조가 있으면 `who=tom`로 단일화하되 자막 표시명은 그대로 유지 (자막용 화자 라벨 매핑 소폭 수정).
-
-## 문서
-- `src/stories/README.md`에 ElevenLabs 프리셋·감정 태그 사용법과 스티칭 동작을 1페이지 추가.
-
-## 트레이드오프
-- 크레딧 사용량이 늘어난다 (multilingual_v2 기준). 스티칭은 컨텍스트로만 쓰이고 별도 과금 X.
-- `eleven_turbo_v2_5`로 낮추면 절반 비용·약간 낮은 자연스러움. 필요 시 씬/화자 단위로 선택 가능하게 `model` 오버라이드 필드도 함께 지원.
+## 5. 실행 준비
+- 여기까지 마치면 사용자가 “생성” 명령을 내렸을 때 다음 한 줄로 시작 가능:
+  - `python3 scripts/build-tts.py boy-wolf --force`
+- 결과: `public/audio/boy-wolf/**/*.mp3` 전량 재생성, `src/stories/boy-wolf/timing.json` 자동 갱신, 상단 툴바 씬 길이 자동 반영.
+- 완료 시 사용자에게 “생성 실행 준비 완료” 로 알림.
 
 ## 확인 필요
-- 두 카세트 모두 즉시 재생성할지, 아니면 `boy-wolf` 씬 1만 샘플 생성해 톤 확인 후 확대할지.
-- 위 기본 보이스 ID 프리셋을 그대로 쓸지, 특정 캐릭터에 원하는 Voice ID가 있는지.
+- 위 8개 캐릭터의 Voice ID 프리셋을 그대로 쓸지, 특정 캐릭터에 원하는 Voice ID를 지정할지.
+- 이번 턴에서는 town-country는 건드리지 않음. 필요하면 다음에 별도 요청.
