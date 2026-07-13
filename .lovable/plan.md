@@ -1,82 +1,77 @@
-# 동화 씬 제작 파이프라인 개선안
+## 목표
+ElevenLabs `eleven_multilingual_v2`로 TTS를 교체해 한국어 자연스러움을 확보하고, **캐릭터별 목소리 프로파일 + 씬/대사별 감정 오버라이드**를 스크립트에서 선언적으로 지정한다. 재생 로직·타이밍 파이프라인은 그대로 유지한다.
 
-지금 프로젝트는 "시골쥐와 서울쥐" 한 편을 직접 손으로 조립하면서 굳어진 구조라, 앞으로 새 동화를 계속 만들려면 **사전 작업 → 씬 조립 → 개발자 연출**을 분리해두는 게 좋습니다. 현재 구조는 유지하되, 반복 작업을 제거하는 4가지 개선을 제안합니다.
+## 사전 준비 (사용자 조작)
+1. ElevenLabs 스탠다드 커넥터 연결 → `ELEVENLABS_API_KEY` 주입.
+2. 필요 시 [Voice Library](https://elevenlabs.io/voice-library)에서 원하는 한국어/다국어 보이스 ID를 골라 알려주기. 기본값은 아래 프리셋으로 채운다.
 
-## 1. 스토리보드를 단일 소스로 (씬 조립 순서 #1)
+## 스크립트 스키마 확장 (`src/stories/<id>/script.json`)
 
-**현재 문제**
-- `townCountryStory.ts`에 자막(`beats`)이 손으로 박혀 있고, TTS 파일명·씬 길이·자막 시간이 서로 따로 관리됨.
-- 자막 시간(`from`/`to`)을 사람이 계산해서 넣고, TTS 재생성하면 다시 손으로 맞춰야 함.
+```json
+{
+  "engine": "elevenlabs",
+  "model": "eleven_multilingual_v2",
+  "gapSec": 0.5,
+  "voices": {
+    "narration": {
+      "voiceId": "XrExE9yKIg1WjnnlVkGX",   // Matilda: 따뜻·지적
+      "settings": { "stability": 0.6, "similarity_boost": 0.8, "style": 0.35, "speed": 0.95 }
+    },
+    "tom":     { "voiceId": "IKne3meq5aSn9XLyUdCD", "settings": { "stability": 0.35, "style": 0.55 } },
+    "country": { "voiceId": "Xb7hH8MSUJpSbSDYk0k2", "settings": { "stability": 0.4,  "style": 0.5 } },
+    "city":    { "voiceId": "TX3LPaxmHKxFdv7VOQHJ", "settings": { "stability": 0.35, "style": 0.6 } }
+    // …
+  },
+  "emotions": {
+    "hurry":   { "stability": 0.2, "style": 0.75, "speed": 1.1 },
+    "sad":     { "stability": 0.75, "style": 0.25, "speed": 0.9 },
+    "excited": { "stability": 0.25, "style": 0.8,  "speed": 1.05 },
+    "angry":   { "stability": 0.2, "style": 0.85, "speed": 1.05 },
+    "warm":    { "stability": 0.7, "style": 0.3,  "speed": 0.97 },
+    "calm":    { "stability": 0.8, "style": 0.2,  "speed": 0.95 }
+  },
+  "scenes": [
+    {
+      "id": "boy-wolf-11",
+      "mood": "sad",                // 씬 전역 감정 (선택)
+      "dialogue": [
+        { "who": "tom",  "emotion": "sad",   "text": "휘슬아…" },
+        { "who": "narration",             "text": "…" }
+      ]
+    }
+  ]
+}
+```
 
-**개선**
-- 새 스토리는 `src/data/stories/<id>/script.json` 하나만 사람이 편집.
-  - 씬별로 `setting`, `bgmUrl`, 대사 배열(`who`, `text`)만 기입. **시간은 안 적음.**
-- 이 파일이 자막·TTS·씬 길이의 유일한 진실 소스가 됨.
+- 병합 순서: `voices[who].settings` → `emotions[scene.mood]` → `emotions[line.emotion]` (뒤가 앞을 덮어씀).
+- 기존 파생 화자(`tom_hurry`, `tom_sad`)는 마이그레이션 스크립트로 `who: "tom" + emotion` 형태로 변환.
 
-## 2. TTS 빌드 스크립트 표준화 (사전 작업 #2, 0.5초 간격 규칙)
+## 빌드 스크립트 재작성 (`scripts/build-tts.py`)
 
-**개선**
-- `scripts/build-tts.ts` (또는 `.py`) 하나로 통일:
-  1. `script.json` 읽어서 각 대사에 대해 Lovable AI TTS 호출 (화자별 voice 매핑 테이블 포함).
-  2. 생성된 mp3를 `public/audio/<story>/scene<N>/tts/<idx>_<who>.mp3` 로 저장.
-  3. `ffprobe`로 각 파일의 실제 길이 측정.
-  4. **각 대사 사이 0.5초 gap** 을 넣은 타임라인 계산 후 `script.json` 옆에 `timing.json` 산출:
-     ```
-     beats: [{ i, who, text, file, dur, from, to }, ...]
-     sceneDurationSec: <마지막 beat.to + 0.5>
-     ```
-- 앱 코드는 `script.json` + `timing.json` 을 합쳐서 기존 `StorySceneDefinition` 형태로 로드 → `StorySceneMotion` 은 그대로 유지.
+- 엔진 분기: `script.engine === "elevenlabs"`이면 ElevenLabs 경로.
+- 엔드포인트: `POST https://api.elevenlabs.io/v1/text-to-speech/{voiceId}?output_format=mp3_44100_128`
+- 헤더: `xi-api-key: $ELEVENLABS_API_KEY`
+- 바디: `{ text, model_id, voice_settings, previous_text, next_text }`
+- **Request Stitching**: 같은 씬 안에서 직전·직후 대사 텍스트를 `previous_text` / `next_text`로 넘겨 억양·프로소디 연속성 확보 (대사가 짧고 많아 로봇처럼 들리는 문제를 크게 완화).
+- 저장 경로·파일명(`public/audio/<id>/scene<N>/tts/<idx>_<who>.mp3`)·`timing.json` 산출 로직은 유지 → 앱 코드 무변경.
+- `--force` 없이 실행 시: 신규/변경된 대사만 재생성 (텍스트+설정 해시를 파일 옆 `.hash`에 저장해 판정).
 
-**효과**: 대사 한 줄 바꾸면 스크립트 재실행만으로 mp3·자막 시간·씬 길이가 전부 자동 재산출.
+## 적용 범위 & 마이그레이션
+1. `town-country/script.json` — 화자 4명, 씬 5개 → 보이스 매핑 + 씬 mood 추가.
+2. `boy-wolf/script.json` — 화자 12개 → `tom_hurry/tom_sad` 등 감정 접미 화자를 `who=tom + emotion` 으로 정규화. 씬 8/9/10에 `mood: "hurry"`, 씬 11에 `mood: "sad"` 프리셋 적용.
+3. `--force`로 두 카세트 전부 재생성 → `timing.json` 갱신. 씬 길이가 상단 타임라인에 그대로 반영됨.
 
-## 3. 씬 길이·상단 타이머가 gap 포함해서 정확히 표시 (사전 작업 #3)
+## 앱/재생 코드
+- 변경 없음. `sceneTts.ts`는 동일한 mp3 파일을 그대로 재생.
+- `StorySceneMotion`에서 `boy-wolf`의 파생 화자 참조가 있으면 `who=tom`로 단일화하되 자막 표시명은 그대로 유지 (자막용 화자 라벨 매핑 소폭 수정).
 
-**현재 문제**
-- `scene.durationSec` 이 손으로 넣은 값. `StorySceneMotion` 은 이 값을 그대로 루프/완료 판정에 사용.
-- gap이 자막에는 있지만 총 길이 계산에는 반영 안 될 수 있음.
+## 문서
+- `src/stories/README.md`에 ElevenLabs 프리셋·감정 태그 사용법과 스티칭 동작을 1페이지 추가.
 
-**개선**
-- `sceneDurationSec = 마지막 beat.to + 0.5` 를 빌드 스크립트가 산출.
-- 상단 재생 툴바(현재 `DevSubtitleToolbar` / `DevMotionToolbar` / 재생 컨트롤)가 이 값을 그대로 사용하므로 추가 코드 없이 gap 포함된 시간이 표시됨.
-- `StorySceneMotion` 의 `onComplete` 트리거도 자동으로 맞춰짐.
+## 트레이드오프
+- 크레딧 사용량이 늘어난다 (multilingual_v2 기준). 스티칭은 컨텍스트로만 쓰이고 별도 과금 X.
+- `eleven_turbo_v2_5`로 낮추면 절반 비용·약간 낮은 자연스러움. 필요 시 씬/화자 단위로 선택 가능하게 `model` 오버라이드 필드도 함께 지원.
 
-## 4. 개발자 연출 레이어 명확화 (씬 조립 순서 #4~7)
-
-배경·캐릭터 모션·SFX는 계속 개발자 재량이지만, 지금은 `StorySceneMotion.tsx` 한 파일(1100줄)에 씬 1~4가 다 들어가 있어 새 동화 추가 시 충돌이 큽니다.
-
-**개선**
-- 동화별로 분리:
-  ```
-  src/stories/<id>/
-    script.json           ← 사람 편집
-    timing.json           ← 스크립트가 생성
-    scene1.motion.tsx     ← 개발자가 캐릭터/SFX 배치
-    scene2.motion.tsx
-    ...
-    index.ts              ← 위 조각들을 StorySceneDefinition[] 로 export
-  ```
-- `StorySceneMotion` 은 얇은 셸(자막·TTS·BGM·타이머·완료 처리)만 담당하고, 씬별 연출 JSX는 각 씬 파일에서 렌더.
-- `SCENE_MOTIONS`(모션 카탈로그)도 씬 파일 안에서 export → 여러 동화가 동시에 있어도 이름 충돌 없음.
-- 배경/BGM은 `script.json`에 URL만 지정하면 셸이 알아서 처리 (#4, #7).
-- SFX는 씬 모션 파일에서 특정 시간대에 삽입 (#6).
-
-## 앞으로 새 동화 만드는 순서 (이 개선안 적용 후)
-
-1. **스크립트 작성**: `src/stories/<id>/script.json` 에 씬·화자·대사만 입력.
-2. **TTS 빌드**: `bun run build-tts <id>` → mp3 + `timing.json` 자동 생성 (0.5초 gap 자동 반영).
-3. **씬 길이 확정**: 앱 실행하면 상단 툴바에 gap 포함된 정확한 씬 시간이 표시됨.
-4. **배경 지정**: `script.json` 에 배경/BGM URL 추가.
-5. **캐릭터 시트 배치·모션 구현**: `scene<N>.motion.tsx` 에서 개발자가 JSX 작성 (`SCENE_MOTIONS` 카탈로그 함께 갱신 → DevMotionToolbar 경고 활용).
-6. **SFX 삽입**: 모션 파일에서 시간 조건부로 재생.
-7. **카세트 등록**: `src/data/cassettes.ts` 에 항목 추가.
-
-## 이번에 실제로 할 작업 (범위 확인용)
-
-이 플랜이 승인되면 다음을 순차 진행합니다:
-
-1. `scripts/build-tts.ts` 작성 (Lovable AI + ffprobe, gap 0.5초 로직).
-2. 기존 `townCountryStory.ts` 를 `src/stories/town-country/` 구조로 마이그레이션 (동작은 동일 유지, 데이터만 분리).
-3. `StorySceneMotion` 을 셸/씬 분리 리팩터.
-4. README 성격의 짧은 authoring 가이드(`src/stories/README.md`).
-
-기존 재생·자막·모션 툴바·재생 컨트롤은 건드리지 않고, 데이터·빌드 파이프라인만 정리하는 방향입니다.
+## 확인 필요
+- 두 카세트 모두 즉시 재생성할지, 아니면 `boy-wolf` 씬 1만 샘플 생성해 톤 확인 후 확대할지.
+- 위 기본 보이스 ID 프리셋을 그대로 쓸지, 특정 캐릭터에 원하는 Voice ID가 있는지.
