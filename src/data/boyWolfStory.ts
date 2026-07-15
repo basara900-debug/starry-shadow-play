@@ -2,7 +2,18 @@
 // 배경/BGM 에셋은 아직 미준비 상태 (사전 작업 단계). 씬 셸은 자막 + TTS 만 재생한다.
 import scriptJson from "@/stories/boy-wolf/script.json";
 import timingJson from "@/stories/boy-wolf/timing.json";
+import bg1 from "@/assets/boy-wolf/bg_1.jpg.asset.json";
+import bg2 from "@/assets/boy-wolf/bg_2.jpg.asset.json";
+import bg3 from "@/assets/boy-wolf/bg_3.jpg.asset.json";
+import bg4 from "@/assets/boy-wolf/bg_4.jpg.asset.json";
 import type { StoryCue, StoryProgram, StorySceneDefinition, StorySpeaker } from "@/data/townCountryStory";
+
+const ASSET_URLS: Record<string, string> = {
+  "bg_1.jpg": bg1.url,
+  "bg_2.jpg": bg2.url,
+  "bg_3.jpg": bg3.url,
+  "bg_4.jpg": bg4.url,
+};
 
 type ScriptScene = {
   id: string;
@@ -31,7 +42,7 @@ const scenes: StorySceneDefinition[] = (scriptJson.scenes as ScriptScene[]).map(
     id: s.id,
     title: s.title,
     setting: s.setting,
-    url: "",
+    url: s.background ? (ASSET_URLS[s.background] ?? "") : "",
     durationSec: timing.durationSec,
     bgmUrl: undefined,
     sfxUrl: undefined,
