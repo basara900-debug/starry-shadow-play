@@ -564,6 +564,24 @@ export function StorySceneMotion({
       )
     : 0;
 
+  // 양치기 소년 씬1: 톰 순환 포즈
+  const boyWolfS1TomFrames = BOY_WOLF_S1_TOM.frames.map((f) => f.url);
+  const showBoyWolfS1Tom =
+    scene.id === BOY_WOLF_S1_TOM.sceneId &&
+    t >= BOY_WOLF_S1_TOM.startSec &&
+    t < BOY_WOLF_S1_TOM.endSec;
+  const boyWolfS1TomIdx = showBoyWolfS1Tom
+    ? Math.floor((t - BOY_WOLF_S1_TOM.startSec) / BOY_WOLF_S1_TOM.intervalSec) %
+      boyWolfS1TomFrames.length
+    : 0;
+  const boyWolfS1TomEntry = showBoyWolfS1Tom
+    ? Math.min(
+        1,
+        ((t - BOY_WOLF_S1_TOM.startSec) % BOY_WOLF_S1_TOM.intervalSec) /
+          BOY_WOLF_S1_TOM.fadeInSec
+      )
+    : 0;
+
   const showScene3PairFlee = scene.id === "town-country-3" && t >= 76 && t < 86;
   const scene3PairFleeProgress = showScene3PairFlee ? (t - 76) / 10 : 0;
   const scene3PairFleeLeftPct = 50 + (80 - 50) * scene3PairFleeProgress;
