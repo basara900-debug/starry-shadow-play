@@ -70,6 +70,11 @@ import scene4CountryAAsset from "@/assets/town-country/scene4_country_a.png.asse
 import scene4CountryBAsset from "@/assets/town-country/scene4_country_b.png.asset.json";
 import tomSit1Asset from "@/assets/boy-wolf/tom_sit_1.png.asset.json";
 import tomSit2Asset from "@/assets/boy-wolf/tom_sit_2.png.asset.json";
+import bwSheep1Asset from "@/assets/boy-wolf/bw_sheep_1.png.asset.json";
+import bwSheep2Asset from "@/assets/boy-wolf/bw_sheep_2.png.asset.json";
+import bwSheep3Asset from "@/assets/boy-wolf/bw_sheep_3.png.asset.json";
+import bwSheep4Asset from "@/assets/boy-wolf/bw_sheep_4.png.asset.json";
+import bwSheep5Asset from "@/assets/boy-wolf/bw_sheep_5.png.asset.json";
 
 const SCENE4_FLEE = {
   sceneId: "town-country-4",
@@ -119,6 +124,21 @@ const BOY_WOLF_S1_TOM = {
   bottomPct: 10,
   heightPct: 34,
   flipX: true,
+  fadeInSec: 0.4,
+};
+
+// 양치기 소년 씬1 0~92s: 양떼 5포즈 — bottom 20%, left 68%↔72% 왕복, 4s 간격 순환
+const BOY_WOLF_S1_SHEEP = {
+  sceneId: "boy-wolf-1",
+  frames: [bwSheep1Asset, bwSheep2Asset, bwSheep3Asset, bwSheep4Asset, bwSheep5Asset],
+  startSec: 0,
+  endSec: 92,
+  intervalSec: 4,
+  leftMinPct: 68,
+  leftMaxPct: 72,
+  bottomPct: 20,
+  heightPct: 22,
+  sweepSec: 6,
   fadeInSec: 0.4,
 };
 
