@@ -1126,6 +1126,24 @@ export function StorySceneMotion({
           }}
         />
       )}
+      {showBoyWolfS1Tom && (
+        <img
+          src={boyWolfS1TomFrames[boyWolfS1TomIdx]}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: `${BOY_WOLF_S1_TOM.leftPct}%`,
+            bottom: `${BOY_WOLF_S1_TOM.bottomPct}%`,
+            height: `${BOY_WOLF_S1_TOM.heightPct}%`,
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px)${BOY_WOLF_S1_TOM.flipX ? " scaleX(-1)" : ""}`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, boyWolfS1TomEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45))",
+          }}
+        />
+      )}
       <div
         className="absolute"
         style={{
