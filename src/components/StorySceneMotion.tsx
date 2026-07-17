@@ -68,6 +68,8 @@ import scene3PairRunAsset from "@/assets/town-country/scene3_pair_run.png.asset.
 import scene4PairFleeAsset from "@/assets/town-country/scene4_pair_flee.png.asset.json";
 import scene4CountryAAsset from "@/assets/town-country/scene4_country_a.png.asset.json";
 import scene4CountryBAsset from "@/assets/town-country/scene4_country_b.png.asset.json";
+import tomSit1Asset from "@/assets/boy-wolf/tom_sit_1.png.asset.json";
+import tomSit2Asset from "@/assets/boy-wolf/tom_sit_2.png.asset.json";
 
 const SCENE4_FLEE = {
   sceneId: "town-country-4",
@@ -103,6 +105,20 @@ const SCENE4_COUNTRY_CYCLE = {
   leftPct: 80,
   bottomPct: 15,
   heightPct: 26,
+  fadeInSec: 0.4,
+};
+
+// 양치기 소년 씬1 21~34s: 톰 캐릭터 시트 2장(좌우 반전) — left 20%, bottom 20%, 4초 간격 순환
+const BOY_WOLF_S1_TOM = {
+  sceneId: "boy-wolf-1",
+  frames: [tomSit1Asset, tomSit2Asset],
+  startSec: 21,
+  endSec: 34,
+  intervalSec: 4,
+  leftPct: 20,
+  bottomPct: 20,
+  heightPct: 34,
+  flipX: true,
   fadeInSec: 0.4,
 };
 
@@ -152,6 +168,9 @@ const SCENE_MOTIONS: Record<string, DevMotionSegment[]> = {
     { id: "s4-flee",   track: "한쌍",   label: "도망",     from: SCENE4_FLEE.startSec,          to: SCENE4_FLEE.endSec },
     { id: "s4-cc",     track: "시골쥐", label: `순환(${SCENE4_COUNTRY_CYCLE.intervalSec}s)`, from: SCENE4_COUNTRY_CYCLE.startSec, to: SCENE4_COUNTRY_CYCLE.endSec },
     { id: "s4-bg2",    track: "배경",   label: "서울방 전환", from: 60, to: 90 },
+  ],
+  "boy-wolf-1": [
+    { id: "bw1-tom", track: "톰", label: `순환(${BOY_WOLF_S1_TOM.intervalSec}s)`, from: BOY_WOLF_S1_TOM.startSec, to: BOY_WOLF_S1_TOM.endSec },
   ],
 };
 
@@ -542,6 +561,24 @@ export function StorySceneMotion({
         1,
         ((t - SCENE4_COUNTRY_CYCLE.startSec) % SCENE4_COUNTRY_CYCLE.intervalSec) /
           SCENE4_COUNTRY_CYCLE.fadeInSec
+      )
+    : 0;
+
+  // 양치기 소년 씬1: 톰 순환 포즈
+  const boyWolfS1TomFrames = BOY_WOLF_S1_TOM.frames.map((f) => f.url);
+  const showBoyWolfS1Tom =
+    scene.id === BOY_WOLF_S1_TOM.sceneId &&
+    t >= BOY_WOLF_S1_TOM.startSec &&
+    t < BOY_WOLF_S1_TOM.endSec;
+  const boyWolfS1TomIdx = showBoyWolfS1Tom
+    ? Math.floor((t - BOY_WOLF_S1_TOM.startSec) / BOY_WOLF_S1_TOM.intervalSec) %
+      boyWolfS1TomFrames.length
+    : 0;
+  const boyWolfS1TomEntry = showBoyWolfS1Tom
+    ? Math.min(
+        1,
+        ((t - BOY_WOLF_S1_TOM.startSec) % BOY_WOLF_S1_TOM.intervalSec) /
+          BOY_WOLF_S1_TOM.fadeInSec
       )
     : 0;
 
@@ -1086,6 +1123,24 @@ export function StorySceneMotion({
             transformOrigin: "bottom center",
             opacity: Math.max(0.9, scene4CountryCycleEntry),
             filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45)) brightness(1.15)",
+          }}
+        />
+      )}
+      {showBoyWolfS1Tom && (
+        <img
+          src={boyWolfS1TomFrames[boyWolfS1TomIdx]}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: `${BOY_WOLF_S1_TOM.leftPct}%`,
+            bottom: `${BOY_WOLF_S1_TOM.bottomPct}%`,
+            height: `${BOY_WOLF_S1_TOM.heightPct}%`,
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px)${BOY_WOLF_S1_TOM.flipX ? " scaleX(-1)" : ""}`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, boyWolfS1TomEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45))",
           }}
         />
       )}
