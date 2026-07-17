@@ -70,6 +70,11 @@ import scene4CountryAAsset from "@/assets/town-country/scene4_country_a.png.asse
 import scene4CountryBAsset from "@/assets/town-country/scene4_country_b.png.asset.json";
 import tomSit1Asset from "@/assets/boy-wolf/tom_sit_1.png.asset.json";
 import tomSit2Asset from "@/assets/boy-wolf/tom_sit_2.png.asset.json";
+import bwSheep1Asset from "@/assets/boy-wolf/bw_sheep_1.png.asset.json";
+import bwSheep2Asset from "@/assets/boy-wolf/bw_sheep_2.png.asset.json";
+import bwSheep3Asset from "@/assets/boy-wolf/bw_sheep_3.png.asset.json";
+import bwSheep4Asset from "@/assets/boy-wolf/bw_sheep_4.png.asset.json";
+import bwSheep5Asset from "@/assets/boy-wolf/bw_sheep_5.png.asset.json";
 
 const SCENE4_FLEE = {
   sceneId: "town-country-4",
@@ -122,6 +127,21 @@ const BOY_WOLF_S1_TOM = {
   fadeInSec: 0.4,
 };
 
+// 양치기 소년 씬1 0~92s: 양떼 5포즈 — bottom 20%, left 68%↔72% 왕복, 4s 간격 순환
+const BOY_WOLF_S1_SHEEP = {
+  sceneId: "boy-wolf-1",
+  frames: [bwSheep1Asset, bwSheep2Asset, bwSheep3Asset, bwSheep4Asset, bwSheep5Asset],
+  startSec: 0,
+  endSec: 92,
+  intervalSec: 4,
+  leftMinPct: 68,
+  leftMaxPct: 72,
+  bottomPct: 20,
+  heightPct: 22,
+  sweepSec: 6,
+  fadeInSec: 0.4,
+};
+
 // 씬별 모션 세그먼트 카탈로그 — DevMotionToolbar 가 트랙 시각화 + 겹침/공백 경고에 사용.
 // 실제 렌더링 조건과 동일한 시간 구간을 정적으로 나열한다. 실제 조건과 어긋나면 툴바 표시가 실제와 달라지니 유지·보수 시 함께 갱신.
 const SCENE_MOTIONS: Record<string, DevMotionSegment[]> = {
@@ -171,6 +191,7 @@ const SCENE_MOTIONS: Record<string, DevMotionSegment[]> = {
   ],
   "boy-wolf-1": [
     { id: "bw1-tom", track: "톰", label: `순환(${BOY_WOLF_S1_TOM.intervalSec}s)`, from: BOY_WOLF_S1_TOM.startSec, to: BOY_WOLF_S1_TOM.endSec },
+    { id: "bw1-sheep", track: "양떼", label: `순환(${BOY_WOLF_S1_SHEEP.intervalSec}s)`, from: BOY_WOLF_S1_SHEEP.startSec, to: BOY_WOLF_S1_SHEEP.endSec },
   ],
 };
 
@@ -581,6 +602,36 @@ export function StorySceneMotion({
           BOY_WOLF_S1_TOM.fadeInSec
       )
     : 0;
+
+  // 양치기 소년 씬1: 양떼 순환 + 좌우 왕복
+  const boyWolfS1SheepFrames = BOY_WOLF_S1_SHEEP.frames.map((f) => f.url);
+  const showBoyWolfS1Sheep =
+    scene.id === BOY_WOLF_S1_SHEEP.sceneId &&
+    t >= BOY_WOLF_S1_SHEEP.startSec &&
+    t < BOY_WOLF_S1_SHEEP.endSec;
+  const boyWolfS1SheepIdx = showBoyWolfS1Sheep
+    ? Math.floor((t - BOY_WOLF_S1_SHEEP.startSec) / BOY_WOLF_S1_SHEEP.intervalSec) %
+      boyWolfS1SheepFrames.length
+    : 0;
+  const boyWolfS1SheepEntry = showBoyWolfS1Sheep
+    ? Math.min(
+        1,
+        ((t - BOY_WOLF_S1_SHEEP.startSec) % BOY_WOLF_S1_SHEEP.intervalSec) /
+          BOY_WOLF_S1_SHEEP.fadeInSec
+      )
+    : 0;
+  const boyWolfS1SheepMid =
+    (BOY_WOLF_S1_SHEEP.leftMinPct + BOY_WOLF_S1_SHEEP.leftMaxPct) / 2;
+  const boyWolfS1SheepAmp =
+    (BOY_WOLF_S1_SHEEP.leftMaxPct - BOY_WOLF_S1_SHEEP.leftMinPct) / 2;
+  const boyWolfS1SheepLeftPct = showBoyWolfS1Sheep
+    ? boyWolfS1SheepMid +
+      boyWolfS1SheepAmp *
+        Math.sin(
+          ((t - BOY_WOLF_S1_SHEEP.startSec) * Math.PI * 2) /
+            BOY_WOLF_S1_SHEEP.sweepSec
+        )
+    : boyWolfS1SheepMid;
 
   const showScene3PairFlee = scene.id === "town-country-3" && t >= 76 && t < 86;
   const scene3PairFleeProgress = showScene3PairFlee ? (t - 76) / 10 : 0;
@@ -1141,6 +1192,25 @@ export function StorySceneMotion({
             transformOrigin: "bottom center",
             opacity: Math.max(0.9, boyWolfS1TomEntry),
             filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45))",
+          }}
+        />
+      )}
+      {showBoyWolfS1Sheep && (
+        <img
+          src={boyWolfS1SheepFrames[boyWolfS1SheepIdx]}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: `${boyWolfS1SheepLeftPct}%`,
+            bottom: `${BOY_WOLF_S1_SHEEP.bottomPct}%`,
+            height: `${BOY_WOLF_S1_SHEEP.heightPct}%`,
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, boyWolfS1SheepEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45))",
+            transition: "left 0.1s linear",
           }}
         />
       )}
