@@ -191,6 +191,7 @@ const SCENE_MOTIONS: Record<string, DevMotionSegment[]> = {
   ],
   "boy-wolf-1": [
     { id: "bw1-tom", track: "톰", label: `순환(${BOY_WOLF_S1_TOM.intervalSec}s)`, from: BOY_WOLF_S1_TOM.startSec, to: BOY_WOLF_S1_TOM.endSec },
+    { id: "bw1-sheep", track: "양떼", label: `순환(${BOY_WOLF_S1_SHEEP.intervalSec}s)`, from: BOY_WOLF_S1_SHEEP.startSec, to: BOY_WOLF_S1_SHEEP.endSec },
   ],
 };
 
