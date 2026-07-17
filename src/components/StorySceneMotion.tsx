@@ -116,7 +116,7 @@ const BOY_WOLF_S1_TOM = {
   endSec: 34,
   intervalSec: 4,
   leftPct: 20,
-  bottomPct: 20,
+  bottomPct: 10,
   heightPct: 34,
   flipX: true,
   fadeInSec: 0.4,
