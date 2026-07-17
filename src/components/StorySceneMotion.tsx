@@ -1195,6 +1195,25 @@ export function StorySceneMotion({
           }}
         />
       )}
+      {showBoyWolfS1Sheep && (
+        <img
+          src={boyWolfS1SheepFrames[boyWolfS1SheepIdx]}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: `${boyWolfS1SheepLeftPct}%`,
+            bottom: `${BOY_WOLF_S1_SHEEP.bottomPct}%`,
+            height: `${BOY_WOLF_S1_SHEEP.heightPct}%`,
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, boyWolfS1SheepEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45))",
+            transition: "left 0.1s linear",
+          }}
+        />
+      )}
       <div
         className="absolute"
         style={{
