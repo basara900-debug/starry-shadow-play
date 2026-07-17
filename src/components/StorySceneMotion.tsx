@@ -603,6 +603,36 @@ export function StorySceneMotion({
       )
     : 0;
 
+  // 양치기 소년 씬1: 양떼 순환 + 좌우 왕복
+  const boyWolfS1SheepFrames = BOY_WOLF_S1_SHEEP.frames.map((f) => f.url);
+  const showBoyWolfS1Sheep =
+    scene.id === BOY_WOLF_S1_SHEEP.sceneId &&
+    t >= BOY_WOLF_S1_SHEEP.startSec &&
+    t < BOY_WOLF_S1_SHEEP.endSec;
+  const boyWolfS1SheepIdx = showBoyWolfS1Sheep
+    ? Math.floor((t - BOY_WOLF_S1_SHEEP.startSec) / BOY_WOLF_S1_SHEEP.intervalSec) %
+      boyWolfS1SheepFrames.length
+    : 0;
+  const boyWolfS1SheepEntry = showBoyWolfS1Sheep
+    ? Math.min(
+        1,
+        ((t - BOY_WOLF_S1_SHEEP.startSec) % BOY_WOLF_S1_SHEEP.intervalSec) /
+          BOY_WOLF_S1_SHEEP.fadeInSec
+      )
+    : 0;
+  const boyWolfS1SheepMid =
+    (BOY_WOLF_S1_SHEEP.leftMinPct + BOY_WOLF_S1_SHEEP.leftMaxPct) / 2;
+  const boyWolfS1SheepAmp =
+    (BOY_WOLF_S1_SHEEP.leftMaxPct - BOY_WOLF_S1_SHEEP.leftMinPct) / 2;
+  const boyWolfS1SheepLeftPct = showBoyWolfS1Sheep
+    ? boyWolfS1SheepMid +
+      boyWolfS1SheepAmp *
+        Math.sin(
+          ((t - BOY_WOLF_S1_SHEEP.startSec) * Math.PI * 2) /
+            BOY_WOLF_S1_SHEEP.sweepSec
+        )
+    : boyWolfS1SheepMid;
+
   const showScene3PairFlee = scene.id === "town-country-3" && t >= 76 && t < 86;
   const scene3PairFleeProgress = showScene3PairFlee ? (t - 76) / 10 : 0;
   const scene3PairFleeLeftPct = 50 + (80 - 50) * scene3PairFleeProgress;
