@@ -2,11 +2,14 @@
   "id": "boy-wolf",
   "title": "양치기 소년",
   "engine": "elevenlabs",
-  "model": "eleven_multilingual_v2",
+  "model": "eleven_v3",
   "gapSec": 0.5,
+  "globalPerformanceRule": "Keep the original dialogue exactly as written. Do not add, remove, rephrase, improvise, or change any words. Express emotions only through natural acting, vocal tone, pacing, breathing, emphasis, and emotional delivery while preserving every line exactly as provided. Maintain a consistent character identity throughout the story. Adapt only the emotional performance to match each scene naturally without exaggeration. All lines are Korean; speak in natural standard Seoul Korean.",
   "voices": {
     "narration": {
-      "voiceId": "XrExE9yKIg1WjnnlVkGX",
+      "voiceId": "UOxKeHS7lixzgw35mtAR",
+      "libraryName": "Grandma Titina - Relaxed and Reassuring",
+      "persona": "A kind 80-year-old grandmother filled with love for her grandchildren, reading a fairy tale aloud. Her voice is warm, gentle, and wise, with soft yin-and-yang cadence, delicate stress and pauses that give life to every sentence. She never alters the words; she simply brings them to life with heart.",
       "settings": {
         "stability": 0.65,
         "similarity_boost": 0.8,
@@ -16,7 +19,9 @@
       }
     },
     "tom": {
-      "voiceId": "N2lVS1w4EtoT3dr4eOWO",
+      "voiceId": "ROMJ9yK1NAMuu1ggrjDW",
+      "libraryName": "Relaxing Rachel - Calm & Soothing",
+      "persona": "Tom is a playful Korean boy around 10–12 years old with a bright, expressive, youthful pre-adolescent voice speaking standard Seoul Korean. He is naturally curious, energetic, imaginative, and mischievous. His emotions are genuine and easy to recognize; his voice changes naturally with each situation while always keeping the same youthful identity.",
       "settings": {
         "stability": 0.4,
         "similarity_boost": 0.75,
@@ -26,7 +31,9 @@
       }
     },
     "v_m1": {
-      "voiceId": "TX3LPaxmHKxFdv7VOQHJ",
+      "voiceId": "auq43ws1oslv0tO4BDa7",
+      "libraryName": "Adam Stone - Smooth and Relaxed",
+      "persona": "A Korean man in his early forties speaking standard Seoul Korean with a warm, gentle, and trustworthy voice. He genuinely cares about Tom and treats him like his own son. When Tom cries for help, he immediately believes him and becomes deeply concerned. His voice is calm but urgent, showing responsibility and compassion rather than panic. Kind, protective, reassuring, sincerely concerned.",
       "settings": {
         "stability": 0.5,
         "similarity_boost": 0.8,
@@ -36,7 +43,9 @@
       }
     },
     "v_m2": {
-      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "voiceId": "dtSEyYGNJqjrtBArPCVZ",
+      "libraryName": "Titan - Deep, Bold and Powerful",
+      "persona": "A Korean man in his thirties speaking standard Seoul Korean with a friendly, warm, fatherly voice. He quickly realizes when Tom is lying. Rather than furious, he feels disappointed because he wants Tom to grow into an honest, responsible boy. His voice carries firm authority mixed with patience, concern, and genuine care — a caring father correcting a child he truly wants to guide.",
       "settings": {
         "stability": 0.6,
         "similarity_boost": 0.8,
@@ -46,7 +55,9 @@
       }
     },
     "v_m3": {
-      "voiceId": "bIHbv24MWmeRgasZH58o",
+      "voiceId": "0CoxwbC90B8N0Fa3LDCH",
+      "libraryName": "Mark Durham - Northern English male",
+      "persona": "A Korean man in his twenties with a rough, strong, hot-tempered voice speaking standard Seoul Korean. He despises wolves and is determined to protect the village and its livestock. When he believes Tom's warning he becomes alert, fearless, and ready to confront the wolf without hesitation. Bold, courageous, aggressive toward danger, filled with determination — his anger is directed entirely at the wolf, never at innocent people.",
       "settings": {
         "stability": 0.3,
         "similarity_boost": 0.75,
@@ -56,7 +67,9 @@
       }
     },
     "v_w1": {
-      "voiceId": "cgSgspJ2msm6clMCkdW9",
+      "voiceId": "cVd39cx0VtXNC13y5Y7z",
+      "libraryName": "Hope - Vibrant, Warm and Innocent",
+      "persona": "A Korean woman in her twenties speaking standard Seoul Korean with a cheerful and warm voice. Naturally kind but easily frightened. When Tom cries out about the wolf, she becomes visibly anxious and worried about Tom, the sheep, and everyone's safety. Her voice trembles slightly with fear while remaining gentle and caring; she reacts emotionally and hopes everyone will be safe.",
       "settings": {
         "stability": 0.45,
         "similarity_boost": 0.8,
@@ -66,7 +79,9 @@
       }
     },
     "v_w2": {
-      "voiceId": "EXAVITQu4vr4xnSDxMaL",
+      "voiceId": "56AoDkrOh6qfVPDXZ7Pt",
+      "libraryName": "Cassidy - Crisp, Direct and Clear",
+      "persona": "A Korean woman in her forties speaking standard Seoul Korean with a calm, gentle, motherly voice. She comforts Tom with genuine warmth and compassion. Her voice is soft, patient, reassuring, and full of empathy — as though comforting her own child, helping Tom accept his mistake while encouraging him with kindness rather than blame. Nurturing, sincere, deeply comforting.",
       "settings": {
         "stability": 0.65,
         "similarity_boost": 0.8,
@@ -76,7 +91,9 @@
       }
     },
     "villagers": {
-      "voiceId": "pqHfZKP75CvOlQylNhV4",
+      "voiceId": "auq43ws1oslv0tO4BDa7",
+      "libraryName": "Adam Stone - Smooth and Relaxed (villager crowd stand-in)",
+      "persona": "A group of concerned Korean villagers calling out together in standard Seoul Korean. Voices overlap with worry and urgency.",
       "settings": {
         "stability": 0.3,
         "similarity_boost": 0.7,
@@ -90,42 +107,121 @@
     "calm": {
       "stability": 0.8,
       "style": 0.2,
-      "speed": 0.95
+      "speed": 0.95,
+      "directionPrompt": "Calm, gentle, unhurried delivery. Even breath, soft warmth.",
+      "v3Tag": "[calmly]"
     },
     "warm": {
       "stability": 0.7,
       "style": 0.3,
-      "speed": 0.97
+      "speed": 0.97,
+      "directionPrompt": "Warm, kind, comforting. Soft affection in the voice.",
+      "v3Tag": "[warmly]"
     },
     "excited": {
       "stability": 0.25,
       "style": 0.8,
-      "speed": 1.05
+      "speed": 1.05,
+      "directionPrompt": "Bright, energetic, high-arousal excitement. Rising pitch and lively pace.",
+      "v3Tag": "[excitedly][shouting]"
     },
     "hurry": {
       "stability": 0.2,
       "style": 0.8,
-      "speed": 1.1
+      "speed": 1.1,
+      "directionPrompt": "Urgent, hurried, quick breath between phrases. A sense of time pressure.",
+      "v3Tag": "[urgently]"
     },
     "angry": {
       "stability": 0.2,
       "style": 0.85,
-      "speed": 1.05
+      "speed": 1.05,
+      "directionPrompt": "Angry, sharp, forceful stress on key words. Controlled fury, not shouting.",
+      "v3Tag": "[angrily]"
     },
     "sad": {
       "stability": 0.75,
       "style": 0.25,
-      "speed": 0.9
+      "speed": 0.9,
+      "directionPrompt": "Sad, subdued, slower phrasing with soft sighs.",
+      "v3Tag": "[sadly]"
     },
     "mischief": {
       "stability": 0.3,
       "style": 0.7,
-      "speed": 1.02
+      "speed": 1.02,
+      "directionPrompt": "Mischievous excitement. Bright, playful, barely-contained amusement. Small suppressed laughter. Not evil, not malicious — just a bored kid who just thought of a fun prank.",
+      "v3Tag": "[playfully][mischievously][suppressed laughter]"
     },
     "regret": {
       "stability": 0.8,
       "style": 0.2,
-      "speed": 0.88
+      "speed": 0.88,
+      "directionPrompt": "Deep regret and sincere remorse. Quiet, emotional, trembling with guilt and sadness. Heartfelt and gentle — honest, not overly dramatic.",
+      "v3Tag": "[sadly][remorseful][quiet]"
+    },
+    "bored": {
+      "stability": 0.6,
+      "style": 0.35,
+      "speed": 0.95,
+      "directionPrompt": "Bored and restless. Tired, unmotivated, slightly frustrated by repetition. Slow, casual pace with small sighs. A boy longing for something exciting to happen.",
+      "v3Tag": "[bored][sighs]"
+    },
+    "fake_remorse": {
+      "stability": 0.5,
+      "style": 0.4,
+      "speed": 0.98,
+      "directionPrompt": "Fake remorse. Surface tone is embarrassed and slightly discouraged, but the apology is not fully sincere. Suggests pretending to regret while secretly still amused. Keep it subtle, not exaggerated.",
+      "v3Tag": "[reluctantly][half-hearted]"
+    },
+    "panic": {
+      "stability": 0.15,
+      "style": 0.9,
+      "speed": 1.15,
+      "directionPrompt": "Genuine fear and panic. Fast uneven breathing, trembling voice, desperate calls for help. No playfulness left at all — completely real terror.",
+      "v3Tag": "[fearfully][shouting][panicked]"
+    },
+    "kind_urgent": {
+      "stability": 0.4,
+      "style": 0.55,
+      "speed": 1.05,
+      "directionPrompt": "Warm, caring, protective — but urgent. Calm concern rather than panic. A responsible father-figure who immediately believes Tom.",
+      "v3Tag": "[warmly][urgently]"
+    },
+    "fatherly_disappointed": {
+      "stability": 0.6,
+      "style": 0.35,
+      "speed": 0.97,
+      "directionPrompt": "Firm but caring correction. Disappointed rather than furious. Patient, sincere, wants the boy to grow. Never harsh or cruel.",
+      "v3Tag": "[disappointedly][firmly]"
+    },
+    "bold_angry": {
+      "stability": 0.2,
+      "style": 0.9,
+      "speed": 1.08,
+      "directionPrompt": "Bold, courageous, hot-tempered. Aggressive toward the wolf, ready to fight. Anger aimed at the danger, not at Tom.",
+      "v3Tag": "[boldly][angrily]"
+    },
+    "anxious_kind": {
+      "stability": 0.35,
+      "style": 0.6,
+      "speed": 1.02,
+      "directionPrompt": "Cheerful and kind by nature but easily frightened. Slight tremble of worry in the voice. Emotional, hoping everyone will be safe.",
+      "v3Tag": "[anxiously][gently]"
+    },
+    "motherly": {
+      "stability": 0.7,
+      "style": 0.3,
+      "speed": 0.95,
+      "directionPrompt": "Soft, nurturing, motherly comfort. Patient, reassuring, deeply empathetic — as if soothing her own child.",
+      "v3Tag": "[tenderly][warmly]"
+    },
+    "grandma_narration": {
+      "stability": 0.65,
+      "style": 0.3,
+      "speed": 0.95,
+      "directionPrompt": "Loving 80-year-old grandmother reading a bedtime fairy tale to her grandchildren. Warm, wise, soft cadence with gentle stress and pauses that bring the story to life.",
+      "v3Tag": "[warmly][gently]"
     }
   },
   "scenes": [
@@ -138,47 +234,58 @@
       "dialogue": [
         {
           "who": "narration",
-          "text": "옛날 옛적에 멀고 먼 산속 시골 마을에 양치기 소년 '톰'이 살고 있었습니다."
+          "text": "옛날 옛적에 멀고 먼 산속 시골 마을에 양치기 소년 '톰'이 살고 있었습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "narration",
-          "text": "소년은 가장 친한 친구인 보더 콜리 '휘슬'과 함께 양을 돌보며 살고 있었습니다."
+          "text": "소년은 가장 친한 친구인 보더 콜리 '휘슬'과 함께 양을 돌보며 살고 있었습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "narration",
-          "text": "탁 트인 고원에서 신선한 풀을 뜯어 먹는 양떼들의 모습은 한 폭의 그림 같았습니다."
+          "text": "탁 트인 고원에서 신선한 풀을 뜯어 먹는 양떼들의 모습은 한 폭의 그림 같았습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "narration",
-          "text": "하지만 양을 돌보는 양치기 소년 '톰'의 얼굴에는 따분함이 가득했습니다."
+          "text": "하지만 양을 돌보는 양치기 소년 '톰'의 얼굴에는 따분함이 가득했습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "tom",
-          "text": "아 심심해. 매일 양만 돌보고 있으니 너무 따분해! 어디 재미있는 일 없을까?"
+          "text": "아 심심해. 매일 양만 돌보고 있으니 너무 따분해! 어디 재미있는 일 없을까?",
+          "emotion": "bored"
         },
         {
           "who": "narration",
-          "text": "여기저기서 풀을 뜯던 양떼들이 흩어지지 않도록 보더콜리 한 마리가 분주히 뛰어다녔습니다."
+          "text": "여기저기서 풀을 뜯던 양떼들이 흩어지지 않도록 보더콜리 한 마리가 분주히 뛰어다녔습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "tom",
-          "text": "휘익! 휘슬아 이리 와 봐."
+          "text": "휘익! 휘슬아 이리 와 봐.",
+          "emotion": "bored"
         },
         {
           "who": "narration",
-          "text": "톰의 힘찬 휘파람 소리를 듣고, 헐레벌떡 휘슬은 톰에게 뛰어왔습니다."
+          "text": "톰의 힘찬 휘파람 소리를 듣고, 헐레벌떡 휘슬은 톰에게 뛰어왔습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "narration",
-          "text": "좌우로 꼬리를 힘차게 흔들던 휘슬의 머리를 쓰다듬으며 '톰'은 중얼거렸습니다."
+          "text": "좌우로 꼬리를 힘차게 흔들던 휘슬의 머리를 쓰다듬으며 '톰'은 중얼거렸습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "tom",
-          "text": "휘슬아! 너무 심심하고 따분하네, 뭐 신나고 재미있는 일이 없을까?"
+          "text": "휘슬아! 너무 심심하고 따분하네, 뭐 신나고 재미있는 일이 없을까?",
+          "emotion": "bored"
         },
         {
           "who": "narration",
-          "text": "휘슬을 쓰다듬던 톰이 갑자기 어떤 생각이 났는지 음흉한 웃음을 지었습니다."
+          "text": "휘슬을 쓰다듬던 톰이 갑자기 어떤 생각이 났는지 음흉한 웃음을 지었습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "tom",
@@ -187,7 +294,8 @@
         },
         {
           "who": "narration",
-          "text": "톰의 말을 알아들은 듯 휘슬은 걱정스럽게 톰을 쳐다보며 '끙' 하고 울었습니다."
+          "text": "톰의 말을 알아들은 듯 휘슬은 걱정스럽게 톰을 쳐다보며 '끙' 하고 울었습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "tom",
@@ -206,32 +314,38 @@
       "dialogue": [
         {
           "who": "narration",
-          "text": "산허리에서 들려오는 소리에 마을에 있던 사람들은 깜짝 놀랐습니다."
+          "text": "산허리에서 들려오는 소리에 마을에 있던 사람들은 깜짝 놀랐습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "v_m1",
-          "text": "뭐지? 지금 이게 무슨 소리지? 늑대가 나타났다고?"
+          "text": "뭐지? 지금 이게 무슨 소리지? 늑대가 나타났다고?",
+          "emotion": "kind_urgent"
         },
         {
           "who": "v_m2",
-          "text": "맞아! 늑대가 나타났다고 하는군, 이거 큰일이 났어!"
+          "text": "맞아! 늑대가 나타났다고 하는군, 이거 큰일이 났어!",
+          "emotion": "fatherly_disappointed"
         },
         {
           "who": "v_w1",
-          "text": "큰일이네요, 지금 이건 톰의 목소리에요! 톰이 오늘 산에 가 있어요!"
+          "text": "큰일이네요, 지금 이건 톰의 목소리에요! 톰이 오늘 산에 가 있어요!",
+          "emotion": "anxious_kind"
         },
         {
           "who": "v_w2",
-          "text": "여보 빨리 톰을 구하러 가야해요!"
+          "text": "여보 빨리 톰을 구하러 가야해요!",
+          "emotion": "motherly"
         },
         {
           "who": "narration",
-          "text": "마을의 건장한 남자들은 각자 몽둥이나 농기구를 챙겨 산 위로 뛰어갔습니다."
+          "text": "마을의 건장한 남자들은 각자 몽둥이나 농기구를 챙겨 산 위로 뛰어갔습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "v_m3",
           "text": "여러분 빨리 갑시다 톰이 위험해질 수 있습니다!",
-          "emotion": "hurry"
+          "emotion": "bold_angry"
         }
       ],
       "background": "bg_2.jpg"
@@ -245,37 +359,43 @@
       "dialogue": [
         {
           "who": "narration",
-          "text": "걱정으로 가득 찬 사람들이 자신에게로 헐레벌떡 달려오는 모습이 톰은 너무나 웃겼습니다."
+          "text": "걱정으로 가득 찬 사람들이 자신에게로 헐레벌떡 달려오는 모습이 톰은 너무나 웃겼습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "v_m2",
-          "text": "톰, 톰 괜찮니? 늑대는 어디 있니? 이놈의 늑대 어디 있어?"
+          "text": "톰, 톰 괜찮니? 늑대는 어디 있니? 이놈의 늑대 어디 있어?",
+          "emotion": "kind_urgent"
         },
         {
           "who": "narration",
-          "text": "마을 사람들은 거친 숨을 내쉬며 두리번거리며 늑대를 찾고 있었습니다!"
+          "text": "마을 사람들은 거친 숨을 내쉬며 두리번거리며 늑대를 찾고 있었습니다!",
+          "emotion": "grandma_narration"
         },
         {
           "who": "tom",
           "text": "그게 아까 저기 언덕 위에 나타났었는데 갑자기 사라졌어요!",
-          "emotion": "mischief"
+          "emotion": "fake_remorse"
         },
         {
           "who": "narration",
-          "text": "톰은 마을 사람들에게 거짓말을 하였지만, 너무 재미있어 웃음이 나오는 걸 감추지 못했습니다."
+          "text": "톰은 마을 사람들에게 거짓말을 하였지만, 너무 재미있어 웃음이 나오는 걸 감추지 못했습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "v_m2",
-          "text": "톰! 진짜 늑대가 나타난 게 맞는 거니? 네 태도를 보니 믿기지가 않는구나."
+          "text": "톰! 진짜 늑대가 나타난 게 맞는 거니? 네 태도를 보니 믿기지가 않는구나.",
+          "emotion": "fatherly_disappointed"
         },
         {
           "who": "tom",
           "text": "아니에요 진짜 언덕 위에서 늑대가 있는 걸 봤단 말이에요.",
-          "emotion": "mischief"
+          "emotion": "fake_remorse"
         },
         {
           "who": "narration",
-          "text": "톰의 변명을 들은 마을 사람들은 미심쩍어했지만 일단 아무 일이 없는 걸 확인하고 안도했습니다."
+          "text": "톰의 변명을 들은 마을 사람들은 미심쩍어했지만 일단 아무 일이 없는 걸 확인하고 안도했습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "v_m2",
@@ -284,7 +404,8 @@
         },
         {
           "who": "narration",
-          "text": "그렇게 톰은 마을 사람들과 함께 양떼를 끌고 일찍 집에 갈 수 있었습니다."
+          "text": "그렇게 톰은 마을 사람들과 함께 양떼를 끌고 일찍 집에 갈 수 있었습니다.",
+          "emotion": "grandma_narration"
         }
       ],
       "background": "bg_3.jpg"
@@ -298,31 +419,38 @@
       "dialogue": [
         {
           "who": "narration",
-          "text": "몇일이 지난 오후 톰은 여전히 고원에서 양떼들을 돌보고 있었습니다."
+          "text": "몇일이 지난 오후 톰은 여전히 고원에서 양떼들을 돌보고 있었습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "tom",
-          "text": "아! 또 너무 심심하고 지루하다, 재미 없어, 누가 나랑 놀아 주었으면 좋겠는데?"
+          "text": "아! 또 너무 심심하고 지루하다, 재미 없어, 누가 나랑 놀아 주었으면 좋겠는데?",
+          "emotion": "bored"
         },
         {
           "who": "narration",
-          "text": "저 멀리에서는 휘슬이 양떼들 사이를 달리며 열심히 일하는 모습이 보였습니다."
+          "text": "저 멀리에서는 휘슬이 양떼들 사이를 달리며 열심히 일하는 모습이 보였습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "narration",
-          "text": "가방에서 샌드위치를 꺼낸 톰은 샌드위치를 베어 물어 먹으며 휘슬을 불렀습니다."
+          "text": "가방에서 샌드위치를 꺼낸 톰은 샌드위치를 베어 물어 먹으며 휘슬을 불렀습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "tom",
-          "text": "휘슬아 밥 먹자! 이리와"
+          "text": "휘슬아 밥 먹자! 이리와",
+          "emotion": "bored"
         },
         {
           "who": "narration",
-          "text": "톰이 부르는 소리를 듣자, 휘슬은 양떼에게 힌번 짖고는 톰에게 달려왔습니다."
+          "text": "톰이 부르는 소리를 듣자, 휘슬은 양떼에게 힌번 짖고는 톰에게 달려왔습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "narration",
-          "text": "톰은 휘슬의 밥을 가방에서 꺼네 주었고 휘슬은 배가 고팠는지 맛있게 먹었습니다."
+          "text": "톰은 휘슬의 밥을 가방에서 꺼네 주었고 휘슬은 배가 고팠는지 맛있게 먹었습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "tom",
@@ -331,7 +459,8 @@
         },
         {
           "who": "narration",
-          "text": "밥을 먹다가 톰의 말을 들은 휘슬은 걱정되는 듯 톰의 바짓가랑이를 물었습니다."
+          "text": "밥을 먹다가 톰의 말을 들은 휘슬은 걱정되는 듯 톰의 바짓가랑이를 물었습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "tom",
@@ -345,7 +474,8 @@
         },
         {
           "who": "narration",
-          "text": "톰의 외침이 메아리를 타고 마을로 전해지고 있었어요."
+          "text": "톰의 외침이 메아리를 타고 마을로 전해지고 있었어요.",
+          "emotion": "grandma_narration"
         }
       ],
       "background": "bg_1.jpg"
@@ -359,32 +489,38 @@
       "dialogue": [
         {
           "who": "narration",
-          "text": "산 허리에서 들려오는 소리에 마을에 있던 사람들은 다시 깜짝 놀랐습니다."
+          "text": "산 허리에서 들려오는 소리에 마을에 있던 사람들은 다시 깜짝 놀랐습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "v_m1",
-          "text": "뭐지? 지금 이게 무슨 소리지? 늑대가 또 나타났다고?"
+          "text": "뭐지? 지금 이게 무슨 소리지? 늑대가 또 나타났다고?",
+          "emotion": "kind_urgent"
         },
         {
           "who": "v_m2",
-          "text": "맞아! 또 늑대가 나타났다고 톰이 외치네!"
+          "text": "맞아! 또 늑대가 나타났다고 톰이 외치네!",
+          "emotion": "fatherly_disappointed"
         },
         {
           "who": "v_w1",
-          "text": "큰일이네요, 빨리 가주세요, 톰과 양들을 구해야 해요!"
+          "text": "큰일이네요, 빨리 가주세요, 톰과 양들을 구해야 해요!",
+          "emotion": "anxious_kind"
         },
         {
           "who": "v_w2",
-          "text": "이번엔 꼭 늑대를 잡아 주셔야 해요! 부탁해요!"
+          "text": "이번엔 꼭 늑대를 잡아 주셔야 해요! 부탁해요!",
+          "emotion": "motherly"
         },
         {
           "who": "narration",
-          "text": "다시 한번, 마을 사람들은 몽둥이나 농기구를 챙겨 산 위로 뛰어 올라갔습니다."
+          "text": "다시 한번, 마을 사람들은 몽둥이나 농기구를 챙겨 산 위로 뛰어 올라갔습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "v_m3",
           "text": "이놈의 늑대 잡히기만 해봐라! 이번엔 가만두지 않겠다.",
-          "emotion": "angry"
+          "emotion": "bold_angry"
         }
       ],
       "background": "bg_2.jpg"
@@ -398,15 +534,18 @@
       "dialogue": [
         {
           "who": "narration",
-          "text": "마을 사람들이 힘들게 뛰어오는 모습을 보면서 톰은 그 모습이 너무도 웃겼습니다."
+          "text": "마을 사람들이 힘들게 뛰어오는 모습을 보면서 톰은 그 모습이 너무도 웃겼습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "villagers",
-          "text": "톰! 톰! 괜찮니? 늑대는! 늑대는 어디 있어?"
+          "text": "톰! 톰! 괜찮니? 늑대는! 늑대는 어디 있어?",
+          "emotion": "kind_urgent"
         },
         {
           "who": "narration",
-          "text": "그 모습을 보던 톰은 그만 참지 못하고 웃음을 터트렸습니다."
+          "text": "그 모습을 보던 톰은 그만 참지 못하고 웃음을 터트렸습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "tom",
@@ -415,16 +554,18 @@
         },
         {
           "who": "narration",
-          "text": "톰의 태도를 보자 마을 사람들은 톰이 자신들을 속였다는 걸 알게 되고 화를 냈어요."
+          "text": "톰의 태도를 보자 마을 사람들은 톰이 자신들을 속였다는 걸 알게 되고 화를 냈어요.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "v_m1",
           "text": "이놈! 톰, 거짓말도 정도껏이지 마을 사람들이 얼마나 걱정했는지 모르는 거냐!",
-          "emotion": "angry"
+          "emotion": "bold_angry"
         },
         {
           "who": "narration",
-          "text": "화가 많이 난 마을 사람들의 꾸중에도 톰은 겉으로는 반성하는 척했지만 속으로는 신나 했습니다."
+          "text": "화가 많이 난 마을 사람들의 꾸중에도 톰은 겉으로는 반성하는 척했지만 속으로는 신나 했습니다.",
+          "emotion": "grandma_narration"
         }
       ],
       "background": "bg_3.jpg"
@@ -438,45 +579,53 @@
       "dialogue": [
         {
           "who": "narration",
-          "text": "마을에선 톰이 한 거짓말 때문에 사람들이 모여서 이야기하고 있었습니다."
+          "text": "마을에선 톰이 한 거짓말 때문에 사람들이 모여서 이야기하고 있었습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "v_m1",
-          "text": "생각만 해도 괘씸해 죽겠네! 톰 저놈을 어떻게 해야 할까?"
+          "text": "생각만 해도 괘씸해 죽겠네! 톰 저놈을 어떻게 해야 할까?",
+          "emotion": "fatherly_disappointed"
         },
         {
           "who": "v_m2",
-          "text": "젠장, 고원까지 뛰어가는 게 얼마나 힘든데! 다음에는 절대 톰이 외쳐도 가지 않을 거야!"
+          "text": "젠장, 고원까지 뛰어가는 게 얼마나 힘든데! 다음에는 절대 톰이 외쳐도 가지 않을 거야!",
+          "emotion": "bold_angry"
         },
         {
           "who": "v_w1",
           "text": "그래도 늑대가 나왔다는 소리를 들으면 가봐야죠! 큰일이 날 수도 있는데.",
-          "emotion": "warm"
+          "emotion": "anxious_kind"
         },
         {
           "who": "v_m1",
-          "text": "큰일을 당해봐야! 톰 저 놈은 정신을 차릴 거야!"
+          "text": "큰일을 당해봐야! 톰 저 놈은 정신을 차릴 거야!",
+          "emotion": "bold_angry"
         },
         {
           "who": "v_m3",
-          "text": "자네! 그래도 양떼랑 톰을 지키려면 어쩔 수 없어, 우리는 달려가 봐야 하네."
+          "text": "자네! 그래도 양떼랑 톰을 지키려면 어쩔 수 없어, 우리는 달려가 봐야 하네.",
+          "emotion": "fatherly_disappointed"
         },
         {
           "who": "v_w2",
           "text": "제가 이따가 톰에게 잘 말해 볼게요! 화를 풀어 주세요!",
-          "emotion": "warm"
+          "emotion": "motherly"
         },
         {
           "who": "narration",
-          "text": "톰이 한 거짓말 때문에 마을 사람들은 더 이상 톰을 믿지 못하고 걱정하게 되었습니다."
+          "text": "톰이 한 거짓말 때문에 마을 사람들은 더 이상 톰을 믿지 못하고 걱정하게 되었습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "v_m3",
-          "text": "여보게들 다음에도 또 톰이 거짓말을 하면 그때는 양치기를 못하게 하겠네!"
+          "text": "여보게들 다음에도 또 톰이 거짓말을 하면 그때는 양치기를 못하게 하겠네!",
+          "emotion": "fatherly_disappointed"
         },
         {
           "who": "narration",
-          "text": "톰은 어른들이 자기의 처신에 대해 고민하고 있다는 걸 꿈에도 몰랐습니다."
+          "text": "톰은 어른들이 자기의 처신에 대해 고민하고 있다는 걸 꿈에도 몰랐습니다.",
+          "emotion": "grandma_narration"
         }
       ],
       "background": "bg_2.jpg"
@@ -490,46 +639,53 @@
       "dialogue": [
         {
           "who": "narration",
-          "text": "마을 사람들에게 크게 혼난 톰은 한동안 얌전하게 지냈지만 얼마 안 지나 또 심심해졌습니다."
+          "text": "마을 사람들에게 크게 혼난 톰은 한동안 얌전하게 지냈지만 얼마 안 지나 또 심심해졌습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "tom",
           "text": "아, 너무 따분해! 매일 똑같은 날들만 반복되고 아무 재미도 없어! 뭔가 특별한 일이 생기면 재미있을 것 같은데.",
-          "emotion": "calm"
+          "emotion": "bored"
         },
         {
           "who": "narration",
-          "text": "톰이 지루함과 따분함에 지쳐있을 때 갑자기 양떼들이 겁에 질린 울음을 내며 분주해졌습니다!"
+          "text": "톰이 지루함과 따분함에 지쳐있을 때 갑자기 양떼들이 겁에 질린 울음을 내며 분주해졌습니다!",
+          "emotion": "grandma_narration"
         },
         {
           "who": "narration",
-          "text": "휘슬이 언덕 위 바위를 향해 짖기 시작하고 곧 어른만큼 커다란 늑대가 모습을 드러냈습니다!"
+          "text": "휘슬이 언덕 위 바위를 향해 짖기 시작하고 곧 어른만큼 커다란 늑대가 모습을 드러냈습니다!",
+          "emotion": "grandma_narration"
         },
         {
           "who": "narration",
-          "text": "생전 처음 본 늑대의 거대함과 흉포함에 톰은 공포로 제자리에서 얼어붙었습니다."
+          "text": "생전 처음 본 늑대의 거대함과 흉포함에 톰은 공포로 제자리에서 얼어붙었습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "narration",
-          "text": "늑대는 바위 위에서 양들과 톰을 살펴 보았고 먹이가 많다는 사실에 만족했을 때 무언가가 자신에게 달려오는 것을 느끼게 되었습니다."
+          "text": "늑대는 바위 위에서 양들과 톰을 살펴 보았고 먹이가 많다는 사실에 만족했을 때 무언가가 자신에게 달려오는 것을 느끼게 되었습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "narration",
-          "text": "휘슬은 톰과 양들을 지키기 위해선 자기가 늑대를 상대해야 한다는 걸 알고 있었기에 자기보다 몇 배나 크고 강한 늑대에게 용감하게 덤볐습니다."
+          "text": "휘슬은 톰과 양들을 지키기 위해선 자기가 늑대를 상대해야 한다는 걸 알고 있었기에 자기보다 몇 배나 크고 강한 늑대에게 용감하게 덤볐습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "tom",
           "text": "안 돼, 휘슬아! 너는 늑대를 이길 수가 없어!",
-          "emotion": "hurry"
+          "emotion": "panic"
         },
         {
           "who": "narration",
-          "text": "용감하게 짖으며 늑대를 상대하는 휘슬을 보며 톰은 문득 마을 사람들을 불러야 한다는 걸 깨달았습니다."
+          "text": "용감하게 짖으며 늑대를 상대하는 휘슬을 보며 톰은 문득 마을 사람들을 불러야 한다는 걸 깨달았습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "tom",
           "text": "늑대가 나타났다! 늑대가! 사람 살려주세요, 제발요, 누군가든 도와주세요! 늑대가 나타났어요!",
-          "emotion": "hurry"
+          "emotion": "panic"
         }
       ],
       "background": "bg_1.jpg"
@@ -543,23 +699,28 @@
       "dialogue": [
         {
           "who": "narration",
-          "text": "다시금 산허리에서 들려오는 소리에 마을에 있던 사람들은 깜짝 놀랐습니다."
+          "text": "다시금 산허리에서 들려오는 소리에 마을에 있던 사람들은 깜짝 놀랐습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "v_m1",
-          "text": "늑대가 또 나타났다고?"
+          "text": "늑대가 또 나타났다고?",
+          "emotion": "kind_urgent"
         },
         {
           "who": "v_m2",
-          "text": "이놈 또 거짓말을 하나 보군. 믿기지 않는데."
+          "text": "이놈 또 거짓말을 하나 보군. 믿기지 않는데.",
+          "emotion": "fatherly_disappointed"
         },
         {
           "who": "v_w1",
-          "text": "그래도 늑대가 진짜 나타났으면 어떡해요? 가 봐야 되겠죠!"
+          "text": "그래도 늑대가 진짜 나타났으면 어떡해요? 가 봐야 되겠죠!",
+          "emotion": "anxious_kind"
         },
         {
           "who": "v_m3",
-          "text": "그렇지. 하지만 이번에도 거짓말 한 거면, 톰을 가만히 놔두진 않을 거야!"
+          "text": "그렇지. 하지만 이번에도 거짓말 한 거면, 톰을 가만히 놔두진 않을 거야!",
+          "emotion": "bold_angry"
         }
       ],
       "background": "bg_2.jpg"
@@ -573,16 +734,18 @@
       "dialogue": [
         {
           "who": "narration",
-          "text": "톰은 사람들이 마을을 나오는 게 멀리 보였지만 예전처럼 뛰어오지는 않는 걸 보고 다급해졌습니다."
+          "text": "톰은 사람들이 마을을 나오는 게 멀리 보였지만 예전처럼 뛰어오지는 않는 걸 보고 다급해졌습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "tom",
           "text": "제발요! 빨리 와주세요. 진짜로 늑대가 나타났단 말이에요, 휘슬을 살려주세요.",
-          "emotion": "hurry"
+          "emotion": "panic"
         },
         {
           "who": "narration",
-          "text": "휘슬이 늑대를 상대로 시간을 끌며 싸우는 모습과 그 사이에서 양들이 다치는 모습을 보며 톰은 안타까웠습니다."
+          "text": "휘슬이 늑대를 상대로 시간을 끌며 싸우는 모습과 그 사이에서 양들이 다치는 모습을 보며 톰은 안타까웠습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "tom",
@@ -591,24 +754,28 @@
         },
         {
           "who": "narration",
-          "text": "톰이 자신의 거짓말을 후회하는 동안 산을 올라가던 마을 사람들의 귀에 휘슬이 짖는 소리와 양 떼의 울음소리가 들리기 시작했습니다."
+          "text": "톰이 자신의 거짓말을 후회하는 동안 산을 올라가던 마을 사람들의 귀에 휘슬이 짖는 소리와 양 떼의 울음소리가 들리기 시작했습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "v_m1",
-          "text": "어! 이 소리는, 뭔가 일어나고 있는 것 같네요, 빨리 갑시다!"
+          "text": "어! 이 소리는, 뭔가 일어나고 있는 것 같네요, 빨리 갑시다!",
+          "emotion": "kind_urgent"
         },
         {
           "who": "narration",
-          "text": "마을 사람들이 부지런히 뛰어 도착한 고원에는 다친 양들과 휘슬이 보였고 거대한 늑대가 톰을 노리고 있는 것이 보였습니다."
+          "text": "마을 사람들이 부지런히 뛰어 도착한 고원에는 다친 양들과 휘슬이 보였고 거대한 늑대가 톰을 노리고 있는 것이 보였습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "v_m3",
           "text": "이놈, 감히 어디서.",
-          "emotion": "angry"
+          "emotion": "bold_angry"
         },
         {
           "who": "narration",
-          "text": "마을 사람들이 힘을 합쳐 늑대를 처치하고 양들과 다친 휘슬을 데리고 톰과 함께 마을로 돌아왔습니다."
+          "text": "마을 사람들이 힘을 합쳐 늑대를 처치하고 양들과 다친 휘슬을 데리고 톰과 함께 마을로 돌아왔습니다.",
+          "emotion": "grandma_narration"
         }
       ],
       "background": "bg_3.jpg"
@@ -622,7 +789,8 @@
       "dialogue": [
         {
           "who": "narration",
-          "text": "마을 광장에서 심하게 다친 휘슬을 안고 톰은 크게 울고 있었습니다."
+          "text": "마을 광장에서 심하게 다친 휘슬을 안고 톰은 크게 울고 있었습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "tom",
@@ -631,7 +799,8 @@
         },
         {
           "who": "narration",
-          "text": "톰의 가장 친한 친구이자, 톰을 위해 용감하게 싸운 휘슬은 늑대의 공격으로 심하게 다친 상태였습니다."
+          "text": "톰의 가장 친한 친구이자, 톰을 위해 용감하게 싸운 휘슬은 늑대의 공격으로 심하게 다친 상태였습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "tom",
@@ -640,16 +809,18 @@
         },
         {
           "who": "narration",
-          "text": "톰은 자신의 잘못을 뉘우치며 진심으로 후회했습니다."
+          "text": "톰은 자신의 잘못을 뉘우치며 진심으로 후회했습니다.",
+          "emotion": "grandma_narration"
         },
         {
           "who": "v_w2",
           "text": "톰아, 이제 휘슬을 놓아줘, 휘슬은 자기가 맡은 바 소임을 다했고 마지막까지 너를 지키기 위해 용감하게 싸웠잖아, 이제 휘슬을 보내주자.",
-          "emotion": "warm"
+          "emotion": "motherly"
         },
         {
           "who": "narration",
-          "text": "톰의 품에서 힘 없이 꼬리를 흔들며 우는 뺨을 핥아주는 휘슬을 꼭 껴안으면서, 톰의 후회 가득한 울음이 마을 전체에 가득 퍼졌습니다."
+          "text": "톰의 품에서 힘 없이 꼬리를 흔들며 우는 뺨을 핥아주는 휘슬을 꼭 껴안으면서, 톰의 후회 가득한 울음이 마을 전체에 가득 퍼졌습니다.",
+          "emotion": "grandma_narration"
         }
       ],
       "background": "bg_2.jpg"
@@ -663,31 +834,38 @@
       "dialogue": [
         {
           "who": "narration",
-          "text": "그럼 우리! 생각을 크게 하는 연습을 해 볼까요?"
+          "text": "그럼 우리! 생각을 크게 하는 연습을 해 볼까요?",
+          "emotion": "grandma_narration"
         },
         {
           "who": "narration",
-          "text": "여러분은 이 이야기를 보고 어떤 생각을 하게 되었나요?"
+          "text": "여러분은 이 이야기를 보고 어떤 생각을 하게 되었나요?",
+          "emotion": "grandma_narration"
         },
         {
           "who": "narration",
-          "text": "양치기 소년의 생활은 어떨까요? 톰은 왜 거짓말을 하게 된 것일까요?"
+          "text": "양치기 소년의 생활은 어떨까요? 톰은 왜 거짓말을 하게 된 것일까요?",
+          "emotion": "grandma_narration"
         },
         {
           "who": "narration",
-          "text": "거짓말은 좋은 건가요? 나쁜건가요? 그럼 왜 하지 말라고 하는 걸까요?"
+          "text": "거짓말은 좋은 건가요? 나쁜건가요? 그럼 왜 하지 말라고 하는 걸까요?",
+          "emotion": "grandma_narration"
         },
         {
           "who": "narration",
-          "text": "톰의 거짓말을 들은 마을 사람들은 어떠했을까요? 그리고 거짓말인걸 알았을 때 어떻게 했나요?"
+          "text": "톰의 거짓말을 들은 마을 사람들은 어떠했을까요? 그리고 거짓말인걸 알았을 때 어떻게 했나요?",
+          "emotion": "grandma_narration"
         },
         {
           "who": "narration",
-          "text": "이 이야기에서 사람들이 거짓말에 대해 대처하는 방식을 보고 만약 자신이 거짓말에 속았을때 어떻게 행동해야 되는지? 진정 중요한 것이 무엇인지? 고민해 보아요!"
+          "text": "이 이야기에서 사람들이 거짓말에 대해 대처하는 방식을 보고 만약 자신이 거짓말에 속았을때 어떻게 행동해야 되는지? 진정 중요한 것이 무엇인지? 고민해 보아요!",
+          "emotion": "grandma_narration"
         },
         {
           "who": "narration",
-          "text": "엄마, 아빠랑 한번 이야기를 나눠 보세요! 생각이 커질 거예요!"
+          "text": "엄마, 아빠랑 한번 이야기를 나눠 보세요! 생각이 커질 거예요!",
+          "emotion": "grandma_narration"
         }
       ],
       "background": "bg_4.jpg"

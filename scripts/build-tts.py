@@ -105,9 +105,10 @@ def synthesize_elevenlabs(text: str, voice_id: str, model_id: str, settings: dic
         "model_id": model_id,
         "voice_settings": settings,
     }
-    if previous_text:
+    # eleven_v3 는 previous_text/next_text 미지원
+    if previous_text and model_id != "eleven_v3":
         body["previous_text"] = previous_text[-500:]
-    if next_text:
+    if next_text and model_id != "eleven_v3":
         body["next_text"] = next_text[:500]
 
     url = ELEVEN_URL_TPL.format(voice_id=voice_id)
@@ -135,6 +136,18 @@ def synthesize_elevenlabs(text: str, voice_id: str, model_id: str, settings: dic
             sys.exit(f"ElevenLabs TTS 실패 {r.status_code}: {r.text[:400]}")
         return r.content
     sys.exit(f"ElevenLabs 재시도 실패: {last_err}")
+
+
+def build_v3_text(text: str, persona: str | None, direction: str | None,
+                  global_rule: str | None) -> str:
+    """v3 인라인 오디오 태그만 텍스트 앞에 붙인다.
+    persona / globalRule / 긴 direction 문자열은 v3 가 그대로 낭독하므로 사용하지 않는다.
+    대신 짧은 감정 태그 (예: [sadly][sighs]) 만 프리픽스로 사용한다.
+    persona/globalRule 은 사람이 script.json 에서 읽는 메타데이터로만 남긴다."""
+    tag = (direction or "").strip()
+    if not tag:
+        return text
+    return f"{tag} {text}"
 
 
 def hash_signature(payload: dict) -> str:
@@ -199,9 +212,25 @@ def build_story(story_id: str, force: bool, only_scene: int | None, engine_overr
                 mood_settings = emotions.get(scene_mood) if scene_mood else None
                 line_settings = emotions.get(line.get("emotion")) if line.get("emotion") else None
                 final_settings = merge_settings(default_eleven, base_settings, mood_settings, line_settings)
+                # v3 direction hint: persona + emotion.directionPrompt
+                persona_text = vcfg.get("persona")
+                # v3 는 짧은 오디오 태그만 안전. emotions[<name>].v3Tag 사용.
+                line_emotion = line.get("emotion")
+                direction_text = emotions.get(line_emotion, {}).get("v3Tag") if line_emotion else None
+                if not direction_text and scene_mood:
+                    direction_text = emotions.get(scene_mood, {}).get("v3Tag")
+                global_rule = script.get("globalPerformanceRule")
+                send_text = (
+                    build_v3_text(text, persona_text, direction_text, global_rule)
+                    if model_id == "eleven_v3"
+                    else text
+                )
                 sig = hash_signature({
                     "engine": "elevenlabs", "model": model_id,
                     "voiceId": voice_id, "settings": final_settings, "text": text,
+                    "persona": persona_text,
+                    "v3Tag": direction_text,
+                    "globalRule": global_rule,
                 })
             else:
                 vcfg = voices.get(who, {})
@@ -222,7 +251,7 @@ def build_story(story_id: str, force: bool, only_scene: int | None, engine_overr
                     prev_text = dlg[i - 1]["text"] if i > 0 else None
                     next_text = dlg[i + 1]["text"] if i + 1 < len(dlg) else None
                     audio = synthesize_elevenlabs(
-                        text, voice_id, model_id, final_settings,
+                        send_text, voice_id, model_id, final_settings,
                         prev_text, next_text, api_key,
                     )
                 else:
