@@ -134,7 +134,11 @@ export function useSceneBeatPlayback(
     }
     // 비트 변경 — src 를 새 파일로 교체하고 처음부터 재생
     try { a.pause(); } catch { /* noop */ }
-    if (!a.src.endsWith(beats[idx].file)) {
+    let currentPath = "";
+    try {
+      currentPath = a.src ? new URL(a.src, window.location.origin).pathname : "";
+    } catch { /* noop */ }
+    if (currentPath !== beats[idx].file) {
       a.src = beats[idx].file;
     }
     try { a.currentTime = Math.max(0, t - beats[idx].from); } catch { /* noop */ }
@@ -182,6 +186,7 @@ export function useSceneMasterVoice(opts: {
   const { url, t, speed, audioState, durationSec } = opts;
   const [status, setStatus] = useState<SceneMasterVoiceStatus>(MASTER_IDLE_STATUS);
   const startedRef = useRef(false);
+  const failedRef = useRef(false);
   const attemptsRef = useRef(0);
   const retryTimerRef = useRef<number | null>(null);
   const sourceTokenRef = useRef(0);
@@ -201,6 +206,7 @@ export function useSceneMasterVoice(opts: {
     const token = sourceTokenRef.current;
     clearRetry();
     startedRef.current = false;
+    failedRef.current = false;
     attemptsRef.current = 0;
     setStatus({ state: "loading", hasStarted: false, attempts: 0 });
     let currentPath = "";
@@ -229,6 +235,9 @@ export function useSceneMasterVoice(opts: {
     };
     const onError = () => {
       if (sourceTokenRef.current !== token) return;
+      failedRef.current = true;
+      clearRetry();
+      (a as any).__playPending = false;
       const code = a.error?.code;
       const message = code ? `audio error code ${code}` : "audio load failed";
       setStatus({ state: "error", hasStarted: startedRef.current, attempts: attemptsRef.current, message });
@@ -259,6 +268,13 @@ export function useSceneMasterVoice(opts: {
     const a = getSharedVoice();
     if (!a) return;
     if (!audioState.unlocked) return;
+    if (failedRef.current) return;
+
+    let currentPath = "";
+    try {
+      currentPath = a.src ? new URL(a.src, window.location.origin).pathname : "";
+    } catch { /* noop */ }
+    if (currentPath !== url) return;
 
     if (speed === 0 || t >= durationSec) {
       clearRetry();
