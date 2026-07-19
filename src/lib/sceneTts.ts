@@ -234,6 +234,15 @@ export function useSceneMasterVoice(opts: {
       }
     } else if (a.readyState >= 2) {
       setStatus({ state: "ready", hasStarted: false, attempts: 0 });
+    } else {
+      // React StrictMode/dev cleanup or a previous interrupted load can leave the
+      // shared audio element with the correct src but readyState=0. In that case
+      // loadeddata will never fire unless we explicitly restart loading.
+      try { a.load(); } catch { /* noop */ }
+      (a as any).__playPending = false;
+      if (import.meta.env.DEV) {
+        console.log("[TTS] reload ->", url);
+      }
     }
     const onLoadedData = () => {
       if (sourceTokenRef.current !== token) return;
