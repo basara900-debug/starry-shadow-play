@@ -297,13 +297,19 @@ def build_scene_master(out_path: Path, beat_files: list[Path], gap_sec: float) -
 
     패턴: silence(gap), beat0, silence(gap), beat1, ..., silence(gap)
     (build_story 의 cursor 계산과 정확히 일치)
+
+    ElevenLabs 조각은 mono 44.1kHz 이고 anullsrc 무음은 stereo 이다.
+    concat 필터는 모든 입력의 sample_rate/channels/layout 이 동일해야 하며,
+    불일치 시 프레임이 손상되어 노이즈가 삽입되고 일부 디코더는 씬 중간에
+    스트림을 조기 종료한다. 각 입력에 aformat 을 걸어 44100Hz/스테레오/fltp
+    로 강제 정규화한 뒤 concat 한다.
     """
     n_beats = len(beat_files)
     n_silence = n_beats + 1  # 앞·중간·끝
     inputs: list[str] = []
     idx = 0
 
-    # 무음 lavfi 하나만 생성한 뒤 asplit 으로 N 개로 복제한다.
+    # 무음 lavfi 하나만 생성한 뒤 aformat + asplit 으로 N 개로 복제한다.
     inputs.extend(["-f", "lavfi", "-t", f"{gap_sec}",
                    "-i", "anullsrc=r=44100:cl=stereo"])
     silence_idx = idx
@@ -315,17 +321,23 @@ def build_scene_master(out_path: Path, beat_files: list[Path], gap_sec: float) -
         beat_idxs.append(idx)
         idx += 1
 
-    # asplit 으로 [s0][s1]...[sN] 라벨 만들기
-    split_labels = "".join(f"[s{i}]" for i in range(n_silence))
-    filter_str = f"[{silence_idx}:a]asplit={n_silence}{split_labels};"
+    AFORMAT = "aformat=sample_fmts=fltp:sample_rates=44100:channel_layouts=stereo"
 
-    # concat 라벨: s0, beat0, s1, beat1, ..., sN
+    parts: list[str] = []
+    # 무음: 먼저 포맷 정규화 → asplit N
+    split_labels = "".join(f"[s{i}]" for i in range(n_silence))
+    parts.append(f"[{silence_idx}:a]{AFORMAT}[sn];[sn]asplit={n_silence}{split_labels}")
+    # 각 대사: 포맷 정규화
+    for i, bi in enumerate(beat_idxs):
+        parts.append(f"[{bi}:a]{AFORMAT}[b{i}]")
+    # concat 라벨: s0, b0, s1, b1, ..., sN
     concat_labels: list[str] = []
     for i in range(n_beats):
         concat_labels.append(f"[s{i}]")
-        concat_labels.append(f"[{beat_idxs[i]}:a]")
+        concat_labels.append(f"[b{i}]")
     concat_labels.append(f"[s{n_beats}]")
-    filter_str += "".join(concat_labels) + f"concat=n={len(concat_labels)}:v=0:a=1[out]"
+    parts.append("".join(concat_labels) + f"concat=n={len(concat_labels)}:v=0:a=1[out]")
+    filter_str = ";".join(parts)
 
     cmd = ["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", *inputs,
            "-filter_complex", filter_str,
