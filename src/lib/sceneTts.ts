@@ -139,3 +139,80 @@ export function useSceneBeatPlayback(
   });
   return resetAllRef.current;
 }
+
+/**
+ * 씬 하나에 대응하는 통합 마스터 mp3 를 재생한다.
+ *
+ * 왜 이렇게 하나:
+ *  - 대사 조각마다 `<audio>.src` 를 교체하면 브라우저가 매 전환마다 mp3 를
+ *    새로 로드·디코드하며 100~500ms 의 지연이 발생해 다음 대사 앞부분이
+ *    잘리는 "끊김" 현상이 생긴다.
+ *  - 씬 통째로 이어붙인 마스터 mp3 를 한 번만 로드해두면 대사 사이 지연이
+ *    파일 자체의 무음(build-tts.py 가 gapSec 만큼 anullsrc 삽입)으로
+ *    자연스럽게 채워진다.
+ *
+ * 동기화 원칙:
+ *  - 자연 재생을 신뢰한다. 매 프레임 `currentTime = t` 를 강제하지 않는다.
+ *  - `t` 가 씬 시작(≈0)으로 되감기(루프) 되었거나 dev 툴바 seek 로 크게
+ *    벌어졌을 때(> 0.4s) 만 강제 재동기화한다.
+ */
+export function useSceneMasterVoice(opts: {
+  url: string;
+  t: number;
+  speed: number;
+  audioState: SceneAudioState;
+  durationSec: number;
+}) {
+  const { url, t, speed, audioState, durationSec } = opts;
+
+  // 씬 전환: src 교체 + 처음으로 되감기
+  useEffect(() => {
+    const a = getSharedVoice();
+    if (!a) return;
+    if (!a.src.endsWith(url)) {
+      try { a.pause(); } catch { /* noop */ }
+      a.src = url;
+      try { a.currentTime = 0; } catch { /* noop */ }
+      a.load();
+    }
+    return () => {
+      try { a.pause(); } catch { /* noop */ }
+    };
+  }, [url]);
+
+  // 볼륨 / 뮤트 반영
+  useEffect(() => {
+    const a = getSharedVoice();
+    if (!a) return;
+    a.volume = audioState.voiceMuted ? 0 : audioState.voiceVol;
+  }, [audioState.voiceVol, audioState.voiceMuted]);
+
+  // 재생 상태 & 드리프트 보정
+  useEffect(() => {
+    const a = getSharedVoice();
+    if (!a) return;
+    if (!audioState.unlocked) return;
+
+    if (speed === 0 || t >= durationSec) {
+      if (!a.paused) { try { a.pause(); } catch { /* noop */ } }
+      return;
+    }
+
+    // playbackRate 실시간 반영
+    if (Math.abs(a.playbackRate - speed) > 0.01) {
+      a.playbackRate = speed;
+    }
+
+    // 루프로 t 가 처음으로 되감겼을 때 (t≈0 인데 audio 는 뒤쪽)
+    if (t < 0.3 && a.currentTime > 1.0) {
+      try { a.currentTime = t; } catch { /* noop */ }
+    } else if (Math.abs(a.currentTime - t) > 0.4) {
+      // seek / 큰 드리프트만 재동기화 — 대사 자연 흐름은 유지
+      try { a.currentTime = t; } catch { /* noop */ }
+    }
+
+    if (a.paused) {
+      void a.play().catch(() => { /* 다음 프레임에 재시도 */ });
+    }
+  }, [t, speed, durationSec, audioState.unlocked]);
+}
