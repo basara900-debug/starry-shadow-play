@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useSceneAudio, useSceneAudioState } from "@/lib/sceneAudio";
-import { useSceneBeatPlayback, type SceneBeat } from "@/lib/sceneTts";
+import { useSceneMasterVoice } from "@/lib/sceneTts";
 import type { StorySceneDefinition, StorySpeaker } from "@/data/townCountryStory";
 import { useDevTimelineSync } from "@/lib/devTimeline";
 import { useDevMotionSync, type DevMotionSegment } from "@/lib/devMotionTimeline";
@@ -263,16 +263,14 @@ export function StorySceneMotion({
   const audioState = useSceneAudioState();
   const sceneNum = scene.id.match(/-(\d+)$/)?.[1] ?? "1";
   const storyDir = scene.id.replace(/-\d+$/, "");
-  const ttsBeats: SceneBeat[] = scene.beats.map((b, i) => ({
-    i,
-    who: b.who,
-    text: b.text,
-    file: `/audio/${storyDir}/scene${sceneNum}/tts/${String(i).padStart(2, "0")}_${b.who}.mp3`,
-    dur: b.to - b.from,
-    from: b.from,
-    to: b.to,
-  }));
-  useSceneBeatPlayback(ttsBeats, t, speed, audioState);
+  const masterUrl = `/audio/${storyDir}/scene${sceneNum}.mp3`;
+  useSceneMasterVoice({
+    url: masterUrl,
+    t,
+    speed,
+    audioState,
+    durationSec: scene.durationSec,
+  });
 
   useEffect(() => {
     doneRef.current = false;

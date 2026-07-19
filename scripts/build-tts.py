@@ -173,7 +173,7 @@ def build_story(story_id: str, force: bool, only_scene: int | None, engine_overr
     else:
         sys.exit(f"알 수 없는 engine: {engine}")
 
-    gap = float(script.get("gapSec", 0.5))
+    gap = float(script.get("gapSec", 0.25))
     voices = script.get("voices", {})
     emotions = script.get("emotions", {})
     model_id = script.get("model", ELEVEN_DEFAULT_MODEL)
@@ -277,9 +277,61 @@ def build_story(story_id: str, force: bool, only_scene: int | None, engine_overr
         timing_scenes.append({"id": sid, "durationSec": scene_dur, "beats": beats})
         print(f"  ⇒ 씬 길이 {scene_dur}s")
 
+        # 씬별 마스터 mp3 생성 (조각 + 무음 concat) — 매 씬 재생 시 src 스왑이
+        # 딱 1회만 일어나도록 하여 대사 사이 끊김을 없앤다.
+        master_path = ROOT / "public" / "audio" / story_id / f"scene{si}.mp3"
+        beat_files = [out_dir / f"{i:02d}_{dlg[i]['who']}.mp3" for i in range(len(dlg))]
+        try:
+            build_scene_master(master_path, beat_files, gap)
+            print(f"  ⇒ 마스터 {master_path.relative_to(ROOT)}")
+        except subprocess.CalledProcessError as e:
+            print(f"  ! 마스터 생성 실패: {e}", file=sys.stderr)
+
     timing_path = ROOT / "src" / "stories" / story_id / "timing.json"
     timing_path.write_text(json.dumps({"scenes": timing_scenes}, ensure_ascii=False, indent=2))
     print(f"\n✓ {timing_path.relative_to(ROOT)} 갱신 완료")
+
+
+def build_scene_master(out_path: Path, beat_files: list[Path], gap_sec: float) -> None:
+    """씬의 조각 mp3 + 무음을 이어붙여 하나의 마스터 mp3 로 만든다.
+
+    패턴: silence(gap), beat0, silence(gap), beat1, ..., silence(gap)
+    (build_story 의 cursor 계산과 정확히 일치)
+    """
+    n_beats = len(beat_files)
+    n_silence = n_beats + 1  # 앞·중간·끝
+    inputs: list[str] = []
+    idx = 0
+
+    # 무음 lavfi 하나만 생성한 뒤 asplit 으로 N 개로 복제한다.
+    inputs.extend(["-f", "lavfi", "-t", f"{gap_sec}",
+                   "-i", "anullsrc=r=44100:cl=stereo"])
+    silence_idx = idx
+    idx += 1
+
+    beat_idxs: list[int] = []
+    for bf in beat_files:
+        inputs.extend(["-i", str(bf)])
+        beat_idxs.append(idx)
+        idx += 1
+
+    # asplit 으로 [s0][s1]...[sN] 라벨 만들기
+    split_labels = "".join(f"[s{i}]" for i in range(n_silence))
+    filter_str = f"[{silence_idx}:a]asplit={n_silence}{split_labels};"
+
+    # concat 라벨: s0, beat0, s1, beat1, ..., sN
+    concat_labels: list[str] = []
+    for i in range(n_beats):
+        concat_labels.append(f"[s{i}]")
+        concat_labels.append(f"[{beat_idxs[i]}:a]")
+    concat_labels.append(f"[s{n_beats}]")
+    filter_str += "".join(concat_labels) + f"concat=n={len(concat_labels)}:v=0:a=1[out]"
+
+    cmd = ["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", *inputs,
+           "-filter_complex", filter_str,
+           "-map", "[out]", "-ac", "2", "-ar", "44100",
+           "-c:a", "libmp3lame", "-b:a", "128k", str(out_path)]
+    subprocess.run(cmd, check=True)
 
 
 def main() -> None:
