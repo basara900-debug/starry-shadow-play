@@ -351,6 +351,7 @@ function ShadowTheaterTitle() {
       // PLAY 클릭 제스처 안에서 먼저 unlock 해둔다. 특히 양치기 소년처럼
       // 씬 마운트 후 마스터 MP3를 교체하는 프로그램은 이 프라임이 없으면
       // 모바일/일부 브라우저에서 loading 상태에 머물 수 있다.
+      bus.unlock();
       primeSceneTts([]);
     }
     if (i === 0 && loadedCassetteId === "ants-grasshopper") {
