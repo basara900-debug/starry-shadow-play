@@ -21,6 +21,7 @@ const MASTER_PLAY_RETRY_MS = 180;
 export type SceneMasterVoiceStatus = {
   state: "idle" | "loading" | "ready" | "playing" | "paused" | "blocked" | "error";
   hasStarted: boolean;
+  hasFinished: boolean;
   attempts: number;
   message?: string;
 };
@@ -28,6 +29,7 @@ export type SceneMasterVoiceStatus = {
 const MASTER_IDLE_STATUS: SceneMasterVoiceStatus = {
   state: "idle",
   hasStarted: false,
+  hasFinished: false,
   attempts: 0,
 };
 
@@ -194,6 +196,7 @@ export function useSceneMasterVoice(opts: {
   const attemptsRef = useRef(0);
   const retryTimerRef = useRef<number | null>(null);
   const sourceTokenRef = useRef(0);
+  const finishedRef = useRef(false);
 
   const clearRetry = () => {
     if (retryTimerRef.current != null) {
@@ -216,8 +219,9 @@ export function useSceneMasterVoice(opts: {
     clearRetry();
     startedRef.current = false;
     failedRef.current = false;
+    finishedRef.current = false;
     attemptsRef.current = 0;
-    setStatus({ state: "loading", hasStarted: false, attempts: 0 });
+    setStatus({ state: "loading", hasStarted: false, hasFinished: false, attempts: 0 });
     let currentPath = "";
     try {
       currentPath = a.src ? new URL(a.src, window.location.origin).pathname : "";
@@ -233,7 +237,7 @@ export function useSceneMasterVoice(opts: {
         console.log("[TTS] src ->", url);
       }
     } else if (a.readyState >= 2) {
-      setStatus({ state: "ready", hasStarted: false, attempts: 0 });
+      setStatus({ state: "ready", hasStarted: false, hasFinished: false, attempts: 0 });
     } else {
       // React StrictMode/dev cleanup or a previous interrupted load can leave the
       // shared audio element with the correct src but readyState=0. In that case
@@ -258,17 +262,25 @@ export function useSceneMasterVoice(opts: {
       (a as any).__playPending = false;
       const code = a.error?.code;
       const message = code ? `audio error code ${code}` : "audio load failed";
-      setStatus({ state: "error", hasStarted: startedRef.current, attempts: attemptsRef.current, message });
+      setStatus({ state: "error", hasStarted: startedRef.current, hasFinished: finishedRef.current, attempts: attemptsRef.current, message });
       if (import.meta.env.DEV) console.warn("[TTS] error", message, url);
+    };
+    const onEnded = () => {
+      if (sourceTokenRef.current !== token) return;
+      finishedRef.current = true;
+      setStatus((s) => ({ ...s, hasFinished: true, state: "paused" }));
+      if (import.meta.env.DEV) console.log("[TTS] ended", url);
     };
     a.addEventListener("loadeddata", onLoadedData);
     a.addEventListener("canplay", onLoadedData);
     a.addEventListener("error", onError);
+    a.addEventListener("ended", onEnded);
     return () => {
       clearRetry();
       a.removeEventListener("loadeddata", onLoadedData);
       a.removeEventListener("canplay", onLoadedData);
       a.removeEventListener("error", onError);
+      a.removeEventListener("ended", onEnded);
       try { a.pause(); } catch { /* noop */ }
       (a as any).__playPending = false;
     };
@@ -301,6 +313,12 @@ export function useSceneMasterVoice(opts: {
       if (!a.paused) { try { a.pause(); } catch { /* noop */ } }
       setStatus((s) => ({ ...s, state: speed === 0 ? "paused" : s.state }));
       return;
+    }
+
+    // 자연 재생 도중 t 가 되감기면 hasFinished 리셋 (loop / seek 뒤로)
+    if (finishedRef.current && t < durationSec - 0.5) {
+      finishedRef.current = false;
+      setStatus((s) => ({ ...s, hasFinished: false }));
     }
 
     // playbackRate 실시간 반영
@@ -338,7 +356,7 @@ export function useSceneMasterVoice(opts: {
             clearRetry();
             startedRef.current = true;
             (a as any).__playPending = false;
-            setStatus({ state: "playing", hasStarted: true, attempts: attemptsRef.current });
+            setStatus({ state: "playing", hasStarted: true, hasFinished: finishedRef.current, attempts: attemptsRef.current });
             if (import.meta.env.DEV) console.log("[TTS] play ok", a.currentSrc.split("/").pop());
           }).catch((err) => {
             if (sourceTokenRef.current !== token) return;
@@ -348,6 +366,7 @@ export function useSceneMasterVoice(opts: {
             setStatus({
               state: retryable ? "blocked" : "error",
               hasStarted: startedRef.current,
+              hasFinished: finishedRef.current,
               attempts: attemptsRef.current,
               message,
             });
@@ -365,12 +384,12 @@ export function useSceneMasterVoice(opts: {
         } else {
           startedRef.current = true;
           (a as any).__playPending = false;
-          setStatus({ state: "playing", hasStarted: true, attempts: attemptsRef.current });
+          setStatus({ state: "playing", hasStarted: true, hasFinished: finishedRef.current, attempts: attemptsRef.current });
         }
       };
       // readyState < HAVE_CURRENT_DATA (2) 이면 loadeddata 를 기다렸다가 재생
       if (a.readyState < 2) {
-        setStatus({ state: "loading", hasStarted: startedRef.current, attempts: attemptsRef.current });
+        setStatus({ state: "loading", hasStarted: startedRef.current, hasFinished: finishedRef.current, attempts: attemptsRef.current });
         const onReady = () => {
           a.removeEventListener("loadeddata", onReady);
           if (sourceTokenRef.current !== token) return;
