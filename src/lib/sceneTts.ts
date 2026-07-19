@@ -85,6 +85,7 @@ export function useSceneBeatPlayback(
   t: number,
   speed: number,
   audioState: SceneAudioState,
+  enabled = true,
 ) {
   const activeIdxRef = useRef<number>(-1);
 
@@ -102,15 +103,17 @@ export function useSceneBeatPlayback(
 
   // volume/mute/speed propagation
   useEffect(() => {
+    if (!enabled) return;
     const a = getSharedVoice();
     if (!a) return;
     const vol = audioState.voiceMuted ? 0 : audioState.voiceVol;
     a.volume = vol;
     if (speed === 0) a.pause();
     else a.playbackRate = speed;
-  }, [speed, audioState.voiceVol, audioState.voiceMuted]);
+  }, [enabled, speed, audioState.voiceVol, audioState.voiceMuted]);
 
   useEffect(() => {
+    if (!enabled) return;
     if (speed === 0) return;
     if (!audioState.unlocked) return;
     const a = getSharedVoice();
@@ -146,7 +149,7 @@ export function useSceneBeatPlayback(
     a.volume = audioState.voiceMuted ? 0 : audioState.voiceVol;
     void a.play().catch(() => { activeIdxRef.current = -1; });
     activeIdxRef.current = idx;
-  }, [t, speed, audioState.unlocked, audioState.voiceVol, audioState.voiceMuted, beats]);
+  }, [enabled, t, speed, audioState.unlocked, audioState.voiceVol, audioState.voiceMuted, beats]);
 
   // loop reset hook
   const resetAllRef = useRef(() => {
@@ -182,8 +185,9 @@ export function useSceneMasterVoice(opts: {
   speed: number;
   audioState: SceneAudioState;
   durationSec: number;
+  enabled?: boolean;
 }): SceneMasterVoiceStatus {
-  const { url, t, speed, audioState, durationSec } = opts;
+  const { url, t, speed, audioState, durationSec, enabled = true } = opts;
   const [status, setStatus] = useState<SceneMasterVoiceStatus>(MASTER_IDLE_STATUS);
   const startedRef = useRef(false);
   const failedRef = useRef(false);
@@ -200,6 +204,11 @@ export function useSceneMasterVoice(opts: {
 
   // 씬 전환: pathname 정확 비교 (endsWith 는 scene1↔scene11 처럼 접미가 겹치는 케이스에서 오탐)
   useEffect(() => {
+    if (!enabled) {
+      clearRetry();
+      setStatus(MASTER_IDLE_STATUS);
+      return;
+    }
     const a = getSharedVoice();
     if (!a) return;
     sourceTokenRef.current += 1;
@@ -254,17 +263,19 @@ export function useSceneMasterVoice(opts: {
       try { a.pause(); } catch { /* noop */ }
       (a as any).__playPending = false;
     };
-  }, [url]);
+  }, [enabled, url]);
 
   // 볼륨 / 뮤트 반영
   useEffect(() => {
+    if (!enabled) return;
     const a = getSharedVoice();
     if (!a) return;
     a.volume = audioState.voiceMuted ? 0 : audioState.voiceVol;
-  }, [audioState.voiceVol, audioState.voiceMuted]);
+  }, [enabled, audioState.voiceVol, audioState.voiceMuted]);
 
   // 재생 상태 & 드리프트 보정
   useEffect(() => {
+    if (!enabled) return;
     const a = getSharedVoice();
     if (!a) return;
     if (!audioState.unlocked) return;
@@ -367,7 +378,7 @@ export function useSceneMasterVoice(opts: {
         attempt();
       }
     }
-  }, [t, speed, durationSec, audioState.unlocked]);
+  }, [enabled, t, speed, durationSec, audioState.unlocked]);
 
   return status;
 }
