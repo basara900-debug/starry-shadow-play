@@ -1,67 +1,50 @@
-## 원인 (코드 확인 결과)
+# 음성 노이즈 · 씬7+ 조기 종료 원인과 수정 계획
 
-- `src/lib/sceneTts.ts`의 재생 방식이 **대사 하나당 `<audio>.src` 를 통째로 교체**하는 구조. 브라우저는 매 대사 전환마다 새로운 mp3를 로드·디코드해야 하고, 이 지연(모바일 100~500ms) 동안 다음 대사의 첫 음절이 잘려서 "끊김"으로 들림.
-- `timing.json`은 모든 대사 사이에 **0.5초 하드 갭**이 박혀 있음 (총 105 대사 × 0.5s ≈ 52초의 강제 침묵). 대사 간격이 부자연스럽게 벌어짐.
-- rAF 기반 `t`가 `useEffect` 의존성이라 매 프레임 effect가 재실행됨 → 대사 경계에서 `pause()/currentTime=0/play()` race가 튀는 경우 있음.
+## 진단 (확인된 사실)
 
-## 해결 방향: 씬별 통합 마스터 mp3 재생
+1. **조각 mp3는 모노(1채널) 44.1kHz** — ElevenLabs가 그렇게 내려줌.
+   ```
+   scene7/tts/00_narration.mp3  channels=1  channel_layout=mono
+   scene7/tts/01_v_m1.mp3       channels=1  channel_layout=mono
+   ```
+2. **무음(silence)은 스테레오** — `build-tts.py`가 `anullsrc=r=44100:cl=stereo` 로 생성.
+3. **`ffmpeg` concat 필터는 모든 입력의 sample_rate · channels · layout이 일치해야** 정상 동작. 불일치 시 무음 스테레오와 대사 모노가 이어붙으며 프레임이 깨져
+   - 재생 중 **지직거리는 노이즈**가 삽입되고,
+   - 일부 mp3 디코더는 깨진 프레임 이후 스트림을 조기 종료(EOS)해서 **씬7+ 에서 앞 몇 대사만 나오고 audio가 끝나버림**.
+4. 브라우저 오디오가 조기 종료해도 `StorySceneMotion` 의 RAF 타이머는 벽시계 기준으로 계속 진행 → `t`가 `durationSec`에 도달하면 `onComplete` 호출 → **다음 씬으로 자동 전환**. 사용자가 관찰한 정확한 증상.
+5. 마스터 파일 길이 자체는 `timing.json` 과 일치 (예: scene7 = 54.75s). 즉 concat 자체는 성공했지만 프레임 품질이 손상된 상태.
 
-씬 1개당 mp3 1개만 로드해서 처음~끝까지 연속 재생하면 `src` 스왑이 없어져 대사 사이 지연이 완전히 사라지고, 갭도 파일 안에 정확한 무음으로 박히므로 재생기 상태와 무관하게 자연스럽게 이어짐.
+## 수정 (한 파일만 손대면 됨)
 
-### 1. 빌드: 씬별 마스터 mp3 생성
-- `scripts/build-tts.py`가 조각 mp3 생성 후 `ffmpeg concat`으로 **씬당 `scene.mp3` 하나**를 만들도록 확장.
-- 대사 사이 무음은 config로 조정 (기본 **0.25초**로 축소, 필요 시 씬/캐릭터별 override).
-- 무음은 `anullsrc` 필터로 정확히 삽입 → `timing.json`의 `from/to`가 마스터 파일 오프셋과 1:1 일치.
-- 출력 경로: `public/audio/boy-wolf/scene1.mp3` 등. 기존 조각 파일은 남겨두어 재빌드/디버깅에 재사용.
+### `scripts/build-tts.py` — `build_scene_master` 재작성
 
-### 2. 재생: `useSceneMasterVoice` 훅으로 재작성
-- `src/lib/sceneTts.ts` 를 대체:
-  - 씬 마운트 시 마스터 mp3 하나를 공유 `<audio>` 에 실어 preload.
-  - 씬이 재생 중일 때만 `.play()`, `t` 가 씬 duration을 벗어나면 `.pause()`.
-  - **매 프레임 `currentTime`을 강제로 맞추지 않음**. 자연 재생을 신뢰하고, `speed` 변경·seek(dev 툴바)·씬 전환일 때만 `currentTime = t` 로 동기화.
-  - `speed` 변경 → `playbackRate` 즉시 반영. `speed=0` → pause.
-- 자막(`beat = scene.beats.find(...)`)은 기존대로 `t` 기반 유지 → 파일 오프셋과 일치하므로 그대로 싱크됨.
-
-### 3. 씬 전환 지연 제거
-- `primeSceneTts` 를 마스터 mp3용으로 바꿔 **다음 씬 마스터를 미리 fetch** (link preload 또는 hidden `<audio preload="auto">`).
-- 씬 전환 시 이전 마스터 pause + 새 마스터 currentTime=0 → 즉시 play. src 스왑이 씬당 1회로 줄어들며 모바일에서도 매끄러움.
-
-### 4. `timing.json` 재생성
-- 새 갭(0.25s)으로 다시 계산되므로 각 씬 duration이 소폭 짧아짐 (씬 1: 88.5s → 약 85.4s 등).
-- 자막·모션 툴바가 그대로 새 타이밍을 읽음.
-
-### 5. 검증
-- 브라우저에서 씬 1~3 이어 재생하며 대사 간 무음 길이·자막 싱크 확인.
-- 모바일 뷰포트(현재 411×735)에서 씬 전환 첫 대사의 첫 음절이 잘리지 않는지 확인.
-- Dev 툴바로 임의 시점 seek 시 마스터 파일이 해당 초로 정확히 점프하는지 확인.
-
-## 기술 세부
+concat 이전에 모든 오디오 스트림을 **공통 포맷으로 정규화** 한다. `aformat` 필터를 각 입력에 적용해서 44.1kHz / 스테레오 / fltp 로 통일한 뒤 concat.
 
 ```text
-public/audio/boy-wolf/
-├── scene1/tts/00_narration.mp3   ← 기존 조각 (유지)
-├── scene1/tts/silence_025.mp3    ← ffmpeg anullsrc, 0.25s
-├── scene1.mp3                    ← 신규 마스터 (조각 + 무음 concat)
-└── ...
+[silence] aformat=... asplit=N → [s0..sN]
+[beat_k]  aformat=... → [b0..bN-1]
+[s0][b0][s1][b1]...[sN] concat=n=2N+1:v=0:a=1[out]
 ```
 
-ffmpeg concat 예:
-```
-ffmpeg -f concat -safe 0 -i list.txt -c copy scene1.mp3
-# list.txt = 00.mp3 / silence.mp3 / 01.mp3 / silence.mp3 / ...
-```
+- `aformat=sample_fmts=fltp:sample_rates=44100:channel_layouts=stereo` 를 모든 입력에 삽입 (모노 → 스테레오 업믹스 포함).
+- 최종 인코딩은 기존 그대로 `-c:a libmp3lame -b:a 128k -ar 44100 -ac 2`.
+- 재빌드는 이미 캐시된 조각 mp3를 재사용하므로 ElevenLabs 재호출·크레딧 소모 없음.
 
-`useSceneMasterVoice` 시그니처(개념):
-```ts
-useSceneMasterVoice({
-  url: `/audio/boy-wolf/scene${n}.mp3`,
-  t, speed, audioState,
-  durationSec: scene.durationSec,
-})
-```
+### 재빌드 & 검증
 
-## 영향 범위
+빌드 모드로 전환되면 다음을 순서대로 실행:
 
-- 수정: `scripts/build-tts.py`, `src/lib/sceneTts.ts`, `src/components/StorySceneMotion.tsx`(훅 교체 및 primeSceneTts 호출 변경), `src/routes/index.tsx`(prime 호출부).
-- 데이터: `src/stories/boy-wolf/timing.json` 재생성, `public/audio/boy-wolf/scene*.mp3` 신규 생성.
-- 기존 조각 mp3, `boy-wolf-full.mp3`, 자막 배열, 모션 상수는 변경 없음.
+1. 기존 마스터 삭제: `rm public/audio/boy-wolf/scene*.mp3`
+2. 마스터만 재생성:  `python3 scripts/build-tts.py boy-wolf` (조각은 hash 일치 → skip, `build_scene_master` 만 재실행)
+3. 각 씬 마스터의 길이·채널 확인 (`ffprobe`) — channels=2, duration 이 이전 값과 ±0.05s 내로 유지되는지.
+4. 미리보기에서 씬7~12를 처음부터 재생하여 노이즈 소실 및 대사 끝까지 재생되는지 확인.
+
+## 후속(선택) 개선 — 이번 판에는 포함하지 않음
+
+- 마스터 오디오가 아직 로드되지 않았거나 정지된 경우 `StorySceneMotion` RAF 를 대기시키기 (모바일 저속망 안전장치). 이번 이슈의 근본 원인이 아니므로 별도 요청 시 진행.
+
+## 기대 결과
+
+- 대사 사이 지지직 노이즈 제거.
+- 씬7~12 도 마지막 대사까지 정상 재생 후 다음 씬 전환.
+- 코드/렌더 로직·`timing.json` 변경 없음, 파이썬 빌드 스크립트 한 파일만 수정.
