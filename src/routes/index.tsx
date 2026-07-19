@@ -346,6 +346,14 @@ function ShadowTheaterTitle() {
   const handleButton = async (i: number) => {
     setPressed(i);
     setTimeout(() => setPressed(null), 160);
+    if (i === 0) {
+      // 모든 카세트의 대사 재생은 같은 공유 <audio> 요소를 사용하므로,
+      // PLAY 클릭 제스처 안에서 먼저 unlock 해둔다. 특히 양치기 소년처럼
+      // 씬 마운트 후 마스터 MP3를 교체하는 프로그램은 이 프라임이 없으면
+      // 모바일/일부 브라우저에서 loading 상태에 머물 수 있다.
+      bus.unlock();
+      primeSceneTts([]);
+    }
     if (i === 0 && loadedCassetteId === "ants-grasshopper") {
       primeScene1Tts();
       // 씬 2~5 TTS 도 같은 사용자 제스처 안에서 prime 해야 브라우저 autoplay 정책을 통과한다.

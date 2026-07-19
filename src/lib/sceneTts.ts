@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { SceneAudioState } from "@/lib/sceneAudio";
 
 export type SceneBeat = {
@@ -15,6 +15,22 @@ export type SceneBeat = {
 // 씬마다 14개씩 새 Audio를 prime 하면 씬 3 이후가 음소거 되는 현상이 발생한다.
 // 따라서 앱 전체에서 단 하나의 공유 <audio> 요소를 사용하고 비트가 바뀔 때 src 만 교체한다.
 let sharedVoice: HTMLAudioElement | null = null;
+const MAX_MASTER_PLAY_RETRIES = 8;
+const MASTER_PLAY_RETRY_MS = 180;
+
+export type SceneMasterVoiceStatus = {
+  state: "idle" | "loading" | "ready" | "playing" | "paused" | "blocked" | "error";
+  hasStarted: boolean;
+  attempts: number;
+  message?: string;
+};
+
+const MASTER_IDLE_STATUS: SceneMasterVoiceStatus = {
+  state: "idle",
+  hasStarted: false,
+  attempts: 0,
+};
+
 function getSharedVoice() {
   if (typeof window === "undefined") return null;
   if (!sharedVoice) {
@@ -69,6 +85,7 @@ export function useSceneBeatPlayback(
   t: number,
   speed: number,
   audioState: SceneAudioState,
+  enabled = true,
 ) {
   const activeIdxRef = useRef<number>(-1);
 
@@ -86,15 +103,17 @@ export function useSceneBeatPlayback(
 
   // volume/mute/speed propagation
   useEffect(() => {
+    if (!enabled) return;
     const a = getSharedVoice();
     if (!a) return;
     const vol = audioState.voiceMuted ? 0 : audioState.voiceVol;
     a.volume = vol;
     if (speed === 0) a.pause();
     else a.playbackRate = speed;
-  }, [speed, audioState.voiceVol, audioState.voiceMuted]);
+  }, [enabled, speed, audioState.voiceVol, audioState.voiceMuted]);
 
   useEffect(() => {
+    if (!enabled) return;
     if (speed === 0) return;
     if (!audioState.unlocked) return;
     const a = getSharedVoice();
@@ -118,7 +137,11 @@ export function useSceneBeatPlayback(
     }
     // 비트 변경 — src 를 새 파일로 교체하고 처음부터 재생
     try { a.pause(); } catch { /* noop */ }
-    if (!a.src.endsWith(beats[idx].file)) {
+    let currentPath = "";
+    try {
+      currentPath = a.src ? new URL(a.src, window.location.origin).pathname : "";
+    } catch { /* noop */ }
+    if (currentPath !== beats[idx].file) {
       a.src = beats[idx].file;
     }
     try { a.currentTime = Math.max(0, t - beats[idx].from); } catch { /* noop */ }
@@ -126,7 +149,7 @@ export function useSceneBeatPlayback(
     a.volume = audioState.voiceMuted ? 0 : audioState.voiceVol;
     void a.play().catch(() => { activeIdxRef.current = -1; });
     activeIdxRef.current = idx;
-  }, [t, speed, audioState.unlocked, audioState.voiceVol, audioState.voiceMuted, beats]);
+  }, [enabled, t, speed, audioState.unlocked, audioState.voiceVol, audioState.voiceMuted, beats]);
 
   // loop reset hook
   const resetAllRef = useRef(() => {
@@ -162,13 +185,39 @@ export function useSceneMasterVoice(opts: {
   speed: number;
   audioState: SceneAudioState;
   durationSec: number;
-}) {
-  const { url, t, speed, audioState, durationSec } = opts;
+  enabled?: boolean;
+}): SceneMasterVoiceStatus {
+  const { url, t, speed, audioState, durationSec, enabled = true } = opts;
+  const [status, setStatus] = useState<SceneMasterVoiceStatus>(MASTER_IDLE_STATUS);
+  const startedRef = useRef(false);
+  const failedRef = useRef(false);
+  const attemptsRef = useRef(0);
+  const retryTimerRef = useRef<number | null>(null);
+  const sourceTokenRef = useRef(0);
+
+  const clearRetry = () => {
+    if (retryTimerRef.current != null) {
+      window.clearTimeout(retryTimerRef.current);
+      retryTimerRef.current = null;
+    }
+  };
 
   // 씬 전환: pathname 정확 비교 (endsWith 는 scene1↔scene11 처럼 접미가 겹치는 케이스에서 오탐)
   useEffect(() => {
+    if (!enabled) {
+      clearRetry();
+      setStatus(MASTER_IDLE_STATUS);
+      return;
+    }
     const a = getSharedVoice();
     if (!a) return;
+    sourceTokenRef.current += 1;
+    const token = sourceTokenRef.current;
+    clearRetry();
+    startedRef.current = false;
+    failedRef.current = false;
+    attemptsRef.current = 0;
+    setStatus({ state: "loading", hasStarted: false, attempts: 0 });
     let currentPath = "";
     try {
       currentPath = a.src ? new URL(a.src, window.location.origin).pathname : "";
@@ -183,27 +232,74 @@ export function useSceneMasterVoice(opts: {
       if (import.meta.env.DEV) {
         console.log("[TTS] src ->", url);
       }
+    } else if (a.readyState >= 2) {
+      setStatus({ state: "ready", hasStarted: false, attempts: 0 });
+    } else {
+      // React StrictMode/dev cleanup or a previous interrupted load can leave the
+      // shared audio element with the correct src but readyState=0. In that case
+      // loadeddata will never fire unless we explicitly restart loading.
+      try { a.load(); } catch { /* noop */ }
+      (a as any).__playPending = false;
+      if (import.meta.env.DEV) {
+        console.log("[TTS] reload ->", url);
+      }
     }
-    return () => {
-      try { a.pause(); } catch { /* noop */ }
+    const onLoadedData = () => {
+      if (sourceTokenRef.current !== token) return;
+      setStatus((s) => ({ ...s, state: startedRef.current ? "playing" : "ready" }));
+      if (import.meta.env.DEV) {
+        console.log("[TTS] ready", url, "duration", Number.isFinite(a.duration) ? a.duration.toFixed(2) : "?");
+      }
     };
-  }, [url]);
+    const onError = () => {
+      if (sourceTokenRef.current !== token) return;
+      failedRef.current = true;
+      clearRetry();
+      (a as any).__playPending = false;
+      const code = a.error?.code;
+      const message = code ? `audio error code ${code}` : "audio load failed";
+      setStatus({ state: "error", hasStarted: startedRef.current, attempts: attemptsRef.current, message });
+      if (import.meta.env.DEV) console.warn("[TTS] error", message, url);
+    };
+    a.addEventListener("loadeddata", onLoadedData);
+    a.addEventListener("canplay", onLoadedData);
+    a.addEventListener("error", onError);
+    return () => {
+      clearRetry();
+      a.removeEventListener("loadeddata", onLoadedData);
+      a.removeEventListener("canplay", onLoadedData);
+      a.removeEventListener("error", onError);
+      try { a.pause(); } catch { /* noop */ }
+      (a as any).__playPending = false;
+    };
+  }, [enabled, url]);
 
   // 볼륨 / 뮤트 반영
   useEffect(() => {
+    if (!enabled) return;
     const a = getSharedVoice();
     if (!a) return;
     a.volume = audioState.voiceMuted ? 0 : audioState.voiceVol;
-  }, [audioState.voiceVol, audioState.voiceMuted]);
+  }, [enabled, audioState.voiceVol, audioState.voiceMuted]);
 
   // 재생 상태 & 드리프트 보정
   useEffect(() => {
+    if (!enabled) return;
     const a = getSharedVoice();
     if (!a) return;
     if (!audioState.unlocked) return;
+    if (failedRef.current) return;
+
+    let currentPath = "";
+    try {
+      currentPath = a.src ? new URL(a.src, window.location.origin).pathname : "";
+    } catch { /* noop */ }
+    if (currentPath !== url) return;
 
     if (speed === 0 || t >= durationSec) {
+      clearRetry();
       if (!a.paused) { try { a.pause(); } catch { /* noop */ } }
+      setStatus((s) => ({ ...s, state: speed === 0 ? "paused" : s.state }));
       return;
     }
 
@@ -220,32 +316,78 @@ export function useSceneMasterVoice(opts: {
       try { a.currentTime = t; } catch { /* noop */ }
     }
 
-    if (a.paused && !(a as any).__playPending) {
+    if (a.paused && !(a as any).__playPending && retryTimerRef.current == null) {
       (a as any).__playPending = true;
+      const token = sourceTokenRef.current;
       const attempt = () => {
+        if (sourceTokenRef.current !== token) return;
+        if (speed === 0 || t >= durationSec) {
+          (a as any).__playPending = false;
+          return;
+        }
+        attemptsRef.current += 1;
+        setStatus({
+          state: a.readyState < 2 ? "loading" : "ready",
+          hasStarted: startedRef.current,
+          attempts: attemptsRef.current,
+        });
         const p = a.play();
         if (p && typeof p.then === "function") {
           p.then(() => {
+            if (sourceTokenRef.current !== token) return;
+            clearRetry();
+            startedRef.current = true;
             (a as any).__playPending = false;
+            setStatus({ state: "playing", hasStarted: true, attempts: attemptsRef.current });
             if (import.meta.env.DEV) console.log("[TTS] play ok", a.currentSrc.split("/").pop());
           }).catch((err) => {
+            if (sourceTokenRef.current !== token) return;
             (a as any).__playPending = false;
+            const retryable = attemptsRef.current < MAX_MASTER_PLAY_RETRIES;
+            const message = `${err?.name ?? "play failed"}${retryable ? " — retrying" : ""}`;
+            setStatus({
+              state: retryable ? "blocked" : "error",
+              hasStarted: startedRef.current,
+              attempts: attemptsRef.current,
+              message,
+            });
             if (import.meta.env.DEV) console.warn("[TTS] play fail", err?.name, a.currentSrc.split("/").pop());
+            if (retryable && retryTimerRef.current == null) {
+              retryTimerRef.current = window.setTimeout(() => {
+                retryTimerRef.current = null;
+                if (sourceTokenRef.current !== token) return;
+                if (!a.paused) return;
+                (a as any).__playPending = true;
+                attempt();
+              }, MASTER_PLAY_RETRY_MS);
+            }
           });
         } else {
+          startedRef.current = true;
           (a as any).__playPending = false;
+          setStatus({ state: "playing", hasStarted: true, attempts: attemptsRef.current });
         }
       };
       // readyState < HAVE_CURRENT_DATA (2) 이면 loadeddata 를 기다렸다가 재생
       if (a.readyState < 2) {
+        setStatus({ state: "loading", hasStarted: startedRef.current, attempts: attemptsRef.current });
         const onReady = () => {
           a.removeEventListener("loadeddata", onReady);
+          if (sourceTokenRef.current !== token) return;
           attempt();
         };
         a.addEventListener("loadeddata", onReady, { once: true });
+        retryTimerRef.current = window.setTimeout(() => {
+          retryTimerRef.current = null;
+          a.removeEventListener("loadeddata", onReady);
+          if (sourceTokenRef.current !== token) return;
+          attempt();
+        }, MASTER_PLAY_RETRY_MS);
       } else {
         attempt();
       }
     }
-  }, [t, speed, durationSec, audioState.unlocked]);
+  }, [enabled, t, speed, durationSec, audioState.unlocked]);
+
+  return status;
 }

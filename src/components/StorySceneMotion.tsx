@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSceneAudio, useSceneAudioState } from "@/lib/sceneAudio";
-import { useSceneMasterVoice } from "@/lib/sceneTts";
+import { useSceneBeatPlayback, useSceneMasterVoice, type SceneBeat } from "@/lib/sceneTts";
 import type { StorySceneDefinition, StorySpeaker } from "@/data/townCountryStory";
 import { useDevTimelineSync } from "@/lib/devTimeline";
 import { useDevMotionSync, type DevMotionSegment } from "@/lib/devMotionTimeline";
@@ -264,13 +264,30 @@ export function StorySceneMotion({
   const sceneNum = scene.id.match(/-(\d+)$/)?.[1] ?? "1";
   const storyDir = scene.id.replace(/-\d+$/, "");
   const masterUrl = `/audio/${storyDir}/scene${sceneNum}.mp3`;
-  useSceneMasterVoice({
+  const hasMasterVoice = storyDir === "boy-wolf";
+  const fallbackBeats = useMemo<SceneBeat[]>(() => {
+    return scene.beats.map((b, i) => ({
+      ...b,
+      i,
+      file: `/audio/${storyDir}/scene${sceneNum}/tts/${String(i).padStart(2, "0")}_${b.who}.mp3`,
+      dur: Math.max(0, b.to - b.from),
+    }));
+  }, [scene.beats, sceneNum, storyDir]);
+  const masterStatus = useSceneMasterVoice({
     url: masterUrl,
     t,
     speed,
     audioState,
     durationSec: scene.durationSec,
+    enabled: hasMasterVoice,
   });
+  useSceneBeatPlayback(
+    fallbackBeats,
+    t,
+    speed,
+    audioState,
+    !hasMasterVoice || masterStatus.state === "error",
+  );
 
   useEffect(() => {
     doneRef.current = false;
@@ -285,6 +302,16 @@ export function StorySceneMotion({
       if (lastRef.current == null) lastRef.current = now;
       const dt = (now - lastRef.current) / 1000;
       lastRef.current = now;
+      const waitingForVoice =
+        hasMasterVoice &&
+        !audioState.voiceMuted &&
+        !masterStatus.hasStarted &&
+        masterStatus.state !== "error" &&
+        (!audioState.unlocked || masterStatus.state === "idle" || masterStatus.state === "loading" || masterStatus.state === "ready" || masterStatus.state === "blocked");
+      if (waitingForVoice) {
+        rafRef.current = requestAnimationFrame(step);
+        return;
+      }
       const next = timeRef.current + dt * speed;
       if (next >= scene.durationSec && !doneRef.current) {
         doneRef.current = true;
@@ -299,7 +326,7 @@ export function StorySceneMotion({
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       lastRef.current = null;
     };
-  }, [scene.id, scene.durationSec, speed]);
+  }, [scene.id, scene.durationSec, speed, hasMasterVoice, audioState.unlocked, audioState.voiceMuted, masterStatus.hasStarted, masterStatus.state]);
 
   useDevTimelineSync({
     sceneId: scene.id,
@@ -322,6 +349,13 @@ export function StorySceneMotion({
   const driftY = Math.cos(t * 0.12) * 1.1;
 
   const beat = scene.beats.find((b) => t >= b.from && t < b.to);
+  const voiceNotice = hasMasterVoice && masterStatus.state !== "playing" && masterStatus.state !== "ready" && masterStatus.state !== "idle"
+    ? masterStatus.state === "error"
+      ? `음성 오류 · ${masterStatus.message ?? masterUrl}`
+      : !masterStatus.hasStarted
+        ? `음성 준비 중 · ${masterStatus.state}${masterStatus.attempts ? ` ${masterStatus.attempts}` : ""}`
+        : null
+    : null;
 
   const cmBob = Math.sin(t * 2.2) * 1.8;
   const cmSway = Math.sin(t * 1.4) * 2.5;
@@ -657,6 +691,22 @@ export function StorySceneMotion({
           transition: "transform 120ms linear",
         }}
       />
+
+      {voiceNotice && (
+        <div
+          className="absolute left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-[10px] font-semibold"
+          style={{
+            top: "13%",
+            zIndex: 8,
+            background: masterStatus.state === "error" ? "oklch(0.32 0.12 25 / 0.88)" : "oklch(0.18 0.04 70 / 0.78)",
+            color: "oklch(0.96 0.04 80)",
+            border: "1px solid oklch(0.85 0.08 75 / 0.32)",
+            boxShadow: "0 6px 18px oklch(0 0 0 / 0.35)",
+          }}
+        >
+          {voiceNotice}
+        </div>
+      )}
 
       {beat && (() => {
         const palette = SPEAKER_PALETTE[beat.who];
