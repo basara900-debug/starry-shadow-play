@@ -108,103 +108,120 @@
       "stability": 0.8,
       "style": 0.2,
       "speed": 0.95,
-      "directionPrompt": "Calm, gentle, unhurried delivery. Even breath, soft warmth."
+      "directionPrompt": "Calm, gentle, unhurried delivery. Even breath, soft warmth.",
+      "v3Tag": "[calmly]"
     },
     "warm": {
       "stability": 0.7,
       "style": 0.3,
       "speed": 0.97,
-      "directionPrompt": "Warm, kind, comforting. Soft affection in the voice."
+      "directionPrompt": "Warm, kind, comforting. Soft affection in the voice.",
+      "v3Tag": "[warmly]"
     },
     "excited": {
       "stability": 0.25,
       "style": 0.8,
       "speed": 1.05,
-      "directionPrompt": "Bright, energetic, high-arousal excitement. Rising pitch and lively pace."
+      "directionPrompt": "Bright, energetic, high-arousal excitement. Rising pitch and lively pace.",
+      "v3Tag": "[excitedly][shouting]"
     },
     "hurry": {
       "stability": 0.2,
       "style": 0.8,
       "speed": 1.1,
-      "directionPrompt": "Urgent, hurried, quick breath between phrases. A sense of time pressure."
+      "directionPrompt": "Urgent, hurried, quick breath between phrases. A sense of time pressure.",
+      "v3Tag": "[urgently]"
     },
     "angry": {
       "stability": 0.2,
       "style": 0.85,
       "speed": 1.05,
-      "directionPrompt": "Angry, sharp, forceful stress on key words. Controlled fury, not shouting."
+      "directionPrompt": "Angry, sharp, forceful stress on key words. Controlled fury, not shouting.",
+      "v3Tag": "[angrily]"
     },
     "sad": {
       "stability": 0.75,
       "style": 0.25,
       "speed": 0.9,
-      "directionPrompt": "Sad, subdued, slower phrasing with soft sighs."
+      "directionPrompt": "Sad, subdued, slower phrasing with soft sighs.",
+      "v3Tag": "[sadly]"
     },
     "mischief": {
       "stability": 0.3,
       "style": 0.7,
       "speed": 1.02,
-      "directionPrompt": "Mischievous excitement. Bright, playful, barely-contained amusement. Small suppressed laughter. Not evil, not malicious — just a bored kid who just thought of a fun prank."
+      "directionPrompt": "Mischievous excitement. Bright, playful, barely-contained amusement. Small suppressed laughter. Not evil, not malicious — just a bored kid who just thought of a fun prank.",
+      "v3Tag": "[playfully][mischievously][suppressed laughter]"
     },
     "regret": {
       "stability": 0.8,
       "style": 0.2,
       "speed": 0.88,
-      "directionPrompt": "Deep regret and sincere remorse. Quiet, emotional, trembling with guilt and sadness. Heartfelt and gentle — honest, not overly dramatic."
+      "directionPrompt": "Deep regret and sincere remorse. Quiet, emotional, trembling with guilt and sadness. Heartfelt and gentle — honest, not overly dramatic.",
+      "v3Tag": "[sadly][remorseful][quiet]"
     },
     "bored": {
       "stability": 0.6,
       "style": 0.35,
       "speed": 0.95,
-      "directionPrompt": "Bored and restless. Tired, unmotivated, slightly frustrated by repetition. Slow, casual pace with small sighs. A boy longing for something exciting to happen."
+      "directionPrompt": "Bored and restless. Tired, unmotivated, slightly frustrated by repetition. Slow, casual pace with small sighs. A boy longing for something exciting to happen.",
+      "v3Tag": "[bored][sighs]"
     },
     "fake_remorse": {
       "stability": 0.5,
       "style": 0.4,
       "speed": 0.98,
-      "directionPrompt": "Fake remorse. Surface tone is embarrassed and slightly discouraged, but the apology is not fully sincere. Suggests pretending to regret while secretly still amused. Keep it subtle, not exaggerated."
+      "directionPrompt": "Fake remorse. Surface tone is embarrassed and slightly discouraged, but the apology is not fully sincere. Suggests pretending to regret while secretly still amused. Keep it subtle, not exaggerated.",
+      "v3Tag": "[reluctantly][half-hearted]"
     },
     "panic": {
       "stability": 0.15,
       "style": 0.9,
       "speed": 1.15,
-      "directionPrompt": "Genuine fear and panic. Fast uneven breathing, trembling voice, desperate calls for help. No playfulness left at all — completely real terror."
+      "directionPrompt": "Genuine fear and panic. Fast uneven breathing, trembling voice, desperate calls for help. No playfulness left at all — completely real terror.",
+      "v3Tag": "[fearfully][shouting][panicked]"
     },
     "kind_urgent": {
       "stability": 0.4,
       "style": 0.55,
       "speed": 1.05,
-      "directionPrompt": "Warm, caring, protective — but urgent. Calm concern rather than panic. A responsible father-figure who immediately believes Tom."
+      "directionPrompt": "Warm, caring, protective — but urgent. Calm concern rather than panic. A responsible father-figure who immediately believes Tom.",
+      "v3Tag": "[warmly][urgently]"
     },
     "fatherly_disappointed": {
       "stability": 0.6,
       "style": 0.35,
       "speed": 0.97,
-      "directionPrompt": "Firm but caring correction. Disappointed rather than furious. Patient, sincere, wants the boy to grow. Never harsh or cruel."
+      "directionPrompt": "Firm but caring correction. Disappointed rather than furious. Patient, sincere, wants the boy to grow. Never harsh or cruel.",
+      "v3Tag": "[disappointedly][firmly]"
     },
     "bold_angry": {
       "stability": 0.2,
       "style": 0.9,
       "speed": 1.08,
-      "directionPrompt": "Bold, courageous, hot-tempered. Aggressive toward the wolf, ready to fight. Anger aimed at the danger, not at Tom."
+      "directionPrompt": "Bold, courageous, hot-tempered. Aggressive toward the wolf, ready to fight. Anger aimed at the danger, not at Tom.",
+      "v3Tag": "[boldly][angrily]"
     },
     "anxious_kind": {
       "stability": 0.35,
       "style": 0.6,
       "speed": 1.02,
-      "directionPrompt": "Cheerful and kind by nature but easily frightened. Slight tremble of worry in the voice. Emotional, hoping everyone will be safe."
+      "directionPrompt": "Cheerful and kind by nature but easily frightened. Slight tremble of worry in the voice. Emotional, hoping everyone will be safe.",
+      "v3Tag": "[anxiously][gently]"
     },
     "motherly": {
       "stability": 0.7,
       "style": 0.3,
       "speed": 0.95,
-      "directionPrompt": "Soft, nurturing, motherly comfort. Patient, reassuring, deeply empathetic — as if soothing her own child."
+      "directionPrompt": "Soft, nurturing, motherly comfort. Patient, reassuring, deeply empathetic — as if soothing her own child.",
+      "v3Tag": "[tenderly][warmly]"
     },
     "grandma_narration": {
       "stability": 0.65,
       "style": 0.3,
       "speed": 0.95,
-      "directionPrompt": "Loving 80-year-old grandmother reading a bedtime fairy tale to her grandchildren. Warm, wise, soft cadence with gentle stress and pauses that bring the story to life."
+      "directionPrompt": "Loving 80-year-old grandmother reading a bedtime fairy tale to her grandchildren. Warm, wise, soft cadence with gentle stress and pauses that bring the story to life.",
+      "v3Tag": "[warmly][gently]"
     }
   },
   "scenes": [
