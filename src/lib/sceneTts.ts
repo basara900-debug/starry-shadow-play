@@ -280,7 +280,7 @@ export function useSceneMasterVoice(opts: {
       try { a.currentTime = t; } catch { /* noop */ }
     }
 
-    if (a.paused && !(a as any).__playPending) {
+    if (a.paused && !(a as any).__playPending && retryTimerRef.current == null) {
       (a as any).__playPending = true;
       const token = sourceTokenRef.current;
       const attempt = () => {
