@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import cassetteImg from "@/assets/idle-animation.gif";
 import theaterStageImg from "@/assets/theater-stage.jpg";
