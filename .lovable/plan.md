@@ -1,50 +1,49 @@
-# 음성 노이즈 · 씬7+ 조기 종료 원인과 수정 계획
+## 문제 진단
 
-## 진단 (확인된 사실)
+씬 6부터 음성이 재생되지 않고 자막(개발 툴바에 "— (대사 없음)")이 계속 표시되며 씬이 넘어가는 문제를 조사했습니다.
 
-1. **조각 mp3는 모노(1채널) 44.1kHz** — ElevenLabs가 그렇게 내려줌.
-   ```
-   scene7/tts/00_narration.mp3  channels=1  channel_layout=mono
-   scene7/tts/01_v_m1.mp3       channels=1  channel_layout=mono
-   ```
-2. **무음(silence)은 스테레오** — `build-tts.py`가 `anullsrc=r=44100:cl=stereo` 로 생성.
-3. **`ffmpeg` concat 필터는 모든 입력의 sample_rate · channels · layout이 일치해야** 정상 동작. 불일치 시 무음 스테레오와 대사 모노가 이어붙으며 프레임이 깨져
-   - 재생 중 **지직거리는 노이즈**가 삽입되고,
-   - 일부 mp3 디코더는 깨진 프레임 이후 스트림을 조기 종료(EOS)해서 **씬7+ 에서 앞 몇 대사만 나오고 audio가 끝나버림**.
-4. 브라우저 오디오가 조기 종료해도 `StorySceneMotion` 의 RAF 타이머는 벽시계 기준으로 계속 진행 → `t`가 `durationSec`에 도달하면 `onComplete` 호출 → **다음 씬으로 자동 전환**. 사용자가 관찰한 정확한 증상.
-5. 마스터 파일 길이 자체는 `timing.json` 과 일치 (예: scene7 = 54.75s). 즉 concat 자체는 성공했지만 프레임 품질이 손상된 상태.
+**서버측 파일은 정상**:
+- `public/audio/boy-wolf/scene6.mp3` ~ `scene12.mp3` 모두 유효 (스테레오 44.1kHz, `Content-Type: audio/mpeg`, 브라우저 디코드 성공, `durationSec` 일치).
+- `silencedetect` 결과, 마스터 파일의 오디오 구간이 `timing.json` beats(`from`/`to`)와 정확히 일치.
+- `mediumHash` 중복 없음(파일 크기가 같아 보였던 것은 우연).
 
-## 수정 (한 파일만 손대면 됨)
+**따라서 원인은 클라이언트 재생 로직에 있습니다.** 코드에서 확인된 확실한 버그 + 유력한 원인:
 
-### `scripts/build-tts.py` — `build_scene_master` 재작성
-
-concat 이전에 모든 오디오 스트림을 **공통 포맷으로 정규화** 한다. `aformat` 필터를 각 입력에 적용해서 44.1kHz / 스테레오 / fltp 로 통일한 뒤 concat.
-
-```text
-[silence] aformat=... asplit=N → [s0..sN]
-[beat_k]  aformat=... → [b0..bN-1]
-[s0][b0][s1][b1]...[sN] concat=n=2N+1:v=0:a=1[out]
+### 버그 1 (확실) — `a.src.endsWith(url)` 씬 번호 접미 충돌
+`src/lib/sceneTts.ts` `useSceneMasterVoice`:
+```ts
+if (!a.src.endsWith(url)) { a.src = url; ... a.load(); }
 ```
+- `scene1.mp3` 로딩 상태에서 `scene11.mp3`(신규)와 비교 시 `endsWith("/scene11.mp3")` = false → 교체됨(OK).
+- 그러나 `scene11.mp3` → `scene1.mp3`, `scene12.mp3` → `scene2.mp3` 로 되돌아가거나, `scene6.mp3` 상태에서 이전 세션이 남긴 `scene16.mp3`(가상) 등으로 이동할 때 접미 매칭이 잘못 작동할 수 있음. 또한 씬 반복/재시작 시 src를 재로딩하지 않아 audio 요소가 이전 재생 상태에 갇힘.
+- 결과: 특정 이동 순서에서 마스터 파일이 교체되지 않고 이전 씬 오디오가 이미 끝난 상태로 남아 재생이 시작되지 않음.
 
-- `aformat=sample_fmts=fltp:sample_rates=44100:channel_layouts=stereo` 를 모든 입력에 삽입 (모노 → 스테레오 업믹스 포함).
-- 최종 인코딩은 기존 그대로 `-c:a libmp3lame -b:a 128k -ar 44100 -ac 2`.
-- 재빌드는 이미 캐시된 조각 mp3를 재사용하므로 ElevenLabs 재호출·크레딧 소모 없음.
+### 유력한 원인 2 — 자동재생 재시도 부재
+- `a.play().catch(() => { /* 다음 프레임에 재시도 */ })` 라고 주석은 있지만, **실제 재시도는 없음**. 모바일에서 `load()` 직후 첫 `play()`가 `NotAllowedError`/`AbortError`로 실패하면 이후 프레임에서 이미 `a.paused === false`(재생 시도 중) 로 잘못 인식되거나 다시 호출되지 않아 침묵 상태로 남을 수 있음. 씬 1~5는 초기 unlock 상태에서 성공하지만, 씬 5→6 전환 시점(스테레오 정규화 후 첫 새로운 파일)에서 이 실패가 반복 발생 가능.
 
-### 재빌드 & 검증
+### 유력한 원인 3 — 완료 조건 조기 트리거
+- `StorySceneMotion` RAF: `next >= scene.durationSec` 즉시 `onComplete()`. 
+- 마스터 오디오가 로딩 지연으로 첫 프레임에 재생을 시작하지 못한 사이에도 `t`는 실시간으로 증가하므로, 씬이 계속 진행되어 자막은 "대사 없음"만 뜨고 42.88s 후 다음 씬으로 넘어가는 현상과 일치.
 
-빌드 모드로 전환되면 다음을 순서대로 실행:
+## 해결 방안
 
-1. 기존 마스터 삭제: `rm public/audio/boy-wolf/scene*.mp3`
-2. 마스터만 재생성:  `python3 scripts/build-tts.py boy-wolf` (조각은 hash 일치 → skip, `build_scene_master` 만 재실행)
-3. 각 씬 마스터의 길이·채널 확인 (`ffprobe`) — channels=2, duration 이 이전 값과 ±0.05s 내로 유지되는지.
-4. 미리보기에서 씬7~12를 처음부터 재생하여 노이즈 소실 및 대사 끝까지 재생되는지 확인.
+### 1. `useSceneMasterVoice` 견고화 (`src/lib/sceneTts.ts`)
+- URL 비교를 `endsWith` 대신 **정확한 pathname 비교**로 교체 (`new URL(a.src, location.origin).pathname === url`).
+- src 교체 후 `canplaythrough`(또는 `loadeddata`) 이벤트를 기다렸다가 `play()` 호출.
+- `play()` 실패 시 다음 RAF에 실제로 재시도하는 카운터/플래그 추가 (예: `pendingPlayRef`).
+- 씬 교체 시 `activeIdxRef`/재생 시도 상태 초기화.
 
-## 후속(선택) 개선 — 이번 판에는 포함하지 않음
+### 2. 완료 조건에 오디오 상태 반영 (`src/components/StorySceneMotion.tsx`)
+- RAF `next >= scene.durationSec` 조건에 "마스터 오디오가 unlocked 후에 최소 한 번 재생 시작에 성공했거나, 재생 실패로 3회 이상 fallback 되었으면" 조건 추가. 실패 케이스에서도 무한 대기하지 않도록 상한 유지.
 
-- 마스터 오디오가 아직 로드되지 않았거나 정지된 경우 `StorySceneMotion` RAF 를 대기시키기 (모바일 저속망 안전장치). 이번 이슈의 근본 원인이 아니므로 별도 요청 시 진행.
+### 3. 진단 로깅(개발 모드 한정)
+- 씬 전환/`src` 교체/`play()` 성공·실패/`readyState` 변화를 `[TTS]` 접두어로 콘솔 로그. 씬 6 이슈가 여전히 재현되면 원인을 즉시 확인 가능.
 
-## 기대 결과
+### 4. 검증
+- 프리뷰에서 카세트 재생 → 씬 5 → 6 → 7 순차 진행.
+- 브라우저 콘솔에서 `[TTS] play ok scene6` 등의 로그 확인.
+- 씬 5→6 전환 후 3초 내 음성 시작, 42.88s 후 씬 7로 자연 전환 확인.
 
-- 대사 사이 지지직 노이즈 제거.
-- 씬7~12 도 마지막 대사까지 정상 재생 후 다음 씬 전환.
-- 코드/렌더 로직·`timing.json` 변경 없음, 파이썬 빌드 스크립트 한 파일만 수정.
+### 기술 노트
+- 접미 매칭 버그는 씬 번호에 접미(1↔11, 2↔12) 관계가 있는 스토리에서 발생하는 클래식 이슈. 다른 스토리(`town-country`, 5개 씬)에서는 무해했음.
+- `play()` promise 실패 후 자동 재시도 부재는 mobile Safari + iOS Chrome의 알려진 함정.
