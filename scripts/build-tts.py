@@ -298,13 +298,14 @@ def build_scene_master(out_path: Path, beat_files: list[Path], gap_sec: float) -
     패턴: silence(gap), beat0, silence(gap), beat1, ..., silence(gap)
     (build_story 의 cursor 계산과 정확히 일치)
     """
+    n_beats = len(beat_files)
+    n_silence = n_beats + 1  # 앞·중간·끝
     inputs: list[str] = []
-    filter_parts: list[str] = []
     idx = 0
-    silence = f"anullsrc=r=44100:cl=stereo"
 
-    # 무음 → 매 gap 마다 동일한 lavfi 입력 재사용을 위해 별도 -f lavfi -t 로 준비
-    inputs.extend(["-f", "lavfi", "-t", f"{gap_sec}", "-i", silence])
+    # 무음 lavfi 하나만 생성한 뒤 asplit 으로 N 개로 복제한다.
+    inputs.extend(["-f", "lavfi", "-t", f"{gap_sec}",
+                   "-i", "anullsrc=r=44100:cl=stereo"])
     silence_idx = idx
     idx += 1
 
@@ -314,16 +315,20 @@ def build_scene_master(out_path: Path, beat_files: list[Path], gap_sec: float) -
         beat_idxs.append(idx)
         idx += 1
 
-    # concat: [silence][beat0][silence][beat1]...[silence]
+    # asplit 으로 [s0][s1]...[sN] 라벨 만들기
+    split_labels = "".join(f"[s{i}]" for i in range(n_silence))
+    filter_str = f"[{silence_idx}:a]asplit={n_silence}{split_labels};"
+
+    # concat 라벨: s0, beat0, s1, beat1, ..., sN
     concat_labels: list[str] = []
-    concat_labels.append(f"[{silence_idx}:a]")
-    for bi in beat_idxs:
-        concat_labels.append(f"[{bi}:a]")
-        concat_labels.append(f"[{silence_idx}:a]")
-    filter_parts.append("".join(concat_labels) + f"concat=n={len(concat_labels)}:v=0:a=1[out]")
+    for i in range(n_beats):
+        concat_labels.append(f"[s{i}]")
+        concat_labels.append(f"[{beat_idxs[i]}:a]")
+    concat_labels.append(f"[s{n_beats}]")
+    filter_str += "".join(concat_labels) + f"concat=n={len(concat_labels)}:v=0:a=1[out]"
 
     cmd = ["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", *inputs,
-           "-filter_complex", ";".join(filter_parts),
+           "-filter_complex", filter_str,
            "-map", "[out]", "-ac", "2", "-ar", "44100",
            "-c:a", "libmp3lame", "-b:a", "128k", str(out_path)]
     subprocess.run(cmd, check=True)
