@@ -347,6 +347,7 @@ export function useSceneMasterVoice(opts: {
         setStatus({
           state: a.readyState < 2 ? "loading" : "ready",
           hasStarted: startedRef.current,
+          hasFinished: finishedRef.current,
           attempts: attemptsRef.current,
         });
         const p = a.play();
