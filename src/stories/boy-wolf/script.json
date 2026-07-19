@@ -3,7 +3,7 @@
   "title": "양치기 소년",
   "engine": "elevenlabs",
   "model": "eleven_v3",
-  "gapSec": 0.5,
+  "gapSec": 0.25,
   "globalPerformanceRule": "Keep the original dialogue exactly as written. Do not add, remove, rephrase, improvise, or change any words. Express emotions only through natural acting, vocal tone, pacing, breathing, emphasis, and emotional delivery while preserving every line exactly as provided. Maintain a consistent character identity throughout the story. Adapt only the emotional performance to match each scene naturally without exaggeration. All lines are Korean; speak in natural standard Seoul Korean.",
   "voices": {
     "narration": {
