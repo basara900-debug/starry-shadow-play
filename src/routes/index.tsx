@@ -829,25 +829,17 @@ function TheaterStage({
     fn();
   };
 
-  // 자동 씬 전환: 1x = 8s, 2x = 4s, paused = 정지
+  // 업로드된 일반 이미지 씬에만 적용되는 자동 씬 전환.
+  // 스토리 카세트(town-country / boy-wolf)는 각 모션 컴포넌트의 실제 durationSec 기반 onComplete만 사용한다.
   useEffect(() => {
+    if (program !== null) return;
     if (activeScenes.length < 2 || paused) return;
-    // 씬 1은 Scene1Motion이 자체적으로 90초 루프를 가지며 onComplete로 다음 씬을 트리거함
-    if (sceneIndex === 0) return;
-    // 씬 2도 자체 90초 루프를 가지므로 자동 전환에서 제외
-    if (sceneIndex === 1) return;
-    // 씬 3도 자체 90초 루프를 가지므로 자동 전환에서 제외
-    if (sceneIndex === 2) return;
-    // 씬 4도 자체 90초 루프를 가지므로 자동 전환에서 제외
-    if (sceneIndex === 3) return;
-    // 씬 5도 자체 90초 루프를 가지므로 자동 전환에서 제외
-    if (sceneIndex === 4) return;
     const interval = playState === "2x" ? 4000 : 8000;
     const t = window.setInterval(() => {
       setSceneIndex((i) => (i + 1) % activeScenes.length);
     }, interval);
     return () => window.clearInterval(t);
-  }, [activeScenes.length, playState, paused, sceneIndex, setSceneIndex]);
+  }, [activeScenes.length, playState, paused, program, setSceneIndex]);
 
   const actions = [
     {
