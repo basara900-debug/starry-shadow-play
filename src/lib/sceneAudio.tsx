@@ -340,6 +340,7 @@ export function useSceneAudioControls() {
       setVoiceMuted: (m: boolean) => ctx.patch({ voiceMuted: m }),
       setPlaybackRate: (r: number) => ctx.patch({ playbackRate: clampRate(r) }),
       setSpeed: (s: SceneSpeed) => ctx.patch({ speed: s }),
+      unlock: () => ctx.patch({ unlocked: true }),
     }),
     [ctx]
   );
