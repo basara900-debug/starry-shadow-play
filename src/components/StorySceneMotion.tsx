@@ -313,11 +313,24 @@ export function StorySceneMotion({
         return;
       }
       const next = timeRef.current + dt * speed;
-      if (next >= scene.durationSec && !doneRef.current) {
-        doneRef.current = true;
-        window.setTimeout(() => onCompleteRef.current?.(), 0);
+      // 씬 완료 조건: 타이머 만료 + 음성 완료(또는 음성 사용 안 함/에러/뮤트)
+      const voiceDone =
+        !hasMasterVoice ||
+        audioState.voiceMuted ||
+        masterStatus.state === "error" ||
+        masterStatus.hasFinished;
+      if (next >= scene.durationSec) {
+        if (voiceDone && !doneRef.current) {
+          doneRef.current = true;
+          window.setTimeout(() => onCompleteRef.current?.(), 0);
+          timeRef.current = next % scene.durationSec;
+        } else {
+          // 음성이 아직 끝나지 않았으면 타이머를 durationSec 직전에 고정
+          timeRef.current = Math.max(0, scene.durationSec - 0.05);
+        }
+      } else {
+        timeRef.current = next;
       }
-      timeRef.current = next % scene.durationSec;
       setT(timeRef.current);
       rafRef.current = requestAnimationFrame(step);
     };
@@ -326,7 +339,7 @@ export function StorySceneMotion({
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       lastRef.current = null;
     };
-  }, [scene.id, scene.durationSec, speed, hasMasterVoice, audioState.unlocked, audioState.voiceMuted, masterStatus.hasStarted, masterStatus.state]);
+  }, [scene.id, scene.durationSec, speed, hasMasterVoice, audioState.unlocked, audioState.voiceMuted, masterStatus.hasStarted, masterStatus.hasFinished, masterStatus.state]);
 
   useDevTimelineSync({
     sceneId: scene.id,
