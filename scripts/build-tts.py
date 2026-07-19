@@ -105,9 +105,10 @@ def synthesize_elevenlabs(text: str, voice_id: str, model_id: str, settings: dic
         "model_id": model_id,
         "voice_settings": settings,
     }
-    if previous_text:
+    # eleven_v3 는 previous_text/next_text 미지원
+    if previous_text and model_id != "eleven_v3":
         body["previous_text"] = previous_text[-500:]
-    if next_text:
+    if next_text and model_id != "eleven_v3":
         body["next_text"] = next_text[:500]
 
     url = ELEVEN_URL_TPL.format(voice_id=voice_id)
