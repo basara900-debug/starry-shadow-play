@@ -1,50 +1,46 @@
-확인한 내용부터 솔직히 말하면, 이번에는 원인 후보가 꽤 명확합니다.
+# 양치기 소년 재생 안정화 (2단계)
 
-## 현재 확인된 사실
+## 1단계: 타이밍 오버랩 조정 (데이터 재계산)
 
-- `timing.json`의 씬 6~12 타이밍은 실제 씬별 마스터 MP3 길이와 거의 정확히 일치합니다.
-  - 예: 씬 6 `durationSec 42.88초`, 실제 `scene6.mp3 42.88초`
-  - 씬 7 `54.75초`, 실제 `scene7.mp3 54.75초`
-- 대사 간 간격도 현재는 모두 `0.25초`로 일정합니다. 즉, 사용자가 의심한 “0.5초 간극 설정” 자체가 현재 런타임 데이터에 남아 문제를 만드는 증거는 보이지 않습니다.
-- 실제로 더 수상한 부분은 `/src/routes/index.tsx`의 `TheaterStage`에 남아 있는 별도 자동 씬 전환 타이머입니다.
+**대상:** `src/stories/boy-wolf/timing.json`
 
-## 유력한 원인
+- 스크립트로 각 개별 대사 MP3(`public/audio/boy-wolf/scene<N>/tts/*.mp3`)를 `ffprobe`로 실측.
+- 씬별 `beats[]` 재계산 규칙:
+  - 대사 사이 무음 간격: 0.25초 → **0.4초**로 통일 (자연스러운 호흡).
+  - 각 대사의 `from`은 앞 대사 `to` + 0.4초. `to`는 `from` + 실측 길이.
+- `durationSec`은 마지막 대사 `to` + **0.6초 여유**로 재설정.
+- 씬별 마스터 MP3(`scene<N>.mp3`)도 동일한 0.4초 간격으로 재생성해 데이터와 오디오가 일치하도록 맞춤.
 
-`TheaterStage` 안에 다음 로직이 있습니다.
+## 2단계: 포스트 전환 동기화 (코드)
 
-```ts
-// 자동 씬 전환: 1x = 8s, 2x = 4s, paused = 정지
-if (sceneIndex === 0) return;
-if (sceneIndex === 1) return;
-if (sceneIndex === 2) return;
-if (sceneIndex === 3) return;
-if (sceneIndex === 4) return;
-setInterval(() => setSceneIndex(i => i + 1), 8000)
-```
+**대상:** `src/components/StorySceneMotion.tsx`, `src/lib/sceneTts.ts`
 
-이 로직은 씬 1~5만 예외 처리하고, 씬 6부터는 실제 음성 길이와 무관하게 8초마다 다음 씬으로 넘깁니다.
+- `useSceneMasterVoice`가 이미 노출하는 상태(`playing`, `error`, `ended` 등)를 활용해 다음 정보를 새로 반환:
+  - `hasFinished: boolean` — 실제 `<audio>`가 `ended` 이벤트를 받았거나 error 폴백이 완료된 상태.
+- `StorySceneMotion`의 씬 진행 로직 수정:
+  - 씬 진입 후 음성 `readyState >= 2`가 될 때까지 내부 타이머 카운트다운 **지연 시작**.
+  - `onComplete` 호출 조건을 다음으로 변경:
+    ```
+    (timerElapsed >= durationSec) AND (voice.hasFinished OR voice.error)
+    ```
+  - 음성이 durationSec보다 길게 남아 있으면 타이머가 만료돼도 대기.
+  - 음성이 error인 경우는 폴백 재생 종료 시점 기준으로 진행 (기존 동작 유지).
+- 마지막 씬은 `onComplete` 대신 정지 상태로 종료 (기존 동작 유지).
 
-그래서 사용자가 말한 증상과 정확히 맞습니다.
+## 검증
 
-- 씬 6부터 앞부분 일부만 재생됨
-- 전체 대사가 끝나기 전에 강제 다음 씬으로 넘어감
-- MP3 자체는 정상
-- 타이밍 데이터도 정상인데 재생이 끝나지 않음
+- Playwright로 boy-wolf 카세트를 삽입 → 씬 6 진입 → 다음 조건 확인:
+  1. 씬 6 마스터 MP3(약 42.88s)의 마지막 대사까지 재생됨.
+  2. `[TTS] play ok scene6.mp3`, `[TTS] ended scene6.mp3` 로그가 순서대로 출력.
+  3. `ended` 이후에만 씬 7로 전환.
+- 씬 7~12까지 순차 확인.
 
-## 수정 계획
+## 되돌리기 안전장치
 
-1. `TheaterStage`의 8초/4초짜리 legacy 자동 전환 타이머를 제거하거나, 최소한 `town-country` / `boy-wolf` 같은 `storyProgram` 카세트에는 적용되지 않게 막겠습니다.
-2. `boy-wolf`는 이미 `StorySceneMotion`이 `scene.durationSec` 기준으로 `onComplete`를 호출하므로, 씬 전환은 이 경로 하나만 사용하게 정리하겠습니다.
-3. 중복 전환을 막기 위해 자동 전환 책임을 다음처럼 분리하겠습니다.
+- timing.json 변경은 데이터만 바꾸므로 롤백 시 이전 값 복원만으로 충분.
+- 코드 변경은 음성이 error인 경로에서 기존 폴백 동작을 유지하므로, 음성 파일이 없어도 씬은 여전히 진행됨.
 
-```text
-ants-grasshopper 구형 Scene1~5Motion -> 각 컴포넌트 onComplete
-boy-wolf / town-country StorySceneMotion -> timing.json durationSec 기반 onComplete
-업로드된 일반 이미지 씬만 -> 필요 시 기존 8초 자동 넘김 유지
-```
+## 이번 계획이 다루지 않는 것
 
-4. 수정 후 Playwright로 양치기 소년 씬 6에 직접 진입해 최소 10초 이상 머물러도 강제 전환되지 않는지 확인하고, 가능하면 씬 6 전체 길이 기준으로 다음 씬으로 넘어가는지도 로그/DOM 상태로 검증하겠습니다.
-
-## 이번에 원인을 모른다면?
-
-이번 점검 기준으로는 “원인을 모른다”가 아니라, 코드상으로 씬 6부터 8초 강제 전환되는 로직이 확인됐습니다. 이 부분이 현재 증상을 설명하는 가장 직접적인 원인입니다.
+- 음성 재녹음/보이스 교체 (별도 작업).
+- `/audio` 페이지 UI 변경 (별도 작업).
