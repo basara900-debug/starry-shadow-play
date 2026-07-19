@@ -137,6 +137,23 @@ def synthesize_elevenlabs(text: str, voice_id: str, model_id: str, settings: dic
     sys.exit(f"ElevenLabs 재시도 실패: {last_err}")
 
 
+def build_v3_text(text: str, persona: str | None, direction: str | None,
+                  global_rule: str | None) -> str:
+    """v3 인라인 direction 힌트를 텍스트 앞에 감싸 붙인다.
+    대사 원문은 절대 수정하지 않는다 — 앞뒤로 [direction: ...] 지시만 추가한다."""
+    hints = []
+    if global_rule:
+        hints.append(global_rule.strip())
+    if persona:
+        hints.append(f"CHARACTER: {persona.strip()}")
+    if direction:
+        hints.append(f"DELIVERY: {direction.strip()}")
+    if not hints:
+        return text
+    prefix = "[direction: " + " || ".join(hints) + "]\n"
+    return prefix + text
+
+
 def hash_signature(payload: dict) -> str:
     blob = json.dumps(payload, ensure_ascii=False, sort_keys=True).encode("utf-8")
     return hashlib.sha256(blob).hexdigest()
@@ -199,9 +216,26 @@ def build_story(story_id: str, force: bool, only_scene: int | None, engine_overr
                 mood_settings = emotions.get(scene_mood) if scene_mood else None
                 line_settings = emotions.get(line.get("emotion")) if line.get("emotion") else None
                 final_settings = merge_settings(default_eleven, base_settings, mood_settings, line_settings)
+                # v3 direction hint: persona + emotion.directionPrompt
+                persona_text = vcfg.get("persona")
+                direction_bits = []
+                if scene_mood and emotions.get(scene_mood, {}).get("directionPrompt"):
+                    direction_bits.append(emotions[scene_mood]["directionPrompt"])
+                if line.get("emotion") and emotions.get(line["emotion"], {}).get("directionPrompt"):
+                    direction_bits.append(emotions[line["emotion"]]["directionPrompt"])
+                direction_text = " ".join(direction_bits) if direction_bits else None
+                global_rule = script.get("globalPerformanceRule")
+                send_text = (
+                    build_v3_text(text, persona_text, direction_text, global_rule)
+                    if model_id == "eleven_v3"
+                    else text
+                )
                 sig = hash_signature({
                     "engine": "elevenlabs", "model": model_id,
                     "voiceId": voice_id, "settings": final_settings, "text": text,
+                    "persona": persona_text,
+                    "direction": direction_text,
+                    "globalRule": global_rule,
                 })
             else:
                 vcfg = voices.get(who, {})
@@ -222,7 +256,7 @@ def build_story(story_id: str, force: bool, only_scene: int | None, engine_overr
                     prev_text = dlg[i - 1]["text"] if i > 0 else None
                     next_text = dlg[i + 1]["text"] if i + 1 < len(dlg) else None
                     audio = synthesize_elevenlabs(
-                        text, voice_id, model_id, final_settings,
+                        send_text, voice_id, model_id, final_settings,
                         prev_text, next_text, api_key,
                     )
                 else:
