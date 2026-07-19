@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useSceneAudio, useSceneAudioState } from "@/lib/sceneAudio";
-import { useSceneMasterVoice, type SceneBeat } from "@/lib/sceneTts";
+import { useSceneMasterVoice } from "@/lib/sceneTts";
 import type { StorySceneDefinition, StorySpeaker } from "@/data/townCountryStory";
 import { useDevTimelineSync } from "@/lib/devTimeline";
 import { useDevMotionSync, type DevMotionSegment } from "@/lib/devMotionTimeline";
