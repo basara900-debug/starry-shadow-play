@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import cassetteImg from "@/assets/idle-animation.gif";
 import theaterStageImg from "@/assets/theater-stage.jpg";
@@ -554,6 +555,26 @@ function ShadowTheaterTitle() {
               ? `▣ ${CASSETTES.find((c) => c.id === loadedCassetteId)?.title ?? "카세트"} 삽입됨`
               : "▢ 이젝트됨 — INPUT 으로 카세트 삽입"}
           </div>
+        )}
+
+        {stage === "idle" && (
+          <Link
+            to="/audio"
+            className="absolute text-[10px] font-semibold"
+            style={{
+              right: 12,
+              top: 12,
+              padding: "4px 10px",
+              borderRadius: 999,
+              background: "oklch(0.28 0.03 60 / 0.9)",
+              color: "oklch(0.92 0.05 75)",
+              border: "1px solid oklch(0.5 0.05 60)",
+              textDecoration: "none",
+              zIndex: 30,
+            }}
+          >
+            🎧 음성 듣기
+          </Link>
         )}
       </div>
     </main>
