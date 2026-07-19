@@ -140,19 +140,14 @@ def synthesize_elevenlabs(text: str, voice_id: str, model_id: str, settings: dic
 
 def build_v3_text(text: str, persona: str | None, direction: str | None,
                   global_rule: str | None) -> str:
-    """v3 인라인 direction 힌트를 텍스트 앞에 감싸 붙인다.
-    대사 원문은 절대 수정하지 않는다 — 앞뒤로 [direction: ...] 지시만 추가한다."""
-    hints = []
-    if global_rule:
-        hints.append(global_rule.strip())
-    if persona:
-        hints.append(f"CHARACTER: {persona.strip()}")
-    if direction:
-        hints.append(f"DELIVERY: {direction.strip()}")
-    if not hints:
+    """v3 인라인 오디오 태그만 텍스트 앞에 붙인다.
+    persona / globalRule / 긴 direction 문자열은 v3 가 그대로 낭독하므로 사용하지 않는다.
+    대신 짧은 감정 태그 (예: [sadly][sighs]) 만 프리픽스로 사용한다.
+    persona/globalRule 은 사람이 script.json 에서 읽는 메타데이터로만 남긴다."""
+    tag = (direction or "").strip()
+    if not tag:
         return text
-    prefix = "[direction: " + " || ".join(hints) + "]\n"
-    return prefix + text
+    return f"{tag} {text}"
 
 
 def hash_signature(payload: dict) -> str:
@@ -219,12 +214,11 @@ def build_story(story_id: str, force: bool, only_scene: int | None, engine_overr
                 final_settings = merge_settings(default_eleven, base_settings, mood_settings, line_settings)
                 # v3 direction hint: persona + emotion.directionPrompt
                 persona_text = vcfg.get("persona")
-                direction_bits = []
-                if scene_mood and emotions.get(scene_mood, {}).get("directionPrompt"):
-                    direction_bits.append(emotions[scene_mood]["directionPrompt"])
-                if line.get("emotion") and emotions.get(line["emotion"], {}).get("directionPrompt"):
-                    direction_bits.append(emotions[line["emotion"]]["directionPrompt"])
-                direction_text = " ".join(direction_bits) if direction_bits else None
+                # v3 는 짧은 오디오 태그만 안전. emotions[<name>].v3Tag 사용.
+                line_emotion = line.get("emotion")
+                direction_text = emotions.get(line_emotion, {}).get("v3Tag") if line_emotion else None
+                if not direction_text and scene_mood:
+                    direction_text = emotions.get(scene_mood, {}).get("v3Tag")
                 global_rule = script.get("globalPerformanceRule")
                 send_text = (
                     build_v3_text(text, persona_text, direction_text, global_rule)
@@ -235,7 +229,7 @@ def build_story(story_id: str, force: bool, only_scene: int | None, engine_overr
                     "engine": "elevenlabs", "model": model_id,
                     "voiceId": voice_id, "settings": final_settings, "text": text,
                     "persona": persona_text,
-                    "direction": direction_text,
+                    "v3Tag": direction_text,
                     "globalRule": global_rule,
                 })
             else:
