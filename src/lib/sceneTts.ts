@@ -165,15 +165,24 @@ export function useSceneMasterVoice(opts: {
 }) {
   const { url, t, speed, audioState, durationSec } = opts;
 
-  // 씬 전환: src 교체 + 처음으로 되감기
+  // 씬 전환: pathname 정확 비교 (endsWith 는 scene1↔scene11 처럼 접미가 겹치는 케이스에서 오탐)
   useEffect(() => {
     const a = getSharedVoice();
     if (!a) return;
-    if (!a.src.endsWith(url)) {
+    let currentPath = "";
+    try {
+      currentPath = a.src ? new URL(a.src, window.location.origin).pathname : "";
+    } catch { /* noop */ }
+    if (currentPath !== url) {
       try { a.pause(); } catch { /* noop */ }
       a.src = url;
       try { a.currentTime = 0; } catch { /* noop */ }
       a.load();
+      // 다음 재생 시도가 반드시 새 src 에 대해 다시 일어나도록 플래그 초기화
+      (a as any).__playPending = false;
+      if (import.meta.env.DEV) {
+        console.log("[TTS] src ->", url);
+      }
     }
     return () => {
       try { a.pause(); } catch { /* noop */ }
@@ -211,8 +220,32 @@ export function useSceneMasterVoice(opts: {
       try { a.currentTime = t; } catch { /* noop */ }
     }
 
-    if (a.paused) {
-      void a.play().catch(() => { /* 다음 프레임에 재시도 */ });
+    if (a.paused && !(a as any).__playPending) {
+      (a as any).__playPending = true;
+      const attempt = () => {
+        const p = a.play();
+        if (p && typeof p.then === "function") {
+          p.then(() => {
+            (a as any).__playPending = false;
+            if (import.meta.env.DEV) console.log("[TTS] play ok", a.currentSrc.split("/").pop());
+          }).catch((err) => {
+            (a as any).__playPending = false;
+            if (import.meta.env.DEV) console.warn("[TTS] play fail", err?.name, a.currentSrc.split("/").pop());
+          });
+        } else {
+          (a as any).__playPending = false;
+        }
+      };
+      // readyState < HAVE_CURRENT_DATA (2) 이면 loadeddata 를 기다렸다가 재생
+      if (a.readyState < 2) {
+        const onReady = () => {
+          a.removeEventListener("loadeddata", onReady);
+          attempt();
+        };
+        a.addEventListener("loadeddata", onReady, { once: true });
+      } else {
+        attempt();
+      }
     }
   }, [t, speed, durationSec, audioState.unlocked]);
 }
