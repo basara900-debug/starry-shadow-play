@@ -151,8 +151,8 @@ const BOY_WOLF_S8_WOLF3 = {
   asset: bwWolf3Asset,
   startSec: 30,
   endSec: 48,
-  leftPct: 40,
-  bottomPct: 20,
+  leftPct: 20,
+  bottomPct: 10,
   heightPct: 34,
   fadeInSec: 0.4,
 };
@@ -168,8 +168,8 @@ const BOY_WOLF_S8_WOLF12 = {
   intervalSec: 4,
   leftMinPct: 50,
   leftMaxPct: 70,
-  bottomMinPct: 30,
-  bottomMaxPct: 40,
+  bottomMinPct: 10,
+  bottomMaxPct: 20,
   heightMaxPct: 34, // 100% 기준 높이
   scaleMin: 0.5,
   scaleMax: 1.0,
