@@ -75,6 +75,9 @@ import bwSheep2Asset from "@/assets/boy-wolf/bw_sheep_2.png.asset.json";
 import bwSheep3Asset from "@/assets/boy-wolf/bw_sheep_3.png.asset.json";
 import bwSheep4Asset from "@/assets/boy-wolf/bw_sheep_4.png.asset.json";
 import bwSheep5Asset from "@/assets/boy-wolf/bw_sheep_5.png.asset.json";
+import bwWolf1Asset from "@/assets/boy-wolf/bw_wolf_1.png.asset.json";
+import bwWolf2Asset from "@/assets/boy-wolf/bw_wolf_2.png.asset.json";
+import bwWolf3Asset from "@/assets/boy-wolf/bw_wolf_3.png.asset.json";
 
 const SCENE4_FLEE = {
   sceneId: "town-country-4",
@@ -142,6 +145,37 @@ const BOY_WOLF_S1_SHEEP = {
   fadeInSec: 0.4,
 };
 
+// 양치기 소년 씬8 30~48s: 3번째 늑대 시트 — left 40%, bottom 20% 정지 배치
+const BOY_WOLF_S8_WOLF3 = {
+  sceneId: "boy-wolf-8",
+  asset: bwWolf3Asset,
+  startSec: 30,
+  endSec: 48,
+  leftPct: 40,
+  bottomPct: 20,
+  heightPct: 34,
+  fadeInSec: 0.4,
+};
+
+// 양치기 소년 씬8 50~78s: 1·2번째 늑대 시트 — 4s 간격 교대 순환, 왕복 이동 + 원근 축소/확대
+//  · 1번 시트: 좌→우 (left 50→70%), 크기 100→50% 축소, bottom 40→30% (뒤로 물러남)
+//  · 2번 시트: 우→좌 (left 70→50%), 크기 50→100% 확대, bottom 30→40% (앞으로 나옴)
+const BOY_WOLF_S8_WOLF12 = {
+  sceneId: "boy-wolf-8",
+  frames: [bwWolf1Asset, bwWolf2Asset],
+  startSec: 50,
+  endSec: 78,
+  intervalSec: 4,
+  leftMinPct: 50,
+  leftMaxPct: 70,
+  bottomMinPct: 30,
+  bottomMaxPct: 40,
+  heightMaxPct: 34, // 100% 기준 높이
+  scaleMin: 0.5,
+  scaleMax: 1.0,
+  fadeInSec: 0.4,
+};
+
 // 씬별 모션 세그먼트 카탈로그 — DevMotionToolbar 가 트랙 시각화 + 겹침/공백 경고에 사용.
 // 실제 렌더링 조건과 동일한 시간 구간을 정적으로 나열한다. 실제 조건과 어긋나면 툴바 표시가 실제와 달라지니 유지·보수 시 함께 갱신.
 const SCENE_MOTIONS: Record<string, DevMotionSegment[]> = {
@@ -192,6 +226,10 @@ const SCENE_MOTIONS: Record<string, DevMotionSegment[]> = {
   "boy-wolf-1": [
     { id: "bw1-tom", track: "톰", label: `순환(${BOY_WOLF_S1_TOM.intervalSec}s)`, from: BOY_WOLF_S1_TOM.startSec, to: BOY_WOLF_S1_TOM.endSec },
     { id: "bw1-sheep", track: "양떼", label: `순환(${BOY_WOLF_S1_SHEEP.intervalSec}s)`, from: BOY_WOLF_S1_SHEEP.startSec, to: BOY_WOLF_S1_SHEEP.endSec },
+  ],
+  "boy-wolf-8": [
+    { id: "bw8-wolf3", track: "늑대", label: "3번 정지", from: BOY_WOLF_S8_WOLF3.startSec, to: BOY_WOLF_S8_WOLF3.endSec },
+    { id: "bw8-wolf12", track: "늑대", label: `1·2번 순환(${BOY_WOLF_S8_WOLF12.intervalSec}s)`, from: BOY_WOLF_S8_WOLF12.startSec, to: BOY_WOLF_S8_WOLF12.endSec },
   ],
 };
 
@@ -677,6 +715,53 @@ export function StorySceneMotion({
             BOY_WOLF_S1_SHEEP.sweepSec
         )
     : boyWolfS1SheepMid;
+
+  // 양치기 소년 씬8: 3번째 늑대 시트 정지 배치
+  const showBoyWolfS8Wolf3 =
+    scene.id === BOY_WOLF_S8_WOLF3.sceneId &&
+    t >= BOY_WOLF_S8_WOLF3.startSec &&
+    t < BOY_WOLF_S8_WOLF3.endSec;
+  const boyWolfS8Wolf3Entry = showBoyWolfS8Wolf3
+    ? Math.min(1, (t - BOY_WOLF_S8_WOLF3.startSec) / BOY_WOLF_S8_WOLF3.fadeInSec)
+    : 0;
+
+  // 양치기 소년 씬8: 1·2번째 늑대 시트 교대 순환 + 왕복 이동 + 원근 축소/확대
+  const showBoyWolfS8Wolf12 =
+    scene.id === BOY_WOLF_S8_WOLF12.sceneId &&
+    t >= BOY_WOLF_S8_WOLF12.startSec &&
+    t < BOY_WOLF_S8_WOLF12.endSec;
+  const boyWolfS8Wolf12Idx = showBoyWolfS8Wolf12
+    ? Math.floor((t - BOY_WOLF_S8_WOLF12.startSec) / BOY_WOLF_S8_WOLF12.intervalSec) %
+      BOY_WOLF_S8_WOLF12.frames.length
+    : 0;
+  const boyWolfS8Wolf12Progress = showBoyWolfS8Wolf12
+    ? ((t - BOY_WOLF_S8_WOLF12.startSec) % BOY_WOLF_S8_WOLF12.intervalSec) /
+      BOY_WOLF_S8_WOLF12.intervalSec
+    : 0;
+  const bw8LeftRange = BOY_WOLF_S8_WOLF12.leftMaxPct - BOY_WOLF_S8_WOLF12.leftMinPct;
+  const bw8BottomRange = BOY_WOLF_S8_WOLF12.bottomMaxPct - BOY_WOLF_S8_WOLF12.bottomMinPct;
+  const bw8ScaleRange = BOY_WOLF_S8_WOLF12.scaleMax - BOY_WOLF_S8_WOLF12.scaleMin;
+  // idx 0 (1번 시트): 좌→우 이동 + 축소 + 뒤로 물러남
+  // idx 1 (2번 시트): 우→좌 이동 + 확대 + 앞으로 나옴
+  const boyWolfS8Wolf12LeftPct =
+    boyWolfS8Wolf12Idx === 0
+      ? BOY_WOLF_S8_WOLF12.leftMinPct + bw8LeftRange * boyWolfS8Wolf12Progress
+      : BOY_WOLF_S8_WOLF12.leftMaxPct - bw8LeftRange * boyWolfS8Wolf12Progress;
+  const boyWolfS8Wolf12BottomPct =
+    boyWolfS8Wolf12Idx === 0
+      ? BOY_WOLF_S8_WOLF12.bottomMaxPct - bw8BottomRange * boyWolfS8Wolf12Progress
+      : BOY_WOLF_S8_WOLF12.bottomMinPct + bw8BottomRange * boyWolfS8Wolf12Progress;
+  const boyWolfS8Wolf12Scale =
+    boyWolfS8Wolf12Idx === 0
+      ? BOY_WOLF_S8_WOLF12.scaleMax - bw8ScaleRange * boyWolfS8Wolf12Progress
+      : BOY_WOLF_S8_WOLF12.scaleMin + bw8ScaleRange * boyWolfS8Wolf12Progress;
+  const boyWolfS8Wolf12Entry = showBoyWolfS8Wolf12
+    ? Math.min(
+        1,
+        ((t - BOY_WOLF_S8_WOLF12.startSec) % BOY_WOLF_S8_WOLF12.intervalSec) /
+          BOY_WOLF_S8_WOLF12.fadeInSec
+      )
+    : 0;
 
   const showScene3PairFlee = scene.id === "town-country-3" && t >= 76 && t < 86;
   const scene3PairFleeProgress = showScene3PairFlee ? (t - 76) / 10 : 0;
@@ -1272,6 +1357,43 @@ export function StorySceneMotion({
             opacity: Math.max(0.9, boyWolfS1SheepEntry),
             filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45))",
             transition: "left 0.1s linear",
+          }}
+        />
+      )}
+      {showBoyWolfS8Wolf3 && (
+        <img
+          src={BOY_WOLF_S8_WOLF3.asset.url}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: `${BOY_WOLF_S8_WOLF3.leftPct}%`,
+            bottom: `${BOY_WOLF_S8_WOLF3.bottomPct}%`,
+            height: `${BOY_WOLF_S8_WOLF3.heightPct}%`,
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, boyWolfS8Wolf3Entry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45))",
+          }}
+        />
+      )}
+      {showBoyWolfS8Wolf12 && (
+        <img
+          src={BOY_WOLF_S8_WOLF12.frames[boyWolfS8Wolf12Idx].url}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: `${boyWolfS8Wolf12LeftPct}%`,
+            bottom: `${boyWolfS8Wolf12BottomPct}%`,
+            height: `${BOY_WOLF_S8_WOLF12.heightMaxPct * boyWolfS8Wolf12Scale}%`,
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, boyWolfS8Wolf12Entry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45))",
+            transition: "left 0.1s linear, bottom 0.1s linear, height 0.1s linear",
           }}
         />
       )}
