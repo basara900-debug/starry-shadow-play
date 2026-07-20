@@ -716,6 +716,53 @@ export function StorySceneMotion({
         )
     : boyWolfS1SheepMid;
 
+  // 양치기 소년 씬8: 3번째 늑대 시트 정지 배치
+  const showBoyWolfS8Wolf3 =
+    scene.id === BOY_WOLF_S8_WOLF3.sceneId &&
+    t >= BOY_WOLF_S8_WOLF3.startSec &&
+    t < BOY_WOLF_S8_WOLF3.endSec;
+  const boyWolfS8Wolf3Entry = showBoyWolfS8Wolf3
+    ? Math.min(1, (t - BOY_WOLF_S8_WOLF3.startSec) / BOY_WOLF_S8_WOLF3.fadeInSec)
+    : 0;
+
+  // 양치기 소년 씬8: 1·2번째 늑대 시트 교대 순환 + 왕복 이동 + 원근 축소/확대
+  const showBoyWolfS8Wolf12 =
+    scene.id === BOY_WOLF_S8_WOLF12.sceneId &&
+    t >= BOY_WOLF_S8_WOLF12.startSec &&
+    t < BOY_WOLF_S8_WOLF12.endSec;
+  const boyWolfS8Wolf12Idx = showBoyWolfS8Wolf12
+    ? Math.floor((t - BOY_WOLF_S8_WOLF12.startSec) / BOY_WOLF_S8_WOLF12.intervalSec) %
+      BOY_WOLF_S8_WOLF12.frames.length
+    : 0;
+  const boyWolfS8Wolf12Progress = showBoyWolfS8Wolf12
+    ? ((t - BOY_WOLF_S8_WOLF12.startSec) % BOY_WOLF_S8_WOLF12.intervalSec) /
+      BOY_WOLF_S8_WOLF12.intervalSec
+    : 0;
+  const bw8LeftRange = BOY_WOLF_S8_WOLF12.leftMaxPct - BOY_WOLF_S8_WOLF12.leftMinPct;
+  const bw8BottomRange = BOY_WOLF_S8_WOLF12.bottomMaxPct - BOY_WOLF_S8_WOLF12.bottomMinPct;
+  const bw8ScaleRange = BOY_WOLF_S8_WOLF12.scaleMax - BOY_WOLF_S8_WOLF12.scaleMin;
+  // idx 0 (1번 시트): 좌→우 이동 + 축소 + 뒤로 물러남
+  // idx 1 (2번 시트): 우→좌 이동 + 확대 + 앞으로 나옴
+  const boyWolfS8Wolf12LeftPct =
+    boyWolfS8Wolf12Idx === 0
+      ? BOY_WOLF_S8_WOLF12.leftMinPct + bw8LeftRange * boyWolfS8Wolf12Progress
+      : BOY_WOLF_S8_WOLF12.leftMaxPct - bw8LeftRange * boyWolfS8Wolf12Progress;
+  const boyWolfS8Wolf12BottomPct =
+    boyWolfS8Wolf12Idx === 0
+      ? BOY_WOLF_S8_WOLF12.bottomMaxPct - bw8BottomRange * boyWolfS8Wolf12Progress
+      : BOY_WOLF_S8_WOLF12.bottomMinPct + bw8BottomRange * boyWolfS8Wolf12Progress;
+  const boyWolfS8Wolf12Scale =
+    boyWolfS8Wolf12Idx === 0
+      ? BOY_WOLF_S8_WOLF12.scaleMax - bw8ScaleRange * boyWolfS8Wolf12Progress
+      : BOY_WOLF_S8_WOLF12.scaleMin + bw8ScaleRange * boyWolfS8Wolf12Progress;
+  const boyWolfS8Wolf12Entry = showBoyWolfS8Wolf12
+    ? Math.min(
+        1,
+        ((t - BOY_WOLF_S8_WOLF12.startSec) % BOY_WOLF_S8_WOLF12.intervalSec) /
+          BOY_WOLF_S8_WOLF12.fadeInSec
+      )
+    : 0;
+
   const showScene3PairFlee = scene.id === "town-country-3" && t >= 76 && t < 86;
   const scene3PairFleeProgress = showScene3PairFlee ? (t - 76) / 10 : 0;
   const scene3PairFleeLeftPct = 50 + (80 - 50) * scene3PairFleeProgress;
