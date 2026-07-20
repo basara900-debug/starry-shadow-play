@@ -276,7 +276,7 @@
         },
         {
           "who": "narration",
-          "text": "톰의 힘찬 휘파람 소리를 듣고, 헐레벌떡 휘슬은 톰에게 뛰어왔습니다.",
+          "text": "톰의 힘찬 휘파람 소리를 듣고, 휘슬은 헐레벌떡 톰에게 뛰어왔습니다.",
           "emotion": "grandma_narration",
           "lineDirection": "Describe the dog's enthusiastic reaction with a warm, slightly hurried yet gentle tone, conveying the dog's eagerness to obey."
         },
@@ -480,7 +480,7 @@
         },
         {
           "who": "narration",
-          "text": "톰이 부르는 소리를 듣자, 휘슬은 양떼에게 힌번 짖고는 톰에게 달려왔습니다.",
+          "text": "톰이 부르는 소리를 듣자, 휘슬은 양떼에게 한 번 짖고는 톰에게 달려왔습니다.",
           "emotion": "grandma_narration",
           "lineDirection": "Deliver this description with a soft, engaging rhythm, noting Whistle's actions. Your voice should convey the simple, natural interaction between Tom and his dog."
         },
