@@ -702,6 +702,16 @@ export function StorySceneMotion({
 
   // 양치기 소년 씬1: 양떼 순환 + 좌우 왕복
   const boyWolfS1SheepFrames = BOY_WOLF_S1_SHEEP.frames.map((f) => f.url);
+
+  // 양치기 소년 씬1: 톰 휘슬 정지 배치
+  const showBoyWolfS1TomWhistle =
+    scene.id === BOY_WOLF_S1_TOM_WHISTLE.sceneId &&
+    t >= BOY_WOLF_S1_TOM_WHISTLE.startSec &&
+    t < BOY_WOLF_S1_TOM_WHISTLE.endSec;
+  const boyWolfS1TomWhistleEntry = showBoyWolfS1TomWhistle
+    ? Math.min(1, (t - BOY_WOLF_S1_TOM_WHISTLE.startSec) / BOY_WOLF_S1_TOM_WHISTLE.fadeInSec)
+    : 0;
+
   const showBoyWolfS1Sheep =
     scene.id === BOY_WOLF_S1_SHEEP.sceneId &&
     t >= BOY_WOLF_S1_SHEEP.startSec &&
