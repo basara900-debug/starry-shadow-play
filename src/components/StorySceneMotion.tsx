@@ -1384,6 +1384,24 @@ export function StorySceneMotion({
           }}
         />
       )}
+      {showBoyWolfS1TomWhistle && (
+        <img
+          src={BOY_WOLF_S1_TOM_WHISTLE.asset.url}
+          alt=""
+          draggable={false}
+          className="absolute"
+          style={{
+            left: `${BOY_WOLF_S1_TOM_WHISTLE.leftPct}%`,
+            bottom: `${BOY_WOLF_S1_TOM_WHISTLE.bottomPct}%`,
+            height: `${BOY_WOLF_S1_TOM_WHISTLE.heightPct}%`,
+            width: "auto",
+            transform: `translate(-50%, ${cmBob}px)`,
+            transformOrigin: "bottom center",
+            opacity: Math.max(0.9, boyWolfS1TomWhistleEntry),
+            filter: "drop-shadow(0 6px 10px oklch(0 0 0 / 0.45))",
+          }}
+        />
+      )}
       {showBoyWolfS8Wolf3 && (
         <img
           src={BOY_WOLF_S8_WOLF3.asset.url}
