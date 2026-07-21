@@ -70,6 +70,7 @@ import scene4CountryAAsset from "@/assets/town-country/scene4_country_a.png.asse
 import scene4CountryBAsset from "@/assets/town-country/scene4_country_b.png.asset.json";
 import tomSit1Asset from "@/assets/boy-wolf/tom_sit_1.png.asset.json";
 import tomSit2Asset from "@/assets/boy-wolf/tom_sit_2.png.asset.json";
+import tomWhistleAsset from "@/assets/boy-wolf/tom_whistle.png.asset.json";
 import bwSheep1Asset from "@/assets/boy-wolf/bw_sheep_1.png.asset.json";
 import bwSheep2Asset from "@/assets/boy-wolf/bw_sheep_2.png.asset.json";
 import bwSheep3Asset from "@/assets/boy-wolf/bw_sheep_3.png.asset.json";
@@ -142,6 +143,18 @@ const BOY_WOLF_S1_SHEEP = {
   bottomPct: 20,
   heightPct: 22,
   sweepSec: 6,
+  fadeInSec: 0.4,
+};
+
+// 양치기 소년 씬1 39~44s: 톰 휘슬 정지 배치 — left 20%, bottom 10%
+const BOY_WOLF_S1_TOM_WHISTLE = {
+  sceneId: "boy-wolf-1",
+  asset: tomWhistleAsset,
+  startSec: 39,
+  endSec: 44,
+  leftPct: 20,
+  bottomPct: 10,
+  heightPct: 34,
   fadeInSec: 0.4,
 };
 
@@ -226,6 +239,7 @@ const SCENE_MOTIONS: Record<string, DevMotionSegment[]> = {
   "boy-wolf-1": [
     { id: "bw1-tom", track: "톰", label: `순환(${BOY_WOLF_S1_TOM.intervalSec}s)`, from: BOY_WOLF_S1_TOM.startSec, to: BOY_WOLF_S1_TOM.endSec },
     { id: "bw1-sheep", track: "양떼", label: `순환(${BOY_WOLF_S1_SHEEP.intervalSec}s)`, from: BOY_WOLF_S1_SHEEP.startSec, to: BOY_WOLF_S1_SHEEP.endSec },
+    { id: "bw1-whistle", track: "톰", label: "휘슬", from: BOY_WOLF_S1_TOM_WHISTLE.startSec, to: BOY_WOLF_S1_TOM_WHISTLE.endSec },
   ],
   "boy-wolf-8": [
     { id: "bw8-wolf3", track: "늑대", label: "3번 정지", from: BOY_WOLF_S8_WOLF3.startSec, to: BOY_WOLF_S8_WOLF3.endSec },
